@@ -5,6 +5,8 @@ title: "Circuit Reverse RTL"
 authors:
   - name: "Circuit Reverse RTL contributors"
 version: 0.1.0-rc1
+license: MIT
+repository-code: "https://github.com/wuqian-tang/circuit-reverse-rtl"
 abstract: "An Agent Skill for high-level combinational RTL recovery with external exact-equivalence checking."
 keywords:
   - circuit reverse engineering

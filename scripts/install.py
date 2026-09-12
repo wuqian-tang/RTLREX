@@ -21,7 +21,7 @@ def main() -> None:
         parser.error('destination cannot be inside the source skill')
     shutil.copytree(source, destination, ignore=shutil.ignore_patterns(
         '__pycache__', '*.pyc', 'tool_paths.env', 'fast_primitive_sampler'))
-    for name in ('LICENSE', 'LICENSE.proposed', 'NOTICE.md'):
+    for name in ('LICENSE', 'NOTICE.md'):
         if (root / name).is_file():
             shutil.copy2(root / name, destination / name)
     print(f'Installed {destination}')

@@ -20,9 +20,7 @@ redistributed here. External software remains subject to its own license:
 - [Icarus Verilog](https://github.com/steveicarus/iverilog): upstream GPL terms.
 - [NumPy](https://github.com/numpy/numpy): BSD license.
 
-The parity example and regression fixtures are synthetic. Local provenance
-inspection found no third-party source-code copyright header in the exported
-Skill; absence of a header is not evidence of ownership. Before granting the
-proposed project license publicly, the maintainers should confirm their rights
-to the contributed code and retain any required third-party notices. The
-project license does not purport to relicense external data or tools.
+The parity example and regression fixtures are synthetic. The project's code
+and documentation are distributed under the MIT License in `LICENSE`.
+This license does not relicense external data or tools; their original terms
+and required notices continue to apply.

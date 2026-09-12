@@ -89,6 +89,9 @@ This software release alone does not reproduce the paper's complete tables.
 ## Citation and license
 
 Software citation metadata is in [CITATION.cff](CITATION.cff). A paper DOI/arXiv
-identifier will be added when one exists. The initial package is staged for a
-private repository; the proposed license is documented in
-[LICENSE.proposed](LICENSE.proposed). It is not yet a public open-source release.
+identifier will be added when one exists.
+
+The project code and documentation are licensed under the [MIT License](LICENSE).
+Academic and commercial use, modification and redistribution are permitted
+provided the copyright and permission notices are retained. External tools and
+data retain their own terms; see [NOTICE.md](NOTICE.md).
