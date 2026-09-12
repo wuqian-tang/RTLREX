@@ -1,0 +1,493 @@
+{
+  "release": "0.1.0-rc1",
+  "scope": "Skill source export only; no claim of full paper artifact replay",
+  "source_history_included": false,
+  "excluded": [
+    "local tool configuration",
+    "compiled sampler binary",
+    "bytecode/cache files",
+    "benchmark and proof archives"
+  ],
+  "files": [
+    {
+      "path": "skills/circuit-reverse-rtl/SKILL.md",
+      "source_sha256": "637a54ac7f03387bf5f5d93757b1b8ceb854d07848aa4cac9d0ec4f38ab3d167",
+      "release_sha256": "947ef357a5127e184f52e5702f39d06cf66e5073a339277c1f5e581e352de2aa",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/agents/openai.yaml",
+      "source_sha256": "02da716c24418461850681bd827f70fa4e7b7319c7e83263ad66ce02395f1746",
+      "release_sha256": "02da716c24418461850681bd827f70fa4e7b7319c7e83263ad66ce02395f1746",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/references/aig_cases.md",
+      "source_sha256": "72d61bdb21825e5f3ba5282cdfc33c48eeeb8baccdda7550f9b4312c5b41422b",
+      "release_sha256": "72d61bdb21825e5f3ba5282cdfc33c48eeeb8baccdda7550f9b4312c5b41422b",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/references/algebraic_fitting.md",
+      "source_sha256": "0d620d37c8f206be4d3c37cd71af8dc3d7b06067d22deed0a59c0800305380f7",
+      "release_sha256": "0d620d37c8f206be4d3c37cd71af8dc3d7b06067d22deed0a59c0800305380f7",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/references/exact_cec.md",
+      "source_sha256": "8cab42b3524a00710a51a25ba7e13eb1cb34da4e2f1c14742ef9e4d7d405a2b3",
+      "release_sha256": "eb44d796693030b706f5034ab87fb466c115f898074e77acccf36dbe5456e8d7",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/references/gate_level_probing.md",
+      "source_sha256": "b0c819590d7631abad5f4fdf904c88523eaa783fc348a67af7b708ec893ebac7",
+      "release_sha256": "32daee8244099e75d5197b61ac3adbe54104d486f2b1f4ba2ea28df0022a0dc7",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/references/rtl_rewriting.md",
+      "source_sha256": "bbe415b6c33d87e5ae587e97afd47eb9baa88ed13af5635d3c193c49e9fb0671",
+      "release_sha256": "bbe415b6c33d87e5ae587e97afd47eb9baa88ed13af5635d3c193c49e9fb0671",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/RTL_cost_calculator.py",
+      "source_sha256": "64225b9b866f770fae1d22b4f405c373dff24ba37b25a49fca8da7ae0b31daa6",
+      "release_sha256": "64225b9b866f770fae1d22b4f405c373dff24ba37b25a49fca8da7ae0b31daa6",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "release_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/algebra/__init__.py",
+      "source_sha256": "d4ac3938c22abdac4e163d859403f81d64dffc24c32bd3a04321a8f182178499",
+      "release_sha256": "3ee064e4de509bba7ea9d97180b871ac710dea17b1ad097d3e99b1077532edb1",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/algebra/gf2.py",
+      "source_sha256": "17909bd96014507fe5833109c6eba79fa11673d5944b0ae93331779b84f24352",
+      "release_sha256": "02a24a1bb94614202f172af91a854ced2d31240bf51646dedecf647c674b9e9b",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/batch_datapath_reverse.py",
+      "source_sha256": "9f917bf23524d5c1571ad4315dd32f5b05f29568392509c62c4e8aba6fd05666",
+      "release_sha256": "9f917bf23524d5c1571ad4315dd32f5b05f29568392509c62c4e8aba6fd05666",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/cec.py",
+      "source_sha256": "92b4d79377093b9ab41c6996c27883166f44dbe4e4827e69f051362165c9c694",
+      "release_sha256": "92b4d79377093b9ab41c6996c27883166f44dbe4e4827e69f051362165c9c694",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/check_allowed_syntax.py",
+      "source_sha256": "721c1e43b228c998db019a85abe597ec5034a46965bb7b5080448b0d7c793640",
+      "release_sha256": "721c1e43b228c998db019a85abe597ec5034a46965bb7b5080448b0d7c793640",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/cost/RTL_cost_calculator.py",
+      "source_sha256": "e551de4461e9308d589279c14204516db6702079796505b6aaa0e5fcacd70ee6",
+      "release_sha256": "e551de4461e9308d589279c14204516db6702079796505b6aaa0e5fcacd70ee6",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/cost/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "release_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/cost/syntax_cost.csv",
+      "source_sha256": "65a0ff43df653831655cba564349ac536c755b53335d97ee3860f410bccbebc0",
+      "release_sha256": "c97afe17f42931b22e9bf5bedd95c892eaf40a101f20411c372b9fb7cc583762",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/cost_aware_select.py",
+      "source_sha256": "f8029c2dbac97c0e9da75b2491435127a59319c2a67f758c129be17b841012a5",
+      "release_sha256": "f8029c2dbac97c0e9da75b2491435127a59319c2a67f758c129be17b841012a5",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/datapath_reverse.py",
+      "source_sha256": "0f71992eb7f6a83c86750dd008285ce9189b539d075bc48f08669bceaef76b27",
+      "release_sha256": "0f71992eb7f6a83c86750dd008285ce9189b539d075bc48f08669bceaef76b27",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/fast_sampler.py",
+      "source_sha256": "f5ab5cb788c61cfa62d35bc28e861169bde4eec29ba2db3e4c0e5aa878e2c535",
+      "release_sha256": "f5ab5cb788c61cfa62d35bc28e861169bde4eec29ba2db3e4c0e5aa878e2c535",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/gf2_solve.py",
+      "source_sha256": "3b6ef9a5d737f9f917c66a427c4f7a016acaaa86553cb177aec05a56ff676fcc",
+      "release_sha256": "3b6ef9a5d737f9f917c66a427c4f7a016acaaa86553cb177aec05a56ff676fcc",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/probing/__init__.py",
+      "source_sha256": "170918ca9cfe3eeee086ec8893277de68dc14fbf6d515da77789d984d2b19679",
+      "release_sha256": "170918ca9cfe3eeee086ec8893277de68dc14fbf6d515da77789d984d2b19679",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/probing/cone_deps.py",
+      "source_sha256": "38f67cf9b1e4bef010dea2eb4ce120f5bc4c8d5bc7aa27c25d76c82faf92a903",
+      "release_sha256": "38f67cf9b1e4bef010dea2eb4ce120f5bc4c8d5bc7aa27c25d76c82faf92a903",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/probing/control_probe.py",
+      "source_sha256": "664e5bb25193a3095c7e8d1c861387c051398a540d0ab1828e5caa5994ad39a3",
+      "release_sha256": "664e5bb25193a3095c7e8d1c861387c051398a540d0ab1828e5caa5994ad39a3",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/probing/match_internal_bus.py",
+      "source_sha256": "4cb167c5b5090d46fae9cb26f147affccdb3d303e4fd72016f4f57598d343dab",
+      "release_sha256": "4cb167c5b5090d46fae9cb26f147affccdb3d303e4fd72016f4f57598d343dab",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/reverse/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "release_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/reverse/batch_datapath_reverse.py",
+      "source_sha256": "c1875effbcc1c0781e68b9ec2085daea31d2d909fc4690b6f79bc84a6d5a1f8e",
+      "release_sha256": "c1875effbcc1c0781e68b9ec2085daea31d2d909fc4690b6f79bc84a6d5a1f8e",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/reverse/datapath_reverse.py",
+      "source_sha256": "9732a65610d26e4627357e12b218d62a4913019afcca8524da9498d14334c1e0",
+      "release_sha256": "173f647728faa45299469d00defaedc3d33f4e65d6149c7c088e2abd4d30f24b",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/reverse/truth_reverse.py",
+      "source_sha256": "ed99e0e955a2da87961a52574ffe74d39b735f6d6be3ce9110d266ba6c0416d5",
+      "release_sha256": "ed99e0e955a2da87961a52574ffe74d39b735f6d6be3ce9110d266ba6c0416d5",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/rewriting/__init__.py",
+      "source_sha256": "1062c02f2b785ef22ab6fae74afccea63b2199ab1987dd60aaaa25855c62ecd3",
+      "release_sha256": "1062c02f2b785ef22ab6fae74afccea63b2199ab1987dd60aaaa25855c62ecd3",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/rewriting/cost_aware_select.py",
+      "source_sha256": "52c282d61da8be1e97d5ad114d83913719aa7daf178e20cb22caa22e185306bf",
+      "release_sha256": "52c282d61da8be1e97d5ad114d83913719aa7daf178e20cb22caa22e185306bf",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/rewriting/merge_verilog_decls.py",
+      "source_sha256": "68f83fa022c32c844679c12e9fcaa62afd4f80988d12424507a81f2f813e1cfb",
+      "release_sha256": "68f83fa022c32c844679c12e9fcaa62afd4f80988d12424507a81f2f813e1cfb",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/rewriting/prune_dead_rtl.py",
+      "source_sha256": "9621d3814ff4d56bea044359c3fb2468a3fbb19b137676bc48e746e764a8ab28",
+      "release_sha256": "9621d3814ff4d56bea044359c3fb2468a3fbb19b137676bc48e746e764a8ab28",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/rewriting/prune_unused_gates.py",
+      "source_sha256": "2d74fde19d3d63b3c298519fc5f85a646fb62d1bf0eae682870aa729270a0821",
+      "release_sha256": "2d74fde19d3d63b3c298519fc5f85a646fb62d1bf0eae682870aa729270a0821",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/sampling/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "release_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/sampling/fast_primitive_sampler.cpp",
+      "source_sha256": "43bc89a13563ffbd339d62647558c368fa7bca0f041622fe84be55e7f7945a12",
+      "release_sha256": "1416970d001f7ce7a5a31adc10473e2e9fab493819a0de68073e5c19b383c656",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/sampling/fast_sampler.py",
+      "source_sha256": "7aad0eecbf87b5059845f847b6625799be8e18ae51d6f7a20fabecd7b7e1c798",
+      "release_sha256": "c1efe16ba37e2f27ecc3790ac9da9abe918379eb81096cf453bc3b9cef90e352",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/synthesis/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "release_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/synthesis/yosys_pow_const_map.v",
+      "source_sha256": "b3f6e51af2c3e772bec620da4cb12f2e01c493cf0c0cbf56e0682c1291aa56f1",
+      "release_sha256": "b3f6e51af2c3e772bec620da4cb12f2e01c493cf0c0cbf56e0682c1291aa56f1",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/truth/__init__.py",
+      "source_sha256": "e96792d556b54841dab04338ebacdd86581798318d2642d456526728c931e035",
+      "release_sha256": "e96792d556b54841dab04338ebacdd86581798318d2642d456526728c931e035",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/truth/describe.py",
+      "source_sha256": "6072ea233c2c3a7f65e52e2654da0525e5c9572cadabb4e93c57fb3f99d0d218",
+      "release_sha256": "6072ea233c2c3a7f65e52e2654da0525e5c9572cadabb4e93c57fb3f99d0d218",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/truth/utils.py",
+      "source_sha256": "f5149ae7f5ee528103a49e05c8a6487799859ad1b748a21451267a1631b6bf91",
+      "release_sha256": "f5149ae7f5ee528103a49e05c8a6487799859ad1b748a21451267a1631b6bf91",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/truth_describe.py",
+      "source_sha256": "b36a420cefba897b8a72b08ca7d3904aecf84467fff819e729ed10c1eb24d885",
+      "release_sha256": "b36a420cefba897b8a72b08ca7d3904aecf84467fff819e729ed10c1eb24d885",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/truth_reverse.py",
+      "source_sha256": "7e7fd99ae29eb35a94b8e40bec0cd3de6440a616a9fcceebaff57aa1f1e9b4fe",
+      "release_sha256": "7e7fd99ae29eb35a94b8e40bec0cd3de6440a616a9fcceebaff57aa1f1e9b4fe",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "release_sha256": "7e7918b56c3a20d93d2687e7d12eb59edf65478920bc2e5393546c831db867ab",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/aig_cases.py",
+      "source_sha256": "1ba727631ec2878c3d2b1c0ad63fd66e76030eb2d623e8101c5a54c91cc378b8",
+      "release_sha256": "077e6c1903b5c2d5457b763ea474d8aa863939251f0783746f22f3311a8cd2f2",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic/README.md",
+      "source_sha256": "1a57a4b105d02c1322173107a4cb8f76cb3eff3675d3a70517be0b6829deb833",
+      "release_sha256": "1a57a4b105d02c1322173107a4cb8f76cb3eff3675d3a70517be0b6829deb833",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic/__init__.py",
+      "source_sha256": "34fa281aeb4353c25f1a17d08937e13b76fbb96eb6a4479b20eb82f9fa489e67",
+      "release_sha256": "34fa281aeb4353c25f1a17d08937e13b76fbb96eb6a4479b20eb82f9fa489e67",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic/__main__.py",
+      "source_sha256": "7aed0e99bdc644faf5de88d418b95fa53f42478eb14b5dceaa547442014d0363",
+      "release_sha256": "1e76796fc96e083d8aa5d0ec3aa828402ccda27470d6d25f3f88c10cc7b324c8",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic/certificate.py",
+      "source_sha256": "fae7982b68d7ea46b8097efd98a05a1437b9c160e42a40ee8ff7a46f5b0dcf33",
+      "release_sha256": "632eeadc3709efac3fbea4c5500dafb603be32d34d7a5b8d1ae8a54e8f61b044",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic/cuts.py",
+      "source_sha256": "e3d3956745c3af3b1f631eb694a4e272629f3167bfa4d1318b27fb0c495796bf",
+      "release_sha256": "e3d3956745c3af3b1f631eb694a4e272629f3167bfa4d1318b27fb0c495796bf",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic/polynomial.py",
+      "source_sha256": "0361812519dcd9df56e1169d936b2c4bee1972eaf98080e641426f4f0383812b",
+      "release_sha256": "0361812519dcd9df56e1169d936b2c4bee1972eaf98080e641426f4f0383812b",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic/word_signed.py",
+      "source_sha256": "be438f0c21cab4eef8b885422aadf632c63b11b16b7e7e2d1b388163c725a9a0",
+      "release_sha256": "be438f0c21cab4eef8b885422aadf632c63b11b16b7e7e2d1b388163c725a9a0",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/README.md",
+      "source_sha256": "53e2dc0fd6ec74722db83b89af265002f707b80d0beda70d0b4968f58ef2c49b",
+      "release_sha256": "53e2dc0fd6ec74722db83b89af265002f707b80d0beda70d0b4968f58ef2c49b",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/__init__.py",
+      "source_sha256": "095d1d8aa9bb588fe95ea3c6a8c02101c165153e21491e29af948a7b5576aa18",
+      "release_sha256": "095d1d8aa9bb588fe95ea3c6a8c02101c165153e21491e29af948a7b5576aa18",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/__main__.py",
+      "source_sha256": "85a9cc02857c3066aa820b1b00d17f4a796e93e59180628e5735c4681652e80f",
+      "release_sha256": "278523fdd085288b41f96d040ef111f9eacadd4b57bc262dea5e201c4bc65550",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/bdd.py",
+      "source_sha256": "21ab7c571732041f5d471ce5ff8c6ce9012108285299b0cdf62aa77a5545c946",
+      "release_sha256": "21ab7c571732041f5d471ce5ff8c6ce9012108285299b0cdf62aa77a5545c946",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/certificate.py",
+      "source_sha256": "e74e2fda15c674554b7b08714b809f3807323fb558ac0808d0763cffe0cc4726",
+      "release_sha256": "47007e4dcf96122a903e42b21ef9519817357010e2abf768472b1efb989cd283",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/cuts.py",
+      "source_sha256": "e3d3956745c3af3b1f631eb694a4e272629f3167bfa4d1318b27fb0c495796bf",
+      "release_sha256": "e3d3956745c3af3b1f631eb694a4e272629f3167bfa4d1318b27fb0c495796bf",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/primary.py",
+      "source_sha256": "d6cda317fc4b6b544608738a360a4faac16e0b216ab56ba2c553b05a2dbeeb01",
+      "release_sha256": "d6cda317fc4b6b544608738a360a4faac16e0b216ab56ba2c553b05a2dbeeb01",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/process_control.py",
+      "source_sha256": "34a7dde72944b6d2cc095f45b69055b5e399b5b0bc72aba729131ea20e9852ea",
+      "release_sha256": "34a7dde72944b6d2cc095f45b69055b5e399b5b0bc72aba729131ea20e9852ea",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/residual.py",
+      "source_sha256": "2630daffd4b65e1ce13dbf5cfbbf7ff6e542399e9d157bb69eb5e460d7b56ab6",
+      "release_sha256": "2630daffd4b65e1ce13dbf5cfbbf7ff6e542399e9d157bb69eb5e460d7b56ab6",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/algebraic_terminal/word_signed.py",
+      "source_sha256": "be438f0c21cab4eef8b885422aadf632c63b11b16b7e7e2d1b388163c725a9a0",
+      "release_sha256": "be438f0c21cab4eef8b885422aadf632c63b11b16b7e7e2d1b388163c725a9a0",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/cec.py",
+      "source_sha256": "e9bca7224d93c2c10239e72366d808efe97ac2e2777d3b88d5a36585c8c755a4",
+      "release_sha256": "b2bf8bf2ea6a6c9b219460ca73a2f471d9bd8291a99e6eccc6159641be8390b0",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/chain.py",
+      "source_sha256": "543eb9c5b21391d2b8a4157a3709b54f33711147975a005efffaafdba8241b7b",
+      "release_sha256": "392d7747dc246807f17f02e9a9aa4822514c279c36993746642fa6fe34b224b0",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/composition.py",
+      "source_sha256": "c686ad3bec34a85cacd6fd9da68f477912d431bd749379897285eb2290c37a82",
+      "release_sha256": "689224ea6ba460a95743129caac86faa1a947781637c29ef10593575bab5d69c",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/embedded_word.py",
+      "source_sha256": "22495ea218d208fed04a96b0b2f7d95a233057dacbff8fd21c7ce83b9708fbc6",
+      "release_sha256": "353104aa62c5523a0405e698fd8b8a5b1b8a3b2a29a504c06ef529789bdecbe0",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/grouped_algebraic.py",
+      "source_sha256": "7b924efa2b8132fcdc0287ea2332f9f9b0430fc13b55d14795a08b8315179743",
+      "release_sha256": "dda3ddc100f90e4fa4b122b7c412e6847025a4a689989fdcd98c5b33aa84de40",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/normalize_final_adder.py",
+      "source_sha256": "43f123da29f8c7bd08bce7099a266b3d74be126d1713d48d47173d5731dad41e",
+      "release_sha256": "90c28c5461a671878f6834bbb228a71eb613a88d42ef505dbd65d9a7fbb67106",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/sat_bits.py",
+      "source_sha256": "391224f5f89ae85a08f1dea5925e2864d8871f977136de9cf41c5676ccebb9d4",
+      "release_sha256": "391224f5f89ae85a08f1dea5925e2864d8871f977136de9cf41c5676ccebb9d4",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/small_pi_backend/__init__.py",
+      "source_sha256": "34fa281aeb4353c25f1a17d08937e13b76fbb96eb6a4479b20eb82f9fa489e67",
+      "release_sha256": "34fa281aeb4353c25f1a17d08937e13b76fbb96eb6a4479b20eb82f9fa489e67",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/small_pi_backend/__main__.py",
+      "source_sha256": "96364a9197f84c744af732f0edee79b8d29ac55c74e8997e2415f929eeffe20d",
+      "release_sha256": "88cfcd7d53a8ad2b2bdac6f46efc2d7def9a0ef71bf807ecad927fa4e1301b50",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/small_pi_backend/certificate.py",
+      "source_sha256": "fec213edacf135c11577f7904fc9f95774aa0527ddcb34aabbf39d6194408958",
+      "release_sha256": "80146e904639360c56a53b116572a92c675c04984755be19310b5e7271513703",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/small_pi_backend/cuts.py",
+      "source_sha256": "e3d3956745c3af3b1f631eb694a4e272629f3167bfa4d1318b27fb0c495796bf",
+      "release_sha256": "e3d3956745c3af3b1f631eb694a4e272629f3167bfa4d1318b27fb0c495796bf",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/small_pi_backend/primary.py",
+      "source_sha256": "fe870555cf58dfa82b26715b4c34c859a32b9e98c1db46bf4fa30c0bf7c8f086",
+      "release_sha256": "fe870555cf58dfa82b26715b4c34c859a32b9e98c1db46bf4fa30c0bf7c8f086",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/small_pi_backend/word_signed.py",
+      "source_sha256": "be438f0c21cab4eef8b885422aadf632c63b11b16b7e7e2d1b388163c725a9a0",
+      "release_sha256": "be438f0c21cab4eef8b885422aadf632c63b11b16b7e7e2d1b388163c725a9a0",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/tooling.py",
+      "source_sha256": null,
+      "release_sha256": "04bcf941d8f4128dc64499f9d32401e9300925c05cb7e73f7647088aa5fc4c14",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/truth_sim.py",
+      "source_sha256": "450731c4bd268e3b56abb431b707ffcc42eddb50e455b9b3cc1163d1eb01f853",
+      "release_sha256": "5c3e03d7227eeb0b579f6b2c3dbbf89d68070e390f387b6db75c47529e464e82",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/typed_product.py",
+      "source_sha256": "46138a872f02018d9c132b6200154deb57e1acea9f54342a89064d0f149ec953",
+      "release_sha256": "ee1857abdfb6371bceb465fab9111254b47609fcd09fe10402fb3324a0b25ff1",
+      "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify_truth_sim.py",
+      "source_sha256": "d343aee4dd8707f4807598ac790d268d6335cbc6af93215ae89c2c4b934fbb3d",
+      "release_sha256": "d343aee4dd8707f4807598ac790d268d6335cbc6af93215ae89c2c4b934fbb3d",
+      "change": "unchanged"
+    }
+  ]
+}

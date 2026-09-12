@@ -1,0 +1,13 @@
+Private-release preparation note — not an operative license grant.
+
+The proposed software license is MIT. The copyright holders have not yet
+selected/approved the release license in this preparation workflow. Until a
+LICENSE file is adopted, this package does not grant an open-source license.
+
+Proposed copyright notice:
+Copyright (c) 2026 Circuit Reverse RTL contributors
+
+The standard license text to adopt is available at:
+https://opensource.org/license/mit
+
+External tools and data retain their original terms; see NOTICE.md.
