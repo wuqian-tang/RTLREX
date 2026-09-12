@@ -17,6 +17,8 @@ its checkers and tests.
   checking, complete cofactor coverage, and checked proof composition.
 - Synthetic examples, negative controls, an installer, and portable tests.
 - Agent instructions and references describing proof obligations and boundaries.
+- [Representative historical paper prompts](docs/paper-prompts/README.md), with
+  source mapping and a clear distinction from illustrative examples.
 
 The agent still has to discover useful hypotheses, intermediate words and proof
 plans. These checkers do not guarantee that every circuit can be recovered or
