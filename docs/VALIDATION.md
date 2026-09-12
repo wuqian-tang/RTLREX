@@ -22,8 +22,16 @@ replay. These are installation/regression results, not the paper's benchmark
 results or an LLM ablation. No LLM API was called for these checks.
 
 Local runtime: Python 3.10.12, Yosys 0.63+161 (`5fd39ff3e`), Berkeley ABC 1.01,
-Z3 4.16.0. See [dependencies](DEPENDENCIES.md). The prepared GitHub Actions
-workflow uses a separately pinned OSS CAD Suite; remote CI has not yet run.
+Z3 4.16.0. See [dependencies](DEPENDENCIES.md). GitHub Actions uses a separately
+pinned OSS CAD Suite; current results are available in the repository's Actions tab.
+
+The first remote CI runs passed the 111-test suite but exposed an Icarus version
+difference in the demo: bare `$finish` printed an extra diagnostic line. The
+truth-table testbench now uses `$finish(0)` while retaining exact output-row
+counting. Four additional real-simulator regressions cover complete replay,
+incorrect values, early termination, and unexpected extra output. All four
+passed locally; the current suite contains 115 tests. This compatibility change
+does not alter the archived paper verifier or its historical certificates.
 
 Source changes relative to the research Skill are recorded in
 [SOURCE_PROVENANCE.json](SOURCE_PROVENANCE.json). The original paper-bound

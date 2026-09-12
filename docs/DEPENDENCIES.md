@@ -24,8 +24,8 @@ For a recent binary toolchain, use
 [YosysHQ OSS CAD Suite](https://github.com/YosysHQ/oss-cad-suite-build), following
 its extraction and environment instructions. The GitHub workflow pins the
 `2026-09-12` suite release. That CI environment is separate from the locally
-tested environment; a workflow file alone is not evidence of a successful
-remote CI run.
+tested environment; check the repository's Actions tab for the result of a
+specific commit instead of treating a workflow file as proof that CI passed.
 
 Distribution packages are another option. On Ubuntu/Debian, the usual package
 names are `yosys berkeley-abc iverilog z3 g++ python3-venv`. Distribution versions

@@ -41,7 +41,7 @@ def main() -> int:
                     raise RuntimeError(f'{name}: unexpected result count')
                 result = result[0]
             if result.get('status') != expected:
-                raise RuntimeError(f'{name}: expected {expected}, got {result.get("status")}')
+                raise RuntimeError(f'{name}: expected {expected}, got {result}')
             if expected == 'pass' and proc.returncode != 0:
                 raise RuntimeError(f'{name}: checker returned an error')
             summary['checks'].append({'name': name, 'status': result['status'],

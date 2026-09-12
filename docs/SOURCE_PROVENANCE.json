@@ -474,7 +474,7 @@
     {
       "path": "skills/circuit-reverse-rtl/scripts/verify/truth_sim.py",
       "source_sha256": "450731c4bd268e3b56abb431b707ffcc42eddb50e455b9b3cc1163d1eb01f853",
-      "release_sha256": "5c3e03d7227eeb0b579f6b2c3dbbf89d68070e390f387b6db75c47529e464e82",
+      "release_sha256": "41f56555ee268a28793a39650edc2fb18caba8d6b10ae5e59d2172a3a2dfdfe1",
       "change": "portability_or_export_edit"
     },
     {

@@ -67,7 +67,10 @@ def run_one(
             "      #1;\n"
             f"      $display(\"%0{width_hex}x\", {output_port});\n"
             "    end\n"
-            "    $finish;\n"
+            # Newer Icarus versions print a diagnostic for bare $finish.
+            # Keep stdout exclusively for vectors without filtering missing,
+            # extra, or incorrect circuit output from the checker below.
+            "    $finish(0);\n"
             "  end\n"
             "endmodule\n"
         )
