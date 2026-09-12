@@ -15,6 +15,7 @@ from typing import Callable, Iterable, List, Optional, Sequence, Tuple
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from truth.utils import read_truth_words, words_to_bit_tables
+from truth.boolean_fallback import choose_exact_boolean_fallback
 from truth.describe import (
     describe_truth,
     fp4_e2m1_dot2_word,
@@ -39,6 +40,8 @@ from truth.describe import (
 class Candidate:
     family: str
     verilog: str
+    high_level: bool = True
+    structural_nodes: Optional[int] = None
 
 
 def mask(width: int) -> int:
@@ -5235,7 +5238,11 @@ STRUCTURAL_MATCHERS: Sequence[Callable[[int, int, List[int]], Optional[Candidate
 )
 
 
-def infer_truth(truth_path: Path, allow_field_cases: bool = False) -> Tuple[int, int, Optional[Candidate]]:
+def infer_truth(
+    truth_path: Path,
+    allow_field_cases: bool = False,
+    allow_boolean_fallback: bool = False,
+) -> Tuple[int, int, Optional[Candidate]]:
     n_in, n_out, words = read_truth_words(truth_path)
     matchers = list(STRUCTURAL_MATCHERS)
     if allow_field_cases:
@@ -5246,6 +5253,14 @@ def infer_truth(truth_path: Path, allow_field_cases: bool = False) -> Tuple[int,
         candidate = matcher(n_in, n_out, words)
         if candidate is not None:
             return n_in, n_out, candidate
+    if allow_boolean_fallback:
+        family, verilog, node_count = choose_exact_boolean_fallback(n_in, n_out, words)
+        return n_in, n_out, Candidate(
+            family,
+            verilog,
+            high_level=False,
+            structural_nodes=node_count,
+        )
     return n_in, n_out, None
 
 
@@ -5269,6 +5284,26 @@ def verify_candidate(truth: Path, verilog: Path, timeout: int) -> bool:
     return row.get("status") == "pass"
 
 
+def verify_structural_candidate(truth: Path, verilog: Path, certificate: Path) -> bool:
+    cmd = [
+        sys.executable,
+        str(Path(__file__).resolve().parents[1] / "verify_truth_structural.py"),
+        str(truth),
+        str(verilog),
+        "--certificate",
+        str(certificate),
+        "--json",
+    ]
+    proc = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    if proc.returncode != 0:
+        return False
+    try:
+        row = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        return False
+    return row.get("strict") is True
+
+
 def output_path_for(truth: Path, args: argparse.Namespace) -> Path:
     if args.output:
         return Path(args.output)
@@ -5281,7 +5316,11 @@ def output_path_for(truth: Path, args: argparse.Namespace) -> Path:
 def process_one(truth: Path, args: argparse.Namespace) -> dict:
     n_in, n_out, words = read_truth_words(truth)
     desc = describe_truth(n_in, n_out, words)
-    _, _, candidate = infer_truth(truth, allow_field_cases=args.allow_field_cases)
+    _, _, candidate = infer_truth(
+        truth,
+        allow_field_cases=args.allow_field_cases,
+        allow_boolean_fallback=args.allow_boolean_fallback,
+    )
     row = {
         "case": truth.stem,
         "truth": str(truth),
@@ -5302,9 +5341,26 @@ def process_one(truth: Path, args: argparse.Namespace) -> dict:
     out_path = output_path_for(truth, args)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(candidate.verilog)
-    row.update({"status": "generated", "family": candidate.family, "verilog": str(out_path)})
+    row.update(
+        {
+            "status": "generated",
+            "family": candidate.family,
+            "verilog": str(out_path),
+            "high_level": candidate.high_level,
+        }
+    )
+    if candidate.structural_nodes is not None:
+        row["structural_nodes"] = candidate.structural_nodes
     if args.verify:
-        row["verify"] = "pass" if verify_candidate(truth, out_path, args.run_timeout) else "fail"
+        if candidate.high_level:
+            verified = verify_candidate(truth, out_path, args.run_timeout)
+            row["verification_method"] = "exhaustive Verilog simulation"
+        else:
+            certificate = out_path.with_suffix(".certificate.json")
+            verified = verify_structural_candidate(truth, out_path, certificate)
+            row["verification_method"] = "complete-domain bit-parallel structural replay"
+            row["certificate"] = str(certificate)
+        row["verify"] = "pass" if verified else "fail"
         if row["verify"] != "pass" and args.remove_failed:
             out_path.unlink(missing_ok=True)
             row["status"] = "removed_failed"
@@ -5336,6 +5392,14 @@ def parse_args() -> argparse.Namespace:
         dest="allow_field_cases",
         action="store_false",
         help="Disable field-factored LUT RTL (the default).",
+    )
+    parser.add_argument(
+        "--allow-boolean-fallback",
+        action="store_true",
+        help=(
+            "After high-level recognizers fail, emit an exact structural ANF or shared ROBDD. "
+            "The result is explicitly marked as low-level and is never counted as high-level RTL."
+        ),
     )
     parser.add_argument("--remove-failed", action="store_true")
     parser.add_argument("--run-timeout", type=int, default=180)

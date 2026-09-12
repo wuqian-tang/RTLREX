@@ -12,7 +12,8 @@ its checkers and tests.
 
 ## What is included
 
-- Word-level recovery and syntax-cost tools, including truth-table recognition.
+- Word-level recovery and syntax-cost tools, including truth-table recognition,
+  plus an opt-in exact low-level Boolean fallback for unmatched complete tables.
 - Strict ABC/SMT checking, independent algebraic replay, native ROBDD coefficient
   checking, complete cofactor coverage, and checked proof composition.
 - Synthetic examples, negative controls, an installer, and portable tests.
@@ -69,10 +70,15 @@ If proof is inconclusive, report it as inconclusive and retain the evidence.
 python3 skills/circuit-reverse-rtl/scripts/cec.py reference.v candidate.v --strict-cec --json
 python3 skills/circuit-reverse-rtl/scripts/cec.py reference.v candidate.v --engine smt --json
 python3 skills/circuit-reverse-rtl/scripts/verify_truth_sim.py function.truth candidate.v --json
+python3 skills/circuit-reverse-rtl/scripts/truth_reverse.py function.truth --out-dir outputs/truth --allow-boolean-fallback --verify --json
+python3 skills/circuit-reverse-rtl/scripts/verify_truth_structural.py function.truth structural.v --certificate certificate.json --json
 ```
 
-Always inspect the structured status. Simulation without a counterexample is
-not a strict proof. Supported algebraic and composed routes are documented in
+Always inspect the structured status. Random simulation without a
+counterexample is not a strict proof. Exhaustive replay of every row in a
+complete truth table is exact for that table. The structural fallback is
+reported separately from recovered word-level RTL. Supported algebraic and
+composed routes are documented in
 [the exact CEC reference](skills/circuit-reverse-rtl/references/exact_cec.md).
 
 ## Cost and benchmark data

@@ -38,3 +38,11 @@ Source changes relative to the research Skill are recorded in
 Skill and proof records were preserved. The export was checked for generated
 binaries, private configuration, personal absolute paths and common credential
 patterns. A clean pattern scan does not replace copyright/provenance review.
+
+The complete-table update added exact ANF/ROBDD fallback certificates and a
+faster in-simulator exhaustive replay. Six focused regressions passed, including
+an asymmetric test for the ABC `read_truth -xf` input orientation and a candidate
+whose input port is named `i`. In the 117-test local suite, 116 passed on the
+first run; one algebraic-cone test exceeded its 10-second process budget and
+passed immediately when rerun in isolation (four of four tests in that file).
+The release-content audit then passed across 136 tracked and nonignored files.

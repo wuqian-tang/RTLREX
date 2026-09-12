@@ -14,6 +14,7 @@ Use this skill when asked to infer the behavior of a combinational circuit and p
   bit orientation), widths, and signedness.  A width-only match is insufficient.
 - Treat correctness as the gate. Do not promote a candidate after an explicit CEC `fail`, simulation mismatch, or counterexample. During RTL exploration, `cec.py --engine auto` results that report `pass (non-strict)` may be used as a fast working equivalence signal: ABC was inconclusive but random simulation passed with no observed mismatch. Report that this is not a strict proof. Before promoting a final RTL Verilog, require strict equivalence: first try the existing strict CEC flow; if it only reaches `pass (non-strict)`, use an exact backend described below, such as all-output SMT, independently replayed algebraic reduction, complete output-bit SAT, or a checked composition plan.
 - Prefer word-level structure over gate-level fallback: arithmetic, comparisons, muxes, reductions, encoders/decoders, polynomial or affine forms, interval logic, and piecewise formulas.
+- For a complete truth table, an explicit `--allow-boolean-fallback` may be used after semantic recognition fails. It emits the smaller of a shared ANF network and a shared ROBDD network, marks the candidate as low-level, and verifies every input assignment by an independent structural replay. This closes exact functional coverage without counting the result as recovered word-level RTL.
 - Do not hard-code benchmark answers, case names, golden-derived formulas, or unique port-shape dispatch tables. Use references or golden outputs only to identify general algorithm gaps, then implement reusable learners or rewriting passes that validate against the source netlist.
 - Do not emit truth-derived lookup tables or `case` enumerations by default. Prefer a reusable formula or algorithmic implementation whose constants follow from the inferred semantic contract. Use a table only when the user explicitly permits it.
 - Keep the implementation combinational and deterministic. Avoid latches, clocks, delays, non-synthesizable constructs, and random behavior.
@@ -115,6 +116,7 @@ Keep this file as the core workflow. Load the focused references only when the t
 
 5. Validate.
    - First run fast simulation or cached-sample checks to catch obvious errors.
+   - A complete truth table supports exact exhaustive verification. The bundled replay preserves the complemented input-index convention of ABC `read_truth -xf`; do not compare a Verilog input directly with the raw character position. For the restricted ANF/ROBDD fallback grammar, `verify_truth_structural.py` evaluates every signal over the full input domain and emits a hash-bound certificate without relying on RTL simulation.
    - During exploration, use `cec.py --engine auto` as the normal fast checker. It may promote ABC `unknown/timeout` to `pass (non-strict)` only when random simulation also passes with no observed mismatch. This is acceptable for iterative RTL search, but it is not a formal proof.
    - For a final RTL Verilog candidate, require strict equivalence. First run the existing strict CEC path. If the result is already `pass`, promote it. If the result is `pass (non-strict)`, continue with an exact route: try all-output SMT first when the RTL preserves useful arithmetic, then use the supported algebraic, output-bit SAT, or checked-composition routes below. A timeout or partial proof remains inconclusive.
    - In `auto`, all three ABC engines (`&cec`, `dcec`, and `cec`) are allowed to finish.  A pass plus only unknown/timeout results remains a pass; any conclusive pass/fail disagreement is `conflict` and must not be promoted.  A watchdog timeout, cancellation, or abnormal nonzero exit dominates any partial success text already printed by a killed process.
@@ -150,7 +152,9 @@ python3 skills/circuit-reverse-rtl/scripts/cec.py <reference.v> <candidate.v> --
 python3 skills/circuit-reverse-rtl/scripts/cec.py <reference.v> <candidate.v> --engine algebraic --algebraic-sliced-output <output-name> --algebraic-case-split-bit '<control[0]>' --algebraic-case-split-bit '<control[1]>' --keep-tmp --json
 python3 skills/circuit-reverse-rtl/scripts/truth_describe.py <truth-file-or-dir> --json
 python3 skills/circuit-reverse-rtl/scripts/truth_reverse.py <truth-file-or-dir> --out-dir <candidate-dir> --verify --json
+python3 skills/circuit-reverse-rtl/scripts/truth_reverse.py <truth-file-or-dir> --out-dir <candidate-dir> --allow-boolean-fallback --verify --json
 python3 skills/circuit-reverse-rtl/scripts/verify_truth_sim.py <truth-file> <candidate.v> --json
+python3 skills/circuit-reverse-rtl/scripts/verify_truth_structural.py <truth-file> <structural-candidate.v> --certificate <certificate.json> --json
 python3 skills/circuit-reverse-rtl/scripts/RTL_cost_calculator.py --output-dir <candidate-dir> --input-dir <reference-dir>
 python3 skills/circuit-reverse-rtl/scripts/check_allowed_syntax.py <candidate.v> --allowed-syntax <allowed_syntax> --json
 python3 skills/circuit-reverse-rtl/scripts/datapath_reverse.py -input <primitive-netlist.v> -output <candidate.v>

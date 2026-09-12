@@ -39,6 +39,28 @@ class TruthReplayTests(unittest.TestCase):
     def test_extra_output_is_not_silently_discarded(self):
         self.check('assign y = ^x;\ninitial $display("unexpected output");', 'short_output')
 
+    def test_complemented_index_orientation_and_input_name_collision(self):
+        with tempfile.TemporaryDirectory(prefix='truth-orientation-test-') as temp:
+            temp = Path(temp)
+            # ABC read_truth -xf: this stored row represents y=i[0] in normal
+            # Verilog input order. A raw left-to-right lookup would invert it.
+            truth = temp / 'projection.truth'
+            truth.write_text('10101010\n')
+            candidate = temp / 'candidate.v'
+            candidate.write_text(
+                'module top(input [2:0] i, output y);\n'
+                '  assign y = i[0];\n'
+                'endmodule\n'
+            )
+            result = subprocess.run(
+                [sys.executable, str(CHECKER), str(truth), str(candidate),
+                 '--input-port', 'i', '--json'],
+                cwd=temp, capture_output=True, text=True, timeout=30,
+            )
+            record = json.loads(result.stdout)
+            self.assertEqual(record['status'], 'pass', record)
+            self.assertEqual(record['vectors'], 8)
+
 
 if __name__ == '__main__':
     unittest.main()

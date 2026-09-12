@@ -11,8 +11,8 @@
   "files": [
     {
       "path": "skills/circuit-reverse-rtl/SKILL.md",
-      "source_sha256": "637a54ac7f03387bf5f5d93757b1b8ceb854d07848aa4cac9d0ec4f38ab3d167",
-      "release_sha256": "947ef357a5127e184f52e5702f39d06cf66e5073a339277c1f5e581e352de2aa",
+      "source_sha256": "d8974b0a3bdceeeb86b668e0534e75bf3d498b82de6a3d01a231841cc5904162",
+      "release_sha256": "8505d71e4b512a18bb1c15ab8c096c97b9bbde70b8c503766276c76c65677927",
       "change": "portability_or_export_edit"
     },
     {
@@ -179,8 +179,8 @@
     },
     {
       "path": "skills/circuit-reverse-rtl/scripts/reverse/truth_reverse.py",
-      "source_sha256": "ed99e0e955a2da87961a52574ffe74d39b735f6d6be3ce9110d266ba6c0416d5",
-      "release_sha256": "ed99e0e955a2da87961a52574ffe74d39b735f6d6be3ce9110d266ba6c0416d5",
+      "source_sha256": "005023232cc1a440bd06e864fc56f4791335d846c3c487793a02291321d0cacc",
+      "release_sha256": "005023232cc1a440bd06e864fc56f4791335d846c3c487793a02291321d0cacc",
       "change": "unchanged"
     },
     {
@@ -247,6 +247,12 @@
       "path": "skills/circuit-reverse-rtl/scripts/truth/__init__.py",
       "source_sha256": "e96792d556b54841dab04338ebacdd86581798318d2642d456526728c931e035",
       "release_sha256": "e96792d556b54841dab04338ebacdd86581798318d2642d456526728c931e035",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/truth/boolean_fallback.py",
+      "source_sha256": "d70dc6b6e975d256d667a36661c8abf2988d0eb750f97b8cb02d3b98c2bfc389",
+      "release_sha256": "d70dc6b6e975d256d667a36661c8abf2988d0eb750f97b8cb02d3b98c2bfc389",
       "change": "unchanged"
     },
     {
@@ -473,9 +479,15 @@
     },
     {
       "path": "skills/circuit-reverse-rtl/scripts/verify/truth_sim.py",
-      "source_sha256": "450731c4bd268e3b56abb431b707ffcc42eddb50e455b9b3cc1163d1eb01f853",
-      "release_sha256": "41f56555ee268a28793a39650edc2fb18caba8d6b10ae5e59d2172a3a2dfdfe1",
+      "source_sha256": "b70f9d6e382046719c7efdba0655d4256e5e413e94c00a6558c4dafb1068cd67",
+      "release_sha256": "ab7e3e24ddc83f3431f86119e2475afcd81b659974e124a4fb987b08efc6a22a",
       "change": "portability_or_export_edit"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify/truth_structural.py",
+      "source_sha256": "d296dfde6e92eebaee49accf92ee516659ddb55850e0e2fe18df5de254528114",
+      "release_sha256": "d296dfde6e92eebaee49accf92ee516659ddb55850e0e2fe18df5de254528114",
+      "change": "unchanged"
     },
     {
       "path": "skills/circuit-reverse-rtl/scripts/verify/typed_product.py",
@@ -487,6 +499,12 @@
       "path": "skills/circuit-reverse-rtl/scripts/verify_truth_sim.py",
       "source_sha256": "d343aee4dd8707f4807598ac790d268d6335cbc6af93215ae89c2c4b934fbb3d",
       "release_sha256": "d343aee4dd8707f4807598ac790d268d6335cbc6af93215ae89c2c4b934fbb3d",
+      "change": "unchanged"
+    },
+    {
+      "path": "skills/circuit-reverse-rtl/scripts/verify_truth_structural.py",
+      "source_sha256": "66769a5026c945e87df2583045724753f2279e1be818db0f0cbcfafef59f309a",
+      "release_sha256": "66769a5026c945e87df2583045724753f2279e1be818db0f0cbcfafef59f309a",
       "change": "unchanged"
     }
   ]

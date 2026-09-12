@@ -5,19 +5,19 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
+import re
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from truth.utils import read_truth_words
 
 
-from verify.tooling import optional_tool, resolve_tool
+from verify.tooling import optional_tool
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -40,7 +40,6 @@ def run_one(
     run_timeout: int,
 ) -> Dict[str, object]:
     n_in, n_out, expected = read_truth_words(truth)
-    width_hex = max(1, (n_out + 3) // 4)
     iverilog = optional_tool("IVERILOG")
     vvp = optional_tool("VVP")
     if not iverilog or not vvp:
@@ -55,21 +54,32 @@ def run_one(
         tmpdir = Path(tmp)
         tb = tmpdir / "tb.v"
         simv = tmpdir / "simv"
+        truth_literal = str(truth.resolve()).replace("\\", "\\\\").replace('"', '\\"')
         tb.write_text(
             "module tb;\n"
             f"  reg [{n_in - 1}:0] {input_port};\n"
             f"  wire [{n_out - 1}:0] {output_port};\n"
-            "  integer i;\n"
+            f"  reg [{(1 << n_in) - 1}:0] __truth_bits [0:{n_out - 1}];\n"
+            f"  reg [{n_out - 1}:0] __expected;\n"
+            "  integer __truth_index;\n"
+            "  integer __truth_bit;\n"
             f"  top dut(.{input_port}({input_port}), .{output_port}({output_port}));\n"
             "  initial begin\n"
-            f"    for (i = 0; i < {1 << n_in}; i = i + 1) begin\n"
-            f"      {input_port} = i[{n_in - 1}:0];\n"
+            f'    $readmemb("{truth_literal}", __truth_bits);\n'
+            f"    for (__truth_index = 0; __truth_index < {1 << n_in}; "
+            "__truth_index = __truth_index + 1) begin\n"
+            f"      {input_port} = __truth_index[{n_in - 1}:0];\n"
             "      #1;\n"
-            f"      $display(\"%0{width_hex}x\", {output_port});\n"
+            f"      for (__truth_bit = 0; __truth_bit < {n_out}; "
+            "__truth_bit = __truth_bit + 1)\n"
+            "        __expected[__truth_bit] = __truth_bits[__truth_bit][__truth_index];\n"
+            f"      if ({output_port} !== __expected) begin\n"
+            f'        $display("TRUTH_SIM_MISMATCH index=%0d got=%h expected=%h", '
+            f"__truth_index, {output_port}, __expected);\n"
+            "        $finish(0);\n"
+            "      end\n"
             "    end\n"
-            # Newer Icarus versions print a diagnostic for bare $finish.
-            # Keep stdout exclusively for vectors without filtering missing,
-            # extra, or incorrect circuit output from the checker below.
+            f'    $display("TRUTH_SIM_PASS vectors={1 << n_in}");\n'
             "    $finish(0);\n"
             "  end\n"
             "endmodule\n"
@@ -110,26 +120,28 @@ def run_one(
                 "verilog": str(verilog),
                 "error": (run_proc.stdout + run_proc.stderr).strip(),
             }
-        got_lines = run_proc.stdout.splitlines()
-        if len(got_lines) != len(expected):
+        mismatch = re.search(
+            r"TRUTH_SIM_MISMATCH index=(\d+) got=([0-9a-fA-FxXzZ]+) expected=([0-9a-fA-FxXzZ]+)",
+            run_proc.stdout,
+        )
+        if mismatch:
+            return {
+                "status": "mismatch",
+                "truth": str(truth),
+                "verilog": str(verilog),
+                "index": int(mismatch.group(1)),
+                "got": mismatch.group(2),
+                "expected": mismatch.group(3),
+            }
+        pass_marker = f"TRUTH_SIM_PASS vectors={len(expected)}"
+        output_lines = [line.strip() for line in run_proc.stdout.splitlines() if line.strip()]
+        if output_lines != [pass_marker]:
             return {
                 "status": "short_output",
                 "truth": str(truth),
                 "verilog": str(verilog),
-                "detail": f"{len(got_lines)}/{len(expected)}",
+                "detail": run_proc.stdout[-500:],
             }
-        for idx, line in enumerate(got_lines):
-            got = int(line.strip(), 16)
-            exp = expected[idx]
-            if got != exp:
-                return {
-                    "status": "mismatch",
-                    "truth": str(truth),
-                    "verilog": str(verilog),
-                    "index": idx,
-                    "got": f"{got:0{width_hex}x}",
-                    "expected": f"{exp:0{width_hex}x}",
-                }
     return {
         "status": "pass",
         "truth": str(truth),
