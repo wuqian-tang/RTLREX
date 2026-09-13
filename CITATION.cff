@@ -1,13 +1,13 @@
 cff-version: 1.2.0
-message: "Cite the version of Circuit Reverse RTL you actually use; paper metadata will be added after publication of a preprint."
+message: "Cite the version of CREAS you actually use; paper metadata will be added after publication of a preprint."
 type: software
-title: "Circuit Reverse RTL"
+title: "CREAS"
 authors:
-  - name: "Circuit Reverse RTL contributors"
+  - name: "CREAS contributors"
 version: 0.1.0-rc1
 license: MIT
-repository-code: "https://github.com/wuqian-tang/circuit-reverse-rtl"
-abstract: "An Agent Skill for high-level combinational RTL recovery with external exact-equivalence checking."
+repository-code: "https://github.com/wuqian-tang/CREAS"
+abstract: "The software companion to CREAS, providing the circuit-reverse-rtl Agent Skill and reusable tools for high-level combinational RTL recovery with external exact-equivalence checking."
 keywords:
   - circuit reverse engineering
   - RTL

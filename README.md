@@ -1,14 +1,16 @@
-# Circuit Reverse RTL
+# CREAS
 
-A domain-specific Agent Skill for recovering high-level RTL from combinational
-gate netlists and complete truth tables. An LLM proposes hypotheses and proof
-plans; external tools check the recovered implementation against the input.
+CREAS is an LLM-guided framework for recovering high-level RTL from
+combinational gate netlists and complete truth tables. An LLM proposes
+hypotheses and proof plans through a domain-specific Agent Skill; external
+tools check the recovered implementation against the input.
 
 This repository contains **one Skill**, `circuit-reverse-rtl`, with reusable
 probing, recovery, rewriting, and exact-equivalence tools. It is the software
-companion being prepared for *LLM-Guided Circuit Reverse Engineering with an
-Agent Skill*. The package does not contain a model or require an API key to run
-its checkers and tests.
+companion to the CREAS paper. **CREAS** names the framework and repository;
+`circuit-reverse-rtl` remains the installable Skill identifier and invocation
+name. The package does not contain a model or require an API key to run its
+checkers and tests.
 
 ## What is included
 
@@ -32,6 +34,8 @@ Z3 and a C++17 compiler. See [dependencies](docs/DEPENDENCIES.md) for versions a
 tool configuration. NumPy is used by some truth-table recognition paths:
 
 ```bash
+git clone https://github.com/wuqian-tang/CREAS.git
+cd CREAS
 python3 -m venv .venv
 . .venv/bin/activate
 python3 -m pip install -r requirements.txt
@@ -96,8 +100,10 @@ This software release alone does not reproduce the paper's complete tables.
 
 ## Citation and license
 
-Software citation metadata is in [CITATION.cff](CITATION.cff). A paper DOI/arXiv
-identifier will be added when one exists.
+This repository accompanies *CREAS: LLM-Guided Circuit Reverse Engineering
+with an Agent Skill*. Software citation metadata is in
+[CITATION.cff](CITATION.cff). A paper DOI/arXiv identifier will be added when one
+exists.
 
 The project code and documentation are licensed under the [MIT License](LICENSE).
 Academic and commercial use, modification and redistribution are permitted
