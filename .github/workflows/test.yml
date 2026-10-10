@@ -24,5 +24,8 @@ jobs:
       - run: python3 -m pip install -r requirements.txt
       - run: python3 scripts/doctor.py --require-all
       - run: python3 scripts/check_release.py
+      - run: python3 experiments/pa30-arithmetic/aggregate.py --verify-published
+      - run: python3 experiments/tt100-final/verify_results.py
       - run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - run: python3 -m unittest discover -s skills/circuit-reverse-rtl/scripts -p 'test_*.py' -v
       - run: python3 scripts/demo.py --out outputs/parity-demo

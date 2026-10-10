@@ -16,15 +16,20 @@ checkers and tests.
 
 - Word-level recovery and syntax-cost tools, including truth-table recognition,
   plus an opt-in exact low-level Boolean fallback for unmatched complete tables.
+- Budgeted complete-truth-table recovery with verified checkpoints, atomic
+  promotion of lower-cost candidates, and bounded refinement.
 - Strict ABC/SMT checking, independent algebraic replay, native ROBDD coefficient
   checking, complete cofactor coverage, and checked proof composition.
 - Synthetic examples, negative controls, an installer, and portable tests.
 - Agent instructions and references describing proof obligations and boundaries.
 - [Representative historical paper prompts](docs/paper-prompts/README.md), with
   source mapping and a clear distinction from illustrative examples.
+- [Final experiment artifacts](experiments/README.md), including PA-30
+  arithmetic-aware synthesis and mapping measurements and TT-100 paired costs.
 
-The agent still has to discover useful hypotheses, intermediate words and proof
-plans. These checkers do not guarantee that every circuit can be recovered or
+For netlists, the agent discovers useful hypotheses, intermediate words and proof
+plans. The complete-truth-table tool recognizes supported arithmetic families
+and verifies its emitted RTL. These tools do not guarantee that every circuit can be recovered or
 proved within a fixed budget. See [proof scope](docs/PROOF_SCOPE.md).
 
 ## Quick start
@@ -74,6 +79,7 @@ If proof is inconclusive, report it as inconclusive and retain the evidence.
 python3 skills/circuit-reverse-rtl/scripts/cec.py reference.v candidate.v --strict-cec --json
 python3 skills/circuit-reverse-rtl/scripts/cec.py reference.v candidate.v --engine smt --json
 python3 skills/circuit-reverse-rtl/scripts/verify_truth_sim.py function.truth candidate.v --json
+python3 skills/circuit-reverse-rtl/scripts/recover_truth.py function.truth outputs/final.v --budget-seconds 240 --json --brief
 python3 skills/circuit-reverse-rtl/scripts/truth_reverse.py function.truth --out-dir outputs/truth --allow-boolean-fallback --verify --json
 python3 skills/circuit-reverse-rtl/scripts/verify_truth_structural.py function.truth structural.v --certificate certificate.json --json
 ```
@@ -94,9 +100,13 @@ mapped area, delay and power. Supply your own `--cost-csv` when a different
 profile is required. [Source attribution](NOTICE.md) and
 [reproduction scope](docs/REPRODUCIBILITY.md) explain the distinctions.
 
-Contest benchmarks, reference answers, paper PDFs, full experimental logs and
-full PA-30 proof archives are not bundled. The included examples are synthetic.
-This software release alone does not reproduce the paper's complete tables.
+The experiment packages include per-case measurements, aggregation scripts,
+and instructions for the published synthesis study. They distinguish measured
+data, retained recovery proofs, and regression checks of arithmetic lowering.
+Contest inputs, reference answers, paper PDFs and full PA-30 proof archives are
+not bundled. Replaying the synthesis study requires separately obtained inputs,
+the specified standard-cell library and EDA tools. Regenerating LLM recovery
+runs also requires an independently configured model host.
 
 ## Citation and license
 

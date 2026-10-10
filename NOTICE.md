@@ -19,8 +19,14 @@ redistributed here. External software remains subject to its own license:
 - [Z3](https://github.com/Z3Prover/z3): MIT license.
 - [Icarus Verilog](https://github.com/steveicarus/iverilog): upstream GPL terms.
 - [NumPy](https://github.com/numpy/numpy): BSD license.
+- [OpenSTA](https://github.com/The-OpenROAD-Project/OpenSTA): upstream GPL terms.
+- [Nangate45 library distribution](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/tree/master/flow/platforms/nangate45):
+  original library and platform terms, provided by upstream. The synthesis
+  artifact records the source revision and hashes and does not bundle the library.
 
-The parity example and regression fixtures are synthetic. The project's code
+The parity example and regression fixtures are synthetic. Experiment CSV/JSON
+files report this project's measurements. Included recovered RTL is the
+project's output, rather than a contest reference answer. The project's code
 and documentation are distributed under the MIT License in `LICENSE`.
 This license does not relicense external data or tools; their original terms
 and required notices continue to apply.

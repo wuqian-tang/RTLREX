@@ -16,6 +16,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from truth.utils import read_truth_words, words_to_bit_tables
 from truth.boolean_fallback import choose_exact_boolean_fallback
+from truth.fixed_point_compact import compact_fixed_point_operators
+from truth.protect_word_loops import compact_outside_word_loops
+from truth.semantic_compact import compact_semantic_rtl, emit_binary_square, emit_binary_reciprocal, emit_binary_sqrt, share_round_to_even, emit_binary_recip_power, emit_binary_root, linearize_float_pack, reduce_positive_padding
+from truth.float_guard_regions import emit_endpoint_guards, isolate_endpoint_kernel
+from truth.integer_models import infer_integer_model
+from truth.fp8_compact import emit_finite_fp8
+from truth.packed_sum_compact import emit_packed_q11_sum
+from truth.packed_float_compact import emit_finite_float_dot
+from truth.scaled_integer_dot_compact import emit_unsigned_scaled_dot
+from truth.dynamic_round_compact_v8 import share_dynamic_round_to_even
+from truth.rtl_cost_selection import lowest_cost_source
+from truth.integer_root_compact import choose_integer_sqrt
+from truth.newton_root_compact import emit_factored_newton_sqrt, emit_newton_rounded_rsqrt
+from truth.inverse_cube_root_compact import emit_inverse_cube_scan
+from truth.binary_cube_compact import emit_binary_cube
+from truth.powered_root_compact_v8 import emit_staged_cubic_root
+from truth.binary_arithmetic_compact_v9 import emit_finite_hypot, emit_binary_square as emit_guarded_binary_square, emit_binary_reciprocal_power, emit_binary_reciprocal_sqrt, emit_finite_add
 from truth.describe import (
     describe_truth,
     fp4_e2m1_dot2_word,
@@ -34,6 +51,9 @@ from truth.describe import (
     unsigned_q11_dot4_word,
     unsigned_q11_sum8_word,
 )
+
+
+_DESCRIPTION_UNSET = object()
 
 
 @dataclass
@@ -91,7 +111,7 @@ def try_unsigned_mul(n_in: int, n_out: int, words: List[int]) -> Optional[Candid
             n_in,
             n_out,
             [
-                f"  wire [{half - 1}:0] a = x[{half - 1}:0];",
+                f"  wire [{half - 1}:0] a = x;",
                 f"  wire [{half - 1}:0] b = x[{n_in - 1}:{half}];",
                 "  assign y = a * b;",
             ],
@@ -116,10 +136,10 @@ def try_signed_mul(n_in: int, n_out: int, words: List[int]) -> Optional[Candidat
             n_in,
             n_out,
             [
-                f"  wire signed [{half - 1}:0] a = x[{half - 1}:0];",
+                f"  wire signed [{half - 1}:0] a = x;",
                 f"  wire signed [{half - 1}:0] b = x[{n_in - 1}:{half}];",
                 f"  wire signed [{prod_w - 1}:0] p = a * b;",
-                f"  assign y = p[{n_out - 1}:0];",
+                "  assign y = p;",
             ],
         ),
     )
@@ -150,9 +170,9 @@ def try_unsigned_div(n_in: int, n_out: int, words: List[int]) -> Optional[Candid
             n_in,
             n_out,
             [
-                f"  wire [{half - 1}:0] a = x[{half - 1}:0];",
+                f"  wire [{half - 1}:0] a = x;",
                 f"  wire [{half - 1}:0] b = x[{n_in - 1}:{half}];",
-                f"  assign y = (b == 0) ? {n_out}'d{sat} : a / b;",
+                f"  assign y = b ? a / b : {n_out}'d{sat};",
             ],
         ),
     )
@@ -162,25 +182,23 @@ def try_isqrt(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
     out_mask = mask(n_out)
     if not all((math.isqrt(x) & out_mask) == words[x] for x in range(1 << n_in)):
         return None
-    return Candidate(
-        "integer square root",
-        module_reg(
-            n_in,
-            n_out,
-            [
-                f"  reg [{n_out - 1}:0] r;",
-                "  integer i;",
-                "  always @(*) begin",
-                "    r = 0;",
-                f"    for (i = {n_out - 1}; i >= 0; i = i - 1) begin",
-                "      if ((r | (1 << i)) * (r | (1 << i)) <= x)",
-                "        r = r | (1 << i);",
-                "    end",
-                "    y = r;",
-                "  end",
-            ],
-        ),
-    )
+    # Test root bits from most significant to least significant. Lower trial
+    # bits start at zero, so setting and possibly clearing one bit preserves
+    # the monotone prefix invariant without wide bit-wise arithmetic.
+    root_width = (n_in + 1) // 2
+    root_name = "y" if root_width == n_out else "root"
+    declarations = [] if root_name == "y" else [f"  reg [{root_width-1}:0] root;"]
+    body = [*declarations, f"  reg [{2*root_width-1}:0] trial_square;",
+            "  integer bit_index;", "  always @(*) begin",
+            f"    {root_name} = 0;", f"    bit_index = {root_width-1};",
+            f"    repeat ({root_width}) begin", f"      {root_name}[bit_index] = 1'b1;",
+            f"      trial_square = {root_name} * {root_name};",
+            f"      {root_name}[bit_index] = trial_square <= x;", "      bit_index = bit_index - 1;", "    end"]
+    if root_name != "y":
+        body.append("    y = root;")
+    body.append("  end")
+    prefix = module_reg(n_in, n_out, body)
+    return Candidate("integer square root", choose_integer_sqrt(n_in, n_out, prefix))
 
 
 def try_popcount(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -205,85 +223,8 @@ def try_popcount(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]
 
 
 def emit_fp8_e4m3fn_add(detail: str) -> str:
-    return f"""// {detail}
-// structural FP8 add: exact integer decode, normalize, RNE, and saturate
-module top(input [15:0] x, output reg [7:0] y);
-  wire [7:0] a = x[15:8];
-  wire [7:0] b = x[7:0];
-
-  function [19:0] magnitude;
-    input [7:0] v;
-    reg [3:0] e;
-    begin
-      e = v[6:3];
-      if (e == 0)
-        magnitude = {{17'd0, v[2:0]}};
-      else
-        magnitude = ({{16'd0, 1'b1, v[2:0]}} << (e - 1'b1));
-    end
-  endfunction
-
-  wire [19:0] ma = magnitude(a);
-  wire [19:0] mb = magnitude(b);
-  wire signed [19:0] va = a[7] ? -$signed(ma) : $signed(ma);
-  wire signed [19:0] vb = b[7] ? -$signed(mb) : $signed(mb);
-  wire signed [19:0] sum = va + vb;
-  wire negative = sum[19];
-
-  reg [19:0] z;
-  reg [19:0] q;
-  reg [19:0] rem_bits;
-  reg [19:0] halfway;
-  integer i;
-  integer leading;
-  integer e;
-  integer shift;
-
-  always @* begin
-    y = 8'h00;
-    z = 20'd0;
-    q = 20'd0;
-    rem_bits = 20'd0;
-    halfway = 20'd0;
-    leading = 0;
-    e = 0;
-    shift = 0;
-
-    if ((a[6:0] == 7'h7f) || (b[6:0] == 7'h7f)) begin
-      y = 8'h7f;
-    end else if (sum == 0) begin
-      y = (x == 16'h8080) ? 8'h80 : 8'h00;
-    end else begin
-      z = negative ? -sum : sum;
-      if (z < 8) begin
-        y = {{negative, 4'd0, z[2:0]}};
-      end else begin
-        for (i = 0; i < 20; i = i + 1)
-          if (z[i])
-            leading = i;
-        e = leading - 2;
-        shift = e - 1;
-        q = z >> shift;
-        if (shift > 0) begin
-          rem_bits = z - (q << shift);
-          halfway = 20'd1 << (shift - 1);
-          if ((rem_bits > halfway) ||
-              ((rem_bits == halfway) && q[0]))
-            q = q + 1'b1;
-        end
-        if (q == 16) begin
-          q = 8;
-          e = e + 1;
-        end
-        if (((e << 4) + q) > 254)
-          y = {{negative, 7'h7e}};
-        else
-          y = {{negative, e[3:0], q[2:0]}};
-      end
-    end
-  end
-endmodule
-"""
+    return lowest_cost_source([emit_finite_fp8("add", 4, 3, detail),
+                               emit_finite_add(4, 3, detail)])
 
 
 def try_fp8_e4m3fn_add(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -296,86 +237,7 @@ def try_fp8_e4m3fn_add(n_in: int, n_out: int, words: List[int]) -> Optional[Cand
 
 
 def emit_fp8_e4m3fn_mul(detail: str) -> str:
-    return f"""// {detail}
-// structural FP8 multiply: exact integer decode, normalize, RNE, and saturate
-module top(input [15:0] x, output reg [7:0] y);
-  wire [7:0] a = x[15:8];
-  wire [7:0] b = x[7:0];
-
-  function [17:0] magnitude;
-    input [7:0] v;
-    reg [3:0] e;
-    begin
-      e = v[6:3];
-      if (e == 0)
-        magnitude = {{15'd0, v[2:0]}};
-      else
-        magnitude = ({{14'd0, 1'b1, v[2:0]}} << (e - 1'b1));
-    end
-  endfunction
-
-  wire [17:0] ma = magnitude(a);
-  wire [17:0] mb = magnitude(b);
-  wire [35:0] product = ma * mb;
-  wire negative = a[7] != b[7];
-
-  reg [35:0] q;
-  reg [35:0] remainder;
-  reg [35:0] halfway;
-  integer i;
-  integer leading;
-  integer e;
-  integer shift;
-
-  always @* begin
-    y = 8'h00;
-    q = 36'd0;
-    remainder = 36'd0;
-    halfway = 36'd0;
-    leading = 0;
-    e = 0;
-    shift = 0;
-
-    if ((a[6:0] == 7'h7f) || (b[6:0] == 7'h7f)) begin
-      y = 8'h7f;
-    end else if (product == 0) begin
-      y = {{negative, 7'd0}};
-    end else begin
-      for (i = 0; i < 36; i = i + 1)
-        if (product[i])
-          leading = i;
-
-      if (leading < 12) begin
-        e = 0;
-        shift = 9;
-      end else begin
-        e = leading - 11;
-        shift = leading - 3;
-      end
-
-      q = product >> shift;
-      remainder = product - (q << shift);
-      halfway = 36'd1 << (shift - 1);
-      if ((remainder > halfway) ||
-          ((remainder == halfway) && q[0]))
-        q = q + 1'b1;
-
-      if (leading < 12) begin
-        y = {{negative, q[6:0]}};
-      end else begin
-        if (q == 16) begin
-          q = 8;
-          e = e + 1;
-        end
-        if (((e << 4) + q) > 254)
-          y = {{negative, 7'h7e}};
-        else
-          y = {{negative, e[3:0], q[2:0]}};
-      end
-    end
-  end
-endmodule
-"""
+    return emit_finite_fp8("multiply", 4, 3, detail)
 
 
 def try_fp8_e4m3fn_mul(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -388,116 +250,7 @@ def try_fp8_e4m3fn_mul(n_in: int, n_out: int, words: List[int]) -> Optional[Cand
 
 
 def emit_fp8_e4m3fn_div(detail: str) -> str:
-    return f"""// {detail}
-module top(input [15:0] x, output reg [7:0] y);
-  wire [7:0] denominator = x[15:8];
-  wire [7:0] numerator = x[7:0];
-
-  function [17:0] magnitude;
-    input [7:0] v;
-    reg [3:0] e;
-    begin
-      e = v[6:3];
-      if (e == 0)
-        magnitude = {{15'd0, v[2:0]}};
-      else
-        magnitude = ({{14'd0, 1'b1, v[2:0]}} << (e - 1'b1));
-    end
-  endfunction
-
-  function integer leading_bit;
-    input [17:0] v;
-    integer j;
-    begin
-      leading_bit = 0;
-      for (j = 0; j < 18; j = j + 1)
-        if (v[j])
-          leading_bit = j;
-    end
-  endfunction
-
-  wire [17:0] md = magnitude(denominator);
-  wire [17:0] mn = magnitude(numerator);
-  wire negative = denominator[7] != numerator[7];
-
-  reg [35:0] scaled_numerator;
-  reg [35:0] scaled_denominator;
-  reg [35:0] q;
-  reg [35:0] remainder;
-  integer leading_n;
-  integer leading_d;
-  integer exponent;
-  integer scale;
-  reg subnormal;
-
-  always @* begin
-    y = 8'h00;
-    scaled_numerator = 36'd0;
-    scaled_denominator = 36'd0;
-    q = 36'd0;
-    remainder = 36'd0;
-    leading_n = 0;
-    leading_d = 0;
-    exponent = 0;
-    scale = 0;
-    subnormal = 1'b0;
-
-    if ((denominator[6:0] == 7'h7f) ||
-        (numerator[6:0] == 7'h7f)) begin
-      y = 8'h7f;
-    end else if (md == 0) begin
-      y = (mn == 0) ? 8'h7f : {{negative, 7'h7e}};
-    end else if (mn == 0) begin
-      y = {{negative, 7'd0}};
-    end else begin
-      leading_n = leading_bit(mn);
-      leading_d = leading_bit(md);
-      exponent = leading_n - leading_d;
-      scaled_numerator = mn;
-      scaled_denominator = md;
-      if (exponent >= 0)
-        scaled_denominator = scaled_denominator << exponent;
-      else
-        scaled_numerator = scaled_numerator << -exponent;
-      if (scaled_numerator < scaled_denominator)
-        exponent = exponent - 1;
-      exponent = exponent + 7;
-      subnormal = exponent <= 0;
-
-      scaled_numerator = mn;
-      scaled_denominator = md;
-      if (subnormal) begin
-        scaled_numerator = scaled_numerator << 9;
-      end else begin
-        scale = 10 - exponent;
-        if (scale >= 0)
-          scaled_numerator = scaled_numerator << scale;
-        else
-          scaled_denominator = scaled_denominator << -scale;
-      end
-
-      q = scaled_numerator / scaled_denominator;
-      remainder = (scaled_numerator % scaled_denominator) << 1;
-      if ((remainder > scaled_denominator) ||
-          ((remainder == scaled_denominator) && q[0]))
-        q = q + 1'b1;
-
-      if (subnormal) begin
-        y = {{negative, q[6:0]}};
-      end else begin
-        if (q == 16) begin
-          q = 8;
-          exponent = exponent + 1;
-        end
-        if (((exponent << 4) + q) > 254)
-          y = {{negative, 7'h7e}};
-        else
-          y = {{negative, exponent[3:0], q[2:0]}};
-      end
-    end
-  end
-endmodule
-"""
+    return emit_finite_fp8("divide", 4, 3, detail)
 
 
 def try_fp8_e4m3fn_div(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -510,76 +263,7 @@ def try_fp8_e4m3fn_div(n_in: int, n_out: int, words: List[int]) -> Optional[Cand
 
 
 def emit_fp8_e4m3fn_fmod(detail: str) -> str:
-    return f"""// {detail}
-module top(input [15:0] x, output reg [7:0] y);
-  wire [7:0] denominator = x[15:8];
-  wire [7:0] numerator = x[7:0];
-
-  function [17:0] magnitude;
-    input [7:0] v;
-    reg [3:0] e;
-    begin
-      e = v[6:3];
-      if (e == 0)
-        magnitude = {{15'd0, v[2:0]}};
-      else
-        magnitude = ({{14'd0, 1'b1, v[2:0]}} << (e - 1'b1));
-    end
-  endfunction
-
-  wire [17:0] md = magnitude(denominator);
-  wire [17:0] mn = magnitude(numerator);
-
-  reg [17:0] z;
-  reg [17:0] q;
-  reg [17:0] discarded;
-  reg [17:0] halfway;
-  integer i;
-  integer leading;
-  integer e;
-  integer shift;
-
-  always @* begin
-    y = 8'h00;
-    z = 18'd0;
-    q = 18'd0;
-    discarded = 18'd0;
-    halfway = 18'd0;
-    leading = 0;
-    e = 0;
-    shift = 0;
-
-    if ((denominator[6:0] == 7'h7f) ||
-        (numerator[6:0] == 7'h7f) || (md == 0)) begin
-      y = 8'h7f;
-    end else begin
-      z = mn % md;
-      if (z < 8) begin
-        y = {{numerator[7], 4'd0, z[2:0]}};
-      end else begin
-        for (i = 0; i < 18; i = i + 1)
-          if (z[i])
-            leading = i;
-        e = leading - 2;
-        shift = e - 1;
-        q = z >> shift;
-        if (shift > 0) begin
-          discarded = z - (q << shift);
-          halfway = 18'd1 << (shift - 1);
-          if ((discarded > halfway) ||
-              ((discarded == halfway) && q[0]))
-            q = q + 1'b1;
-        end
-        if (q == 16) begin
-          q = 8;
-          e = e + 1;
-        end
-        y = {{numerator[7], e[3:0], q[2:0]}};
-      end
-    end
-  end
-endmodule
-"""
+    return emit_finite_fp8("fmod", 4, 3, detail)
 
 
 def try_fp8_e4m3fn_fmod(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -592,106 +276,8 @@ def try_fp8_e4m3fn_fmod(n_in: int, n_out: int, words: List[int]) -> Optional[Can
 
 
 def emit_fp8_e4m3fn_hypot(detail: str) -> str:
-    return f"""// {detail}
-module top(input [15:0] x, output reg [7:0] y);
-  wire [7:0] a = x[15:8];
-  wire [7:0] b = x[7:0];
-
-  function [17:0] magnitude;
-    input [7:0] v;
-    reg [3:0] e;
-    begin
-      e = v[6:3];
-      if (e == 0)
-        magnitude = {{15'd0, v[2:0]}};
-      else
-        magnitude = ({{14'd0, 1'b1, v[2:0]}} << (e - 1'b1));
-    end
-  endfunction
-
-  wire [17:0] ma = magnitude(a);
-  wire [17:0] mb = magnitude(b);
-  wire [35:0] square_a = ma * ma;
-  wire [35:0] square_b = mb * mb;
-  wire [36:0] sum_square = square_a + square_b;
-
-  reg [18:0] root;
-  reg [18:0] trial;
-  reg [37:0] trial_square;
-  reg [18:0] q;
-  reg [18:0] lower;
-  reg [18:0] upper;
-  reg [19:0] twice_midpoint;
-  reg [39:0] midpoint_square;
-  reg [39:0] four_sum_square;
-  integer i;
-  integer leading;
-  integer e;
-  integer shift;
-
-  always @* begin
-    y = 8'h00;
-    root = 19'd0;
-    trial = 19'd0;
-    trial_square = 38'd0;
-    q = 19'd0;
-    lower = 19'd0;
-    upper = 19'd0;
-    twice_midpoint = 20'd0;
-    midpoint_square = 40'd0;
-    four_sum_square = 40'd0;
-    leading = 0;
-    e = 0;
-    shift = 0;
-
-    if ((a[6:0] == 7'h7f) || (b[6:0] == 7'h7f)) begin
-      y = 8'h7f;
-    end else begin
-      for (i = 18; i >= 0; i = i - 1) begin
-        trial = root + (19'd1 << i);
-        trial_square = trial * trial;
-        if (trial_square <= sum_square)
-          root = trial;
-      end
-
-      if (root < 8) begin
-        e = 0;
-        shift = 0;
-        q = root;
-      end else begin
-        for (i = 0; i < 19; i = i + 1)
-          if (root[i])
-            leading = i;
-        e = leading - 2;
-        shift = e - 1;
-        q = root >> shift;
-      end
-
-      lower = q << shift;
-      upper = (q + 1'b1) << shift;
-      twice_midpoint = lower + upper;
-      midpoint_square = twice_midpoint * twice_midpoint;
-      four_sum_square = sum_square << 2;
-      if ((four_sum_square > midpoint_square) ||
-          ((four_sum_square == midpoint_square) && q[0]))
-        q = q + 1'b1;
-
-      if (e == 0) begin
-        y = q[7:0];
-      end else begin
-        if (q == 16) begin
-          q = 8;
-          e = e + 1;
-        end
-        if (((e << 4) + q) > 254)
-          y = 8'h7e;
-        else
-          y = {{1'b0, e[3:0], q[2:0]}};
-      end
-    end
-  end
-endmodule
-"""
+    return lowest_cost_source([emit_finite_fp8("hypot", 4, 3, detail),
+                               emit_finite_hypot(4, 3, detail)])
 
 
 def try_fp8_e4m3fn_hypot(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -704,84 +290,8 @@ def try_fp8_e4m3fn_hypot(n_in: int, n_out: int, words: List[int]) -> Optional[Ca
 
 
 def emit_fp8_e5m2_add(detail: str) -> str:
-    return f"""// {detail}
-module top(input [15:0] x, output reg [7:0] y);
-  wire [7:0] a = x[15:8];
-  wire [7:0] b = x[7:0];
-
-  function [34:0] magnitude;
-    input [7:0] v;
-    reg [4:0] e;
-    begin
-      e = v[6:2];
-      if (e == 0)
-        magnitude = v[1:0];
-      else
-        magnitude = ({{1'b1, v[1:0]}} << (e - 1'b1));
-    end
-  endfunction
-
-  wire [34:0] ma = magnitude(a);
-  wire [34:0] mb = magnitude(b);
-  wire signed [34:0] va = a[7] ? -$signed(ma) : $signed(ma);
-  wire signed [34:0] vb = b[7] ? -$signed(mb) : $signed(mb);
-  wire signed [34:0] sum = va + vb;
-  wire negative = sum[34];
-
-  reg [34:0] z;
-  reg [34:0] q;
-  reg [34:0] discarded;
-  reg [34:0] halfway;
-  integer i;
-  integer leading;
-  integer e;
-  integer shift;
-
-  always @* begin
-    y = 8'h00;
-    z = 35'd0;
-    q = 35'd0;
-    discarded = 35'd0;
-    halfway = 35'd0;
-    leading = 0;
-    e = 0;
-    shift = 0;
-
-    if ((a[6:0] == 7'h7f) || (b[6:0] == 7'h7f)) begin
-      y = 8'h7f;
-    end else if (sum == 0) begin
-      y = (x == 16'h8080) ? 8'h80 : 8'h00;
-    end else begin
-      z = negative ? -sum : sum;
-      if (z < 4) begin
-        y = {{negative, 5'd0, z[1:0]}};
-      end else begin
-        for (i = 0; i < 35; i = i + 1)
-          if (z[i])
-            leading = i;
-        e = leading - 1;
-        shift = e - 1;
-        q = z >> shift;
-        if (shift > 0) begin
-          discarded = z - (q << shift);
-          halfway = 35'd1 << (shift - 1);
-          if ((discarded > halfway) ||
-              ((discarded == halfway) && q[0]))
-            q = q + 1'b1;
-        end
-        if (q == 8) begin
-          q = 4;
-          e = e + 1;
-        end
-        if (((e << 3) + q) > 254)
-          y = {{negative, 7'h7e}};
-        else
-          y = {{negative, e[4:0], q[1:0]}};
-      end
-    end
-  end
-endmodule
-"""
+    return lowest_cost_source([emit_finite_fp8("add", 5, 2, detail),
+                               emit_finite_add(5, 2, detail)])
 
 
 def try_fp8_e5m2_add(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -794,85 +304,7 @@ def try_fp8_e5m2_add(n_in: int, n_out: int, words: List[int]) -> Optional[Candid
 
 
 def emit_fp8_e5m2_mul(detail: str) -> str:
-    return f"""// {detail}
-module top(input [15:0] x, output reg [7:0] y);
-  wire [7:0] a = x[15:8];
-  wire [7:0] b = x[7:0];
-
-  function [32:0] magnitude;
-    input [7:0] v;
-    reg [4:0] e;
-    begin
-      e = v[6:2];
-      if (e == 0)
-        magnitude = v[1:0];
-      else
-        magnitude = ({{1'b1, v[1:0]}} << (e - 1'b1));
-    end
-  endfunction
-
-  wire [32:0] ma = magnitude(a);
-  wire [32:0] mb = magnitude(b);
-  wire [65:0] product = ma * mb;
-  wire negative = a[7] != b[7];
-
-  reg [65:0] q;
-  reg [65:0] discarded;
-  reg [65:0] halfway;
-  integer i;
-  integer leading;
-  integer e;
-  integer shift;
-
-  always @* begin
-    y = 8'h00;
-    q = 66'd0;
-    discarded = 66'd0;
-    halfway = 66'd0;
-    leading = 0;
-    e = 0;
-    shift = 0;
-
-    if ((a[6:0] == 7'h7f) || (b[6:0] == 7'h7f)) begin
-      y = 8'h7f;
-    end else if (product == 0) begin
-      y = {{negative, 7'd0}};
-    end else begin
-      for (i = 0; i < 66; i = i + 1)
-        if (product[i])
-          leading = i;
-
-      if (leading < 18) begin
-        e = 0;
-        shift = 16;
-      end else begin
-        e = leading - 17;
-        shift = leading - 2;
-      end
-
-      q = product >> shift;
-      discarded = product - (q << shift);
-      halfway = 66'd1 << (shift - 1);
-      if ((discarded > halfway) ||
-          ((discarded == halfway) && q[0]))
-        q = q + 1'b1;
-
-      if (leading < 18) begin
-        y = {{negative, q[6:0]}};
-      end else begin
-        if (q == 8) begin
-          q = 4;
-          e = e + 1;
-        end
-        if (((e << 3) + q) > 254)
-          y = {{negative, 7'h7e}};
-        else
-          y = {{negative, e[4:0], q[1:0]}};
-      end
-    end
-  end
-endmodule
-"""
+    return emit_finite_fp8("multiply", 5, 2, detail)
 
 
 def try_fp8_e5m2_mul(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -885,111 +317,7 @@ def try_fp8_e5m2_mul(n_in: int, n_out: int, words: List[int]) -> Optional[Candid
 
 
 def emit_fp8_e5m2_div(detail: str) -> str:
-    return f"""// {detail}
-module top(input [15:0] x, output reg [7:0] y);
-  wire [7:0] denominator = x[15:8];
-  wire [7:0] numerator = x[7:0];
-
-  function [32:0] magnitude;
-    input [7:0] v;
-    reg [4:0] e;
-    begin
-      e = v[6:2];
-      if (e == 0)
-        magnitude = v[1:0];
-      else
-        magnitude = ({{1'b1, v[1:0]}} << (e - 1'b1));
-    end
-  endfunction
-
-  function integer leading_bit;
-    input [32:0] v;
-    integer j;
-    begin
-      leading_bit = 0;
-      for (j = 0; j < 33; j = j + 1)
-        if (v[j])
-          leading_bit = j;
-    end
-  endfunction
-
-  wire [32:0] md = magnitude(denominator);
-  wire [32:0] mn = magnitude(numerator);
-  wire negative = denominator[7] != numerator[7];
-
-  reg [65:0] scaled_numerator;
-  reg [65:0] scaled_denominator;
-  reg [65:0] q;
-  reg [65:0] twice_remainder;
-  integer exponent;
-  integer scale;
-  reg subnormal;
-
-  always @* begin
-    y = 8'h00;
-    scaled_numerator = 66'd0;
-    scaled_denominator = 66'd0;
-    q = 66'd0;
-    twice_remainder = 66'd0;
-    exponent = 0;
-    scale = 0;
-    subnormal = 1'b0;
-
-    if ((denominator[6:0] == 7'h7f) ||
-        (numerator[6:0] == 7'h7f)) begin
-      y = 8'h7f;
-    end else if (md == 0) begin
-      y = (mn == 0) ? 8'h7f : {{negative, 7'h7e}};
-    end else if (mn == 0) begin
-      y = {{negative, 7'd0}};
-    end else begin
-      exponent = leading_bit(mn) - leading_bit(md);
-      scaled_numerator = mn;
-      scaled_denominator = md;
-      if (exponent >= 0)
-        scaled_denominator = scaled_denominator << exponent;
-      else
-        scaled_numerator = scaled_numerator << -exponent;
-      if (scaled_numerator < scaled_denominator)
-        exponent = exponent - 1;
-      exponent = exponent + 15;
-      subnormal = exponent <= 0;
-
-      scaled_numerator = mn;
-      scaled_denominator = md;
-      if (subnormal) begin
-        scaled_numerator = scaled_numerator << 16;
-      end else begin
-        scale = 17 - exponent;
-        if (scale >= 0)
-          scaled_numerator = scaled_numerator << scale;
-        else
-          scaled_denominator = scaled_denominator << -scale;
-      end
-
-      q = scaled_numerator / scaled_denominator;
-      twice_remainder =
-          (scaled_numerator % scaled_denominator) << 1;
-      if ((twice_remainder > scaled_denominator) ||
-          ((twice_remainder == scaled_denominator) && q[0]))
-        q = q + 1'b1;
-
-      if (subnormal) begin
-        y = {{negative, q[6:0]}};
-      end else begin
-        if (q == 8) begin
-          q = 4;
-          exponent = exponent + 1;
-        end
-        if (((exponent << 3) + q) > 254)
-          y = {{negative, 7'h7e}};
-        else
-          y = {{negative, exponent[4:0], q[1:0]}};
-      end
-    end
-  end
-endmodule
-"""
+    return emit_finite_fp8("divide", 5, 2, detail)
 
 
 def try_fp8_e5m2_div(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -1002,77 +330,7 @@ def try_fp8_e5m2_div(n_in: int, n_out: int, words: List[int]) -> Optional[Candid
 
 
 def emit_fp8_e5m2_fmod(detail: str) -> str:
-    return f"""// {detail}
-module top(input [15:0] x, output reg [7:0] y);
-  reg [32:0] numerator_mag;
-  reg [32:0] divisor_mag;
-  reg [32:0] remainder_mag;
-
-  function [32:0] decode_mag;
-    input [6:0] value;
-    begin
-      if (value[6:2] == 0)
-        decode_mag = {{31'b0, value[1:0]}};
-      else
-        decode_mag = {{30'b0, 1'b1, value[1:0]}}
-                     << (value[6:2] - 1);
-    end
-  endfunction
-
-  function [6:0] encode_mag;
-    input [32:0] value;
-    integer leading;
-    integer shift;
-    reg [5:0] exponent;
-    reg [3:0] significand;
-    reg [32:0] discarded;
-    reg [32:0] halfway;
-    begin
-      if (value < 4) begin
-        encode_mag = value[6:0];
-      end else begin
-        leading = 32;
-        while (!value[leading])
-          leading = leading - 1;
-        exponent = leading - 1;
-        shift = exponent - 1;
-        significand = value >> shift;
-        discarded = value - ({{29'b0, significand}} << shift);
-        halfway = 0;
-        if (shift > 0) begin
-          halfway = 33'b1 << (shift - 1);
-          if ((discarded > halfway) ||
-              ((discarded == halfway) && significand[0]))
-            significand = significand + 1;
-        end
-        if (significand == 8) begin
-          significand = 4;
-          exponent = exponent + 1;
-        end
-        if ((exponent > 31) ||
-            ((exponent == 31) && (significand >= 7)))
-          encode_mag = 7'h7e;
-        else
-          encode_mag = {{exponent[4:0], significand[1:0]}};
-      end
-    end
-  endfunction
-
-  always @* begin
-    numerator_mag = decode_mag(x[6:0]);
-    divisor_mag = decode_mag(x[14:8]);
-    remainder_mag = 0;
-    if ((x[6:0] == 7'h7f) ||
-        (x[14:8] == 7'h7f) ||
-        (x[14:8] == 0)) begin
-      y = 8'h7f;
-    end else begin
-      remainder_mag = numerator_mag % divisor_mag;
-      y = {{x[7], encode_mag(remainder_mag)}};
-    end
-  end
-endmodule
-"""
+    return emit_finite_fp8("fmod", 5, 2, detail)
 
 
 def try_fp8_e5m2_fmod(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -1085,94 +343,8 @@ def try_fp8_e5m2_fmod(n_in: int, n_out: int, words: List[int]) -> Optional[Candi
 
 
 def emit_fp8_e5m2_hypot(detail: str) -> str:
-    return f"""// {detail}
-module top(input [15:0] x, output reg [7:0] y);
-  reg [32:0] magnitude_a;
-  reg [32:0] magnitude_b;
-  reg [65:0] square_a;
-  reg [65:0] square_b;
-  reg [66:0] square_sum;
-
-  function [32:0] decode_mag;
-    input [6:0] value;
-    begin
-      if (value[6:2] == 0)
-        decode_mag = {{31'b0, value[1:0]}};
-      else
-        decode_mag = {{30'b0, 1'b1, value[1:0]}}
-                     << (value[6:2] - 1);
-    end
-  endfunction
-
-  function [6:0] encode_root;
-    input [66:0] value;
-    integer leading;
-    integer shift;
-    reg [5:0] exponent;
-    reg [3:0] significand;
-    reg [33:0] midpoint;
-    reg [66:0] normalized;
-    reg [68:0] four_value;
-    reg [68:0] midpoint_square;
-    begin
-      four_value = {{value, 2'b0}};
-      if (value == 0)
-        encode_root = 0;
-      else if (four_value < 9)
-        encode_root = 1;
-      else if (four_value < 25)
-        encode_root = 2;
-      else if (four_value < 49)
-        encode_root = 3;
-      else if (value < 16)
-        encode_root = 4;
-      else if (value[66])
-        encode_root = 7'h7e;
-      else begin
-        leading = 65;
-        while (!value[leading])
-          leading = leading - 1;
-        exponent = (leading >> 1) - 1;
-        shift = (leading >> 1) - 2;
-        normalized = value >> (shift * 2);
-        significand = 4;
-        if (normalized >= 25)
-          significand = 5;
-        if (normalized >= 36)
-          significand = 6;
-        if (normalized >= 49)
-          significand = 7;
-        midpoint = ((({{30'b0, significand}}) << 1) + 1) << shift;
-        midpoint_square = {{35'b0, midpoint}} * {{35'b0, midpoint}};
-        if ((four_value > midpoint_square) ||
-            ((four_value == midpoint_square) && significand[0]))
-          significand = significand + 1;
-        if (significand == 8) begin
-          significand = 4;
-          exponent = exponent + 1;
-        end
-        if ((exponent > 31) ||
-            ((exponent == 31) && (significand >= 7)))
-          encode_root = 7'h7e;
-        else
-          encode_root = {{exponent[4:0], significand[1:0]}};
-      end
-    end
-  endfunction
-
-  always @* begin
-    magnitude_a = decode_mag(x[14:8]);
-    magnitude_b = decode_mag(x[6:0]);
-    square_a = {{33'b0, magnitude_a}} * {{33'b0, magnitude_a}};
-    square_b = {{33'b0, magnitude_b}} * {{33'b0, magnitude_b}};
-    square_sum = {{1'b0, square_a}} + {{1'b0, square_b}};
-    if ((x[14:8] == 7'h7f) || (x[6:0] == 7'h7f))
-      y = 8'h7f;
-    else
-      y = {{1'b0, encode_root(square_sum)}};
-  end
-endmodule
-"""
+    return lowest_cost_source([emit_finite_fp8("hypot", 5, 2, detail),
+                               emit_finite_hypot(5, 2, detail)])
 
 
 def try_fp8_e5m2_hypot(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -1184,7 +356,7 @@ def try_fp8_e5m2_hypot(n_in: int, n_out: int, words: List[int]) -> Optional[Cand
     return Candidate(detail, emit_fp8_e5m2_hypot(detail))
 
 
-def emit_fp4_e2m1_dot2(detail: str) -> str:
+def _emit_explicit_fp4_e2m1_dot2(detail: str) -> str:
     return f"""// {detail}
 module top(input [15:0] x, output reg [7:0] y);
   reg signed [5:0] lane_a0;
@@ -1215,6 +387,7 @@ module top(input [15:0] x, output reg [7:0] y);
   function [6:0] encode_fp8;
     input [12:0] quarter_units;
     integer leading;
+    integer scan_bit;
     integer shift;
     reg [4:0] exponent;
     reg [4:0] significand;
@@ -1223,9 +396,9 @@ module top(input [15:0] x, output reg [7:0] y);
     reg [19:0] halfway;
     begin
       value = quarter_units << 7;
-      leading = 19;
-      while (!value[leading])
-        leading = leading - 1;
+      leading = 0;
+      for (scan_bit = 0; scan_bit <= 19; scan_bit = scan_bit + 1)
+        if (value[scan_bit]) leading = scan_bit;
       exponent = leading - 2;
       shift = exponent - 1;
       significand = value >> shift;
@@ -1267,6 +440,12 @@ endmodule
 """
 
 
+def emit_fp4_e2m1_dot2(detail: str) -> str:
+    """Rank two exact arithmetic representations under the active CSV."""
+    return lowest_cost_source([_emit_explicit_fp4_e2m1_dot2(detail),
+                               emit_finite_float_dot(2, 1, 2, detail)])
+
+
 def try_fp4_e2m1_dot2(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
     if n_in != 16 or n_out != 8:
         return None
@@ -1302,6 +481,7 @@ module top(input [15:0] x, output reg [7:0] y);
   function [6:0] encode_fp8;
     input [10:0] quarter_units;
     integer leading;
+    integer scan_bit;
     integer shift;
     reg [4:0] exponent;
     reg [4:0] significand;
@@ -1310,9 +490,9 @@ module top(input [15:0] x, output reg [7:0] y);
     reg [16:0] halfway;
     begin
       value = quarter_units << 7;
-      leading = 16;
-      while (!value[leading])
-        leading = leading - 1;
+      leading = 0;
+      for (scan_bit = 0; scan_bit <= 16; scan_bit = scan_bit + 1)
+        if (value[scan_bit]) leading = scan_bit;
       exponent = leading - 2;
       shift = exponent - 1;
       significand = value >> shift;
@@ -1365,7 +545,7 @@ def try_signed_magnitude_q21_dot2(
     return Candidate(detail, emit_signed_magnitude_q21_dot2(detail))
 
 
-def emit_unsigned_q11_dot4(detail: str) -> str:
+def _emit_explicit_unsigned_q11_dot4(detail: str) -> str:
     return f"""// {detail}
 module top(input [15:0] x, output reg [7:0] y);
   reg [3:0] product0;
@@ -1377,6 +557,7 @@ module top(input [15:0] x, output reg [7:0] y);
   function [6:0] encode_fp8;
     input [5:0] quarter_units;
     integer leading;
+    integer scan_bit;
     integer shift;
     reg [4:0] exponent;
     reg [4:0] significand;
@@ -1385,9 +566,9 @@ module top(input [15:0] x, output reg [7:0] y);
     reg [12:0] halfway;
     begin
       value = quarter_units << 7;
-      leading = 12;
-      while (!value[leading])
-        leading = leading - 1;
+      leading = 0;
+      for (scan_bit = 0; scan_bit <= 12; scan_bit = scan_bit + 1)
+        if (value[scan_bit]) leading = scan_bit;
       exponent = leading - 2;
       shift = exponent - 1;
       significand = value >> shift;
@@ -1420,6 +601,11 @@ endmodule
 """
 
 
+def emit_unsigned_q11_dot4(detail: str) -> str:
+    return lowest_cost_source([_emit_explicit_unsigned_q11_dot4(detail),
+                               emit_unsigned_scaled_dot(2, 1, 4, detail)])
+
+
 def try_unsigned_q11_dot4(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
     if n_in != 16 or n_out != 8:
         return None
@@ -1430,50 +616,7 @@ def try_unsigned_q11_dot4(n_in: int, n_out: int, words: List[int]) -> Optional[C
 
 
 def emit_unsigned_q11_sum8(detail: str) -> str:
-    return f"""// {detail}
-module top(input [15:0] x, output reg [7:0] y);
-  reg [4:0] lane_sum;
-
-  function [6:0] encode_fp8;
-    input [4:0] half_units;
-    integer leading;
-    integer shift;
-    reg [4:0] exponent;
-    reg [4:0] significand;
-    reg [12:0] value;
-    reg [12:0] discarded;
-    reg [12:0] halfway;
-    begin
-      value = half_units << 8;
-      leading = 12;
-      while (!value[leading])
-        leading = leading - 1;
-      exponent = leading - 2;
-      shift = exponent - 1;
-      significand = value >> shift;
-      discarded = value - (significand << shift);
-      halfway = 13'b1 << (shift - 1);
-      if ((discarded > halfway) ||
-          ((discarded == halfway) && significand[0]))
-        significand = significand + 1;
-      if (significand == 16) begin
-        significand = 8;
-        exponent = exponent + 1;
-      end
-      encode_fp8 = {{exponent[3:0], significand[2:0]}};
-    end
-  endfunction
-
-  always @* begin
-    lane_sum = {{3'b0, x[1:0]}} + x[3:2] + x[5:4] + x[7:6]
-             + x[9:8] + x[11:10] + x[13:12] + x[15:14];
-    if (lane_sum == 0)
-      y = 0;
-    else
-      y = {{1'b0, encode_fp8(lane_sum)}};
-  end
-endmodule
-"""
+    return emit_packed_q11_sum(8, detail)
 
 
 def try_unsigned_q11_sum8(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
@@ -1530,6 +673,7 @@ module top(input [15:0] x, output reg [7:0] y);
   function [6:0] encode_fp8;
     input [19:0] value;
     integer leading;
+    integer scan_bit;
     integer shift;
     reg [4:0] exponent;
     reg [4:0] significand;
@@ -1539,9 +683,9 @@ module top(input [15:0] x, output reg [7:0] y);
       if (value < 8) begin
         encode_fp8 = value[6:0];
       end else begin
-        leading = 19;
-        while (!value[leading])
-          leading = leading - 1;
+        leading = 0;
+        for (scan_bit = 0; scan_bit <= 19; scan_bit = scan_bit + 1)
+          if (value[scan_bit]) leading = scan_bit;
         exponent = leading - 2;
         shift = exponent - 1;
         significand = value >> shift;
@@ -1703,8 +847,10 @@ def emit_float_field_case(
     return "\n".join(lines)
 
 
-def try_float_field_factored(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
-    desc = describe_truth(n_in, n_out, words)
+def try_float_field_factored(
+    n_in: int, n_out: int, words: List[int], description=_DESCRIPTION_UNSET,
+) -> Optional[Candidate]:
+    desc = describe_truth(n_in, n_out, words) if description is _DESCRIPTION_UNSET else description
     if desc is None or desc.family != "floating-point unary":
         return None
     fmt_info = float_format_from_description(desc.detail)
@@ -1884,300 +1030,58 @@ def try_16to8_field_factored(n_in: int, n_out: int, words: List[int]) -> Optiona
 
 
 def emit_bf16_sqrt(words: Sequence[int], detail: str) -> str:
-    template = """// __DETAIL__
-// structured sqrt: restoring integer square root over the normalized significand
-module top(input [15:0] x, output reg [15:0] y);
-  wire sign_in = x[15];
-  wire [7:0] exp_in = x[14:7];
-  wire [6:0] mant_in = x[6:0];
-  wire is_subnorm = (exp_in == 8'd0) && (mant_in != 7'd0);
-  wire [7:0] exp_d = is_subnorm ? 8'd0 : exp_in;
-  wire [6:0] mant_d = is_subnorm ? 7'd0 : mant_in;
-
-  reg [15:0] rad;
-  reg [9:0] rem;
-  reg [9:0] trial;
-  reg [7:0] root;
-  reg round_up;
-  reg [8:0] root_rnd;
-  reg root_over;
-  reg [7:0] exp_base;
-  reg [7:0] exp_out;
-  reg [6:0] mant_out;
-  integer i;
-
-  always @(*) begin
-    rad = 16'd0;
-    rem = 10'd0;
-    trial = 10'd0;
-    root = 8'd0;
-    round_up = 1'b0;
-    root_rnd = 9'd0;
-    root_over = 1'b0;
-    exp_base = 8'd0;
-    exp_out = 8'd0;
-    mant_out = 7'd0;
-
-    if (exp_d == 8'hff) begin
-      if (mant_d != 7'd0) y = 16'h7fc0;
-      else y = sign_in ? 16'h7fc0 : 16'h7f80;
-    end else if (exp_d == 8'd0) begin
-      y = sign_in ? 16'h8000 : 16'h0000;
-    end else if (sign_in) begin
-      y = 16'h7fc0;
-    end else begin
-      rad = exp_d[0] ? {{1'b1, mant_d}, 7'b0} : {{1'b1, mant_d}, 8'b0};
-      exp_base = ({{1'b0, exp_d}} + 9'd127) >> 1;
-      rem = 10'd0;
-      root = 8'd0;
-      for (i = 7; i >= 0; i = i - 1) begin
-        rem = {{rem[7:0], rad[(2*i)+1 -: 2]}};
-        trial = {{root, 2'b01}};
-        if (rem >= trial) begin
-          rem = rem - trial;
-          root = {{root[6:0], 1'b1}};
-        end else begin
-          root = {{root[6:0], 1'b0}};
-        end
-      end
-      round_up = rem > {{2'b00, root}};
-      root_rnd = {{1'b0, root}} + {{8'd0, round_up}};
-      root_over = root_rnd[8];
-      exp_out = exp_base + {{7'd0, root_over}};
-      mant_out = root_over ? 7'd0 : root_rnd[6:0];
-      y = {{1'b0, exp_out, mant_out}};
-    end
-  end
-endmodule
-"""
-    return template.replace("__DETAIL__", detail)
+    return emit_factored_newton_sqrt(8, 7, detail)
 
 
 def emit_fp16_sqrt(detail: str) -> str:
-    template = """\n// __DETAIL__
-// structured sqrt: restoring integer sqrt over the normalized significand
-module top(input [15:0] x, output reg [15:0] y);
-  wire sign_in = x[15];
-  wire [4:0] exp_in = x[14:10];
-  wire [9:0] mant_in = x[9:0];
-  wire is_subnorm = (exp_in == 5'd0) && (mant_in != 10'd0);
-  wire [4:0] exp_d = is_subnorm ? 5'd0 : exp_in;
-  wire [9:0] mant_d = is_subnorm ? 10'd0 : mant_in;
-
-  reg [21:0] rad;
-  reg [12:0] rem;
-  reg [12:0] trial;
-  reg [10:0] root;
-  reg round_up;
-  reg [11:0] root_rnd;
-  reg root_over;
-  reg [4:0] exp_base;
-  reg [4:0] exp_out;
-  reg [9:0] mant_out;
-  integer i;
-
-  always @(*) begin
-    rad = 22'd0;
-    rem = 13'd0;
-    trial = 13'd0;
-    root = 11'd0;
-    round_up = 1'b0;
-    root_rnd = 12'd0;
-    root_over = 1'b0;
-    exp_base = 5'd0;
-    exp_out = 5'd0;
-    mant_out = 10'd0;
-
-    if (exp_d == 5'd31) begin
-      if (mant_d != 10'd0) y = 16'h7e00;
-      else y = sign_in ? 16'h7e00 : 16'h7c00;
-    end else if (exp_d == 5'd0) begin
-      y = sign_in ? 16'h8000 : 16'h0000;
-    end else if (sign_in) begin
-      y = 16'h7e00;
-    end else begin
-      rad = exp_d[0] ? {{1'b1, mant_d}, 10'b0} : {{1'b1, mant_d}, 11'b0};
-      exp_base = ({1'b0, exp_d} + 6'd15) >> 1;
-      rem = 13'd0;
-      root = 11'd0;
-      for (i = 10; i >= 0; i = i - 1) begin
-        rem = {rem[10:0], rad[(2*i)+1 -: 2]};
-        trial = {root, 2'b01};
-        if (rem >= trial) begin
-          rem = rem - trial;
-          root = {root[9:0], 1'b1};
-        end else begin
-          root = {root[9:0], 1'b0};
-        end
-      end
-      round_up = rem > {2'b00, root};
-      root_rnd = {1'b0, root} + {11'd0, round_up};
-      root_over = root_rnd[11];
-      exp_out = exp_base + {4'd0, root_over};
-      mant_out = root_over ? 10'd0 : root_rnd[9:0];
-      y = {1'b0, exp_out, mant_out};
-    end
-  end
-endmodule
-"""
-    return template.replace("__DETAIL__", detail)
+    return emit_factored_newton_sqrt(5, 10, detail)
 
 
 def emit_bf16_recip(detail: str) -> str:
-    return f"""// {detail}
-// structured reciprocal over BF16 fields
-module top(input [15:0] x, output [15:0] y);
-  wire sign_in = x[15];
-  wire [7:0] exp_in = x[14:7];
-  wire [6:0] mant_in = x[6:0];
-  wire is_subnorm = (exp_in == 8'd0) && (mant_in != 7'd0);
-  wire [7:0] exp_d = is_subnorm ? 8'd0 : exp_in;
-  wire [6:0] mant_d = is_subnorm ? 7'd0 : mant_in;
-  wire is_zero = (exp_d == 8'd0);
-  wire is_inf = (exp_d == 8'd255) && (mant_d == 7'd0);
-  wire is_nan = (exp_d == 8'd255) && (mant_d != 7'd0);
-  wire [7:0] denom = 8'd128 + {{1'b0, mant_d}};
-  wire [15:0] recip_rounded = (16'd32768 + {{8'd0, denom[7:1]}}) / denom;
-  wire [7:0] rlut = (mant_d == 7'd0) ? 8'd0 : (recip_rounded - 16'd128);
-  wire mant_carry = rlut[7];
-  wire [6:0] mant_out = rlut[6:0];
-  wire [8:0] exp_calc =
-    (mant_d == 7'd0) ? (9'd254 - {{1'b0, exp_d}}) : (9'd253 - {{1'b0, exp_d}});
-  wire [8:0] exp_adj = exp_calc + {{8'd0, mant_carry}};
-  wire underflow = exp_adj[8] || (exp_adj == 9'd0);
-  wire overflow = !exp_adj[8] && (exp_adj >= 9'd255);
-  wire [15:0] normal_result = {{sign_in, exp_adj[7:0], mant_out}};
-  assign y =
-    is_nan ? 16'h7FC0 :
-    is_zero ? {{sign_in, 15'h7F80}} :
-    is_inf ? {{sign_in, 15'h0000}} :
-    underflow ? {{sign_in, 15'h0000}} :
-    overflow ? {{sign_in, 15'h7F80}} :
-    normal_result;
-endmodule
-"""
+    return emit_binary_reciprocal(8, 7, detail)
 
 
 def emit_bf16_recip_square(detail: str) -> str:
-    return f"""// {detail}
-// exact significand-square quotient with RNE and reconstructed exponent
-module top(input [15:0] x, output reg [15:0] y);
-  reg [8:0] sig;
-  reg [17:0] denom;
-  reg [63:0] numer, rounded, rem;
-  reg signed [63:0] adjust, out_exp;
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; denom = 0; numer = 0; rounded = 0; rem = 0;
-    adjust = 0; out_exp = 0;
-
-    if (x[14:7] == 8'hff) begin
-      if (x[6:0] != 0)
-        y = 16'h7fc0;
-      else
-        y = 16'h0000;
-    end else if (x[14:7] == 0) begin
-      y = 16'h7f80;
-    end else begin
-      sig = 9'd128 + {{2'b00, x[6:0]}};
-      denom = sig * sig;
-      if (denom <= 18'd32768)
-        adjust = 1;
-      else
-        adjust = 2;
-
-      numer = 64'd16384 <<< (adjust + 7);
-      rounded = numer / denom;
-      rem = numer - rounded * denom;
-      rem = rem <<< 1;
-      if ((rem > denom) ||
-          ((rem == denom) && rounded[0]))
-        rounded = rounded + 1;
-
-      out_exp = 381 - ({{56'd0, x[14:7]}} <<< 1) - adjust;
-      if (rounded >= 256) begin
-        rounded = 128;
-        out_exp = out_exp + 1;
-      end
-
-      if (out_exp >= 255)
-        y = 16'h7f80;
-      else if (out_exp <= 0)
-        y = 16'h0000;
-      else
-        y = {{out_exp[7:0], rounded[6:0]}};
-    end
-  end
-endmodule
-"""
+    original = emit_binary_recip_power(8, 7, 2, detail)
+    try:
+        compact = emit_binary_reciprocal_power(8, 7, 2, detail)
+    except ValueError:
+        return original
+    return lowest_cost_source([original, compact])
 
 
 def emit_bf16_recip_sqrt(detail: str) -> str:
-    return f"""// {detail}
-// structured reciprocal square root over BF16 fields
-module top(input [15:0] x, output reg [15:0] y);
-  reg [8:0] sig;
-  reg [63:0] numer, rounded, trial, midpoint;
-  reg signed [63:0] out_exp;
-  integer i;
+    return lowest_cost_source([emit_newton_rounded_rsqrt(8, 7, detail),
+                               emit_binary_reciprocal_sqrt(8, 7, detail)])
 
-  function [63:0] scaled_square;
-    input [63:0] v;
-    begin
-      scaled_square = v * v * sig;
-    end
-  endfunction
 
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; numer = 0; rounded = 0; trial = 0; midpoint = 0;
-    out_exp = 0;
+def _compact_bf16_fixed_point(rtl: str, body_start: str | None = None) -> str:
+    """Share field decoding and signed operators in generated BF16 kernels.
 
-    if (x[14:7] == 8'hff) begin
-      if ((x[6:0] != 0) || x[15])
-        y = 16'h7fc0;
-      else
-        y = 16'h0000;
-    end else if (x[14:7] == 0) begin
-      y = {{x[15], 15'h7f80}};
-    end else if (x[15]) begin
-      y = 16'h7fc0;
-    end else begin
-      sig = 9'd128 + {{2'b00, x[6:0]}};
-      numer = 64'd4194304 <<< x[7];
-      out_exp = 64'sd190
-                - $signed(({{1'b0, x[14:7]}} + 10'd1) >>> 1);
-
-      rounded = 0;
-      for (i = 8; i >= 0; i = i - 1) begin
-        trial = rounded + (64'd1 <<< i);
-        if (scaled_square(trial) <= numer)
-          rounded = trial;
-      end
-
-      midpoint = (rounded <<< 1) + 1;
-      if ((numer <<< 2) > scaled_square(midpoint))
-        rounded = rounded + 1;
-      if (rounded >= 256) begin
-        rounded = 128;
-        out_exp = out_exp + 1;
-      end
-
-      if (out_exp >= 255)
-        y = 16'h7f80;
-      else if (out_exp <= 0)
-        y = 16'h0000;
-      else
-        y = {{out_exp[7:0], rounded[6:0]}};
-    end
-  end
-endmodule
-"""
+    Geometry follows the matched BF16 format; constants and arithmetic follow
+    the original semantic emitter, never a case identifier or a table row.
+    """
+    for field, signal in (("x[15]", "input_sign"),
+                          ("x[14:7]", "input_exponent"),
+                          ("x[6:0]", "input_fraction")):
+        rtl = rtl.replace(field, signal)
+    declaration = "module top(input [15:0] x, output reg [15:0] y);"
+    aliases = """
+  wire input_sign = x[15];
+  wire [7:0] input_exponent = x[14:7];
+  wire [6:0] input_fraction = x;"""
+    rtl = rtl.replace(declaration, declaration + aliases, 1)
+    prepared = share_round_to_even(linearize_float_pack(reduce_positive_padding(rtl)))
+    rounded = share_dynamic_round_to_even(prepared)
+    candidates = [compact_outside_word_loops(source, body_start=body_start,
+                         min_word_operator_uses=minimum)
+                  for source in dict.fromkeys([prepared, rounded])
+                  for minimum in (1, 2)]
+    return lowest_cost_source([compact_semantic_rtl(source) for source in candidates])
 
 
 def emit_bf16_exp(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // structural fixed-point exp: ln(2) range reduction and degree-6 Horner polynomial
 module top(input [15:0] x, output reg [15:0] y);
   localparam signed [63:0] ONE  = 64'sd2097152;
@@ -2264,11 +1168,11 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""")
 
 
 def emit_bf16_pow2(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // structural fixed-point 2^x: integer/fraction range reduction and exp(r*ln(2))
 module top(input [15:0] x, output reg [15:0] y);
   localparam signed [63:0] ONE  = 64'sd2097152;
@@ -2356,11 +1260,11 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""")
 
 
 def emit_bf16_pow10(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // structural fixed-point 10^x: Q40 x*ln(10), ln(2) reduction, degree-5 exp
 module top(input [15:0] x, output reg [15:0] y);
   localparam signed [63:0] ONE  = 64'sd1099511627776;
@@ -2464,11 +1368,11 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""")
 
 
 def emit_bf16_log(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // structural ln: exponent decomposition and Q40 atanh series through z^5
 module top(input [15:0] x, output reg [15:0] y);
   localparam signed [63:0] ONE = 64'sd1099511627776;
@@ -2536,12 +1440,12 @@ module top(input [15:0] x, output reg [15:0] y);
         absq = valueq[63] ? -valueq : valueq;
         normq = absq;
         bin_exp = 0;
-        for (i = 0; i < 7; i = i + 1)
+        repeat (7)
           if (normq >= 64'sd2199023255552) begin
             normq = normq >>> 1;
             bin_exp = bin_exp + 1;
           end
-        for (i = 0; i < 40; i = i + 1)
+        repeat (40)
           if (normq < ONE) begin
             normq = normq <<< 1;
             bin_exp = bin_exp - 1;
@@ -2572,11 +1476,11 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""")
 
 
 def emit_bf16_log2(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // structural log2: exponent decomposition and centered Q40 atanh series through z^5
 module top(input [15:0] x, output reg [15:0] y);
   localparam signed [63:0] ONE = 64'sd1099511627776;
@@ -2644,12 +1548,12 @@ module top(input [15:0] x, output reg [15:0] y);
         absq = valueq[63] ? -valueq : valueq;
         normq = absq;
         bin_exp = 0;
-        for (i = 0; i < 7; i = i + 1)
+        repeat (7)
           if (normq >= 64'sd2199023255552) begin
             normq = normq >>> 1;
             bin_exp = bin_exp + 1;
           end
-        for (i = 0; i < 40; i = i + 1)
+        repeat (40)
           if (normq < ONE) begin
             normq = normq <<< 1;
             bin_exp = bin_exp - 1;
@@ -2680,11 +1584,11 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""")
 
 
 def emit_bf16_log10(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // structural log10: exponent decomposition and centered Q40 atanh series through z^5
 module top(input [15:0] x, output reg [15:0] y);
   localparam signed [63:0] ONE = 64'sd1099511627776;
@@ -2753,12 +1657,12 @@ module top(input [15:0] x, output reg [15:0] y);
         absq = valueq[63] ? -valueq : valueq;
         normq = absq;
         bin_exp = 0;
-        for (i = 0; i < 7; i = i + 1)
+        repeat (7)
           if (normq >= 64'sd2199023255552) begin
             normq = normq >>> 1;
             bin_exp = bin_exp + 1;
           end
-        for (i = 0; i < 40; i = i + 1)
+        repeat (40)
           if (normq < ONE) begin
             normq = normq <<< 1;
             bin_exp = bin_exp - 1;
@@ -2789,11 +1693,11 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""")
 
 
 def emit_bf16_sin(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // 256-bit Payne-Hanek reduction; Q56 degree-9 sine and degree-10 cosine
 module top(input [15:0] x, output reg [15:0] y);
   localparam [255:0] TWO_OVER_PI =
@@ -2914,7 +1818,7 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""", body_start="      r = mul_q56(fracq, PI_OVER_2);")
 
 
 def emit_bf16_tan(detail: str) -> str:
@@ -3060,7 +1964,7 @@ endmodule
 
 
 def emit_bf16_sinh(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // Q40 exponential range reduction with reciprocal sinh correction
 module top(input [15:0] x, output reg [15:0] y);
   localparam signed [63:0] ONE  = 64'sd1099511627776;
@@ -3165,11 +2069,11 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""")
 
 
 def emit_bf16_tanh(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // Q40 range-reduced exponential and odd rational reconstruction
 module top(input [15:0] x, output reg [15:0] y);
   localparam signed [63:0] ONE  = 64'sd1099511627776;
@@ -3265,11 +2169,11 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""")
 
 
 def emit_bf16_sigmoid(detail: str) -> str:
-    return f"""// {detail}
+    return _compact_bf16_fixed_point(f"""// {detail}
 // Q40 range-reduced exponential with stable positive/negative rational branches
 module top(input [15:0] x, output reg [15:0] y);
   localparam signed [63:0] ONE  = 64'sd1099511627776;
@@ -3377,256 +2281,29 @@ module top(input [15:0] x, output reg [15:0] y);
     end
   end
 endmodule
-"""
+""")
 
 
 def emit_bf16_square(detail: str) -> str:
-    return f"""// {detail}
-// structured BF16 square with DAZ+FTZ+RNE
-module top(input [15:0] x, output [15:0] y);
-  wire [7:0] exp_in = x[14:7];
-  wire [6:0] mant_in = x[6:0];
-  wire is_subnorm = (exp_in == 8'd0) && (mant_in != 7'd0);
-  wire [7:0] exp_d = is_subnorm ? 8'd0 : exp_in;
-  wire [6:0] mant_d = is_subnorm ? 7'd0 : mant_in;
-  wire is_zero = (exp_d == 8'd0);
-  wire is_inf = (exp_d == 8'd255) && (mant_d == 7'd0);
-  wire is_nan = (exp_d == 8'd255) && (mant_d != 7'd0);
-  wire [7:0] full_mant = {{1'b1, mant_d}};
-  wire [15:0] prod = full_mant * full_mant;
-  wire shift = prod[15];
-  wire [9:0] exp_sum = {{2'b0, exp_d}} + {{2'b0, exp_d}} - 10'd127 + {{9'd0, shift}};
-  wire [6:0] mant_raw = shift ? prod[14:8] : prod[13:7];
-  wire round_bit = shift ? prod[7] : prod[6];
-  wire sticky_bit = shift ? |prod[6:0] : |prod[5:0];
-  wire round_up = round_bit & (sticky_bit | mant_raw[0]);
-  wire [7:0] mant_rounded = {{1'b0, mant_raw}} + {{7'd0, round_up}};
-  wire mant_carry = mant_rounded[7];
-  wire [6:0] mant_final = mant_carry ? 7'd0 : mant_rounded[6:0];
-  wire [9:0] exp_final = exp_sum + {{9'd0, mant_carry}};
-  wire underflow = exp_final[9] || (exp_final == 10'd0);
-  wire overflow = !exp_final[9] && (exp_final >= 10'd255);
-  wire [15:0] normal_result = {{1'b0, exp_final[7:0], mant_final}};
-  assign y =
-    is_nan ? 16'h7FC0 :
-    is_zero ? 16'h0000 :
-    is_inf ? 16'h7F80 :
-    underflow ? 16'h0000 :
-    overflow ? 16'h7F80 :
-    normal_result;
-endmodule
-"""
+    return lowest_cost_source([emit_binary_square(8, 7, detail),
+                               emit_guarded_binary_square(8, 7, detail)])
 
 
 def emit_bf16_cube(detail: str) -> str:
-    return f"""// {detail}
-// exact significand cube with power-of-two normalization and RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [8:0] sig;
-  reg [31:0] cube, rounded, half;
-  reg signed [63:0] adjust, shift_amt, out_exp;
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; cube = 0; rounded = 0; half = 0;
-    adjust = 0; shift_amt = 0; out_exp = 0;
-
-    if (x[14:7] == 8'hff) begin
-      if (x[6:0] != 0)
-        y = 16'h7fc0;
-      else
-        y = {{x[15], 15'h7f80}};
-    end else if (x[14:7] == 0) begin
-      y = {{x[15], 15'd0}};
-    end else begin
-      sig = {{1'b1, x[6:0]}};
-      cube = sig * sig * sig;
-      if (cube < 32'd4194304)
-        adjust = 0;
-      else if (cube < 32'd8388608)
-        adjust = 1;
-      else
-        adjust = 2;
-
-      shift_amt = 14 + adjust;
-      rounded = cube >>> shift_amt;
-      half = 32'd8192 <<< adjust;
-      rounded = (cube + half - 1 + rounded[0]) >>> shift_amt;
-
-      out_exp = 3 * $signed({{1'b0, x[14:7]}}) - 254 + adjust;
-      if (out_exp >= 255)
-        y = {{x[15], 15'h7f80}};
-      else if (out_exp <= 0)
-        y = {{x[15], 15'd0}};
-      else
-        y = {{x[15], out_exp[7:0], rounded[6:0]}};
-    end
-  end
-endmodule
-"""
+    return emit_binary_cube(8, 7, detail)
 
 
 def emit_bf16_cbrt(detail: str) -> str:
-    return f"""// {detail}
-// exponent quotient/remainder plus exact integer cube-root RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [8:0] sig;
-  reg [63:0] numer, rounded, trial, midpoint;
-  reg [8:0] biased_exp, exp_third, exp_rem;
-  reg [8:0] out_exp;
-  integer i;
-
-  function [63:0] cube;
-    input [63:0] v;
-    begin
-      cube = v * v * v;
-    end
-  endfunction
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; numer = 0; rounded = 0; trial = 0; midpoint = 0;
-    biased_exp = 0; exp_third = 0; exp_rem = 0; out_exp = 0;
-
-    if (x[14:7] == 8'hff) begin
-      if (x[6:0] != 0)
-        y = 16'h7fc0;
-      else
-        y = {{x[15], 15'h7f80}};
-    end else if (x[14:7] == 0) begin
-      y = {{x[15], 15'd0}};
-    end else begin
-      sig = {{1'b1, x[6:0]}};
-      biased_exp = {{1'b0, x[14:7]}} + 2;
-      exp_third = biased_exp / 3;
-      exp_rem = biased_exp % 3;
-      out_exp = exp_third + 84;
-      numer = {{55'd0, sig}} <<< (14 + exp_rem);
-
-      rounded = 128;
-      for (i = 6; i >= 0; i = i - 1) begin
-        trial = rounded + (64'd1 <<< i);
-        if (cube(trial) <= numer)
-          rounded = trial;
-      end
-
-      midpoint = (rounded <<< 1) + 1;
-      if ((numer <<< 3) > cube(midpoint))
-        rounded = rounded + 1;
-      if (rounded >= 256) begin
-        rounded = 128;
-        out_exp = out_exp + 1;
-      end
-
-      y = {{x[15], out_exp[7:0], rounded[6:0]}};
-    end
-  end
-endmodule
-"""
+    return lowest_cost_source([emit_binary_root(8, 7, 3, False, detail, precision=None),
+                               emit_staged_cubic_root(8, 7, detail, precision=None)])
 
 
 def emit_bf16_recip_cube(detail: str) -> str:
-    return f"""// {detail}
-// exact significand cube with structural reciprocal normalization and RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [8:0] sig;
-  reg [31:0] cube;
-  reg [63:0] numer, rounded;
-  reg signed [63:0] adjust, out_exp;
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; cube = 0; numer = 0; rounded = 0;
-    adjust = 0; out_exp = 0;
-
-    if (x[14:7] == 8'hff) begin
-      if (x[6:0] != 0)
-        y = 16'h7fc0;
-      else
-        y = {{x[15], 15'd0}};
-    end else if (x[14:7] == 0) begin
-      y = {{x[15], 15'h7f80}};
-    end else begin
-      sig = {{1'b1, x[6:0]}};
-      cube = sig * sig * sig;
-      if (cube == 32'd2097152)
-        adjust = 0;
-      else if (cube < 32'd4194304)
-        adjust = 1;
-      else if (cube < 32'd8388608)
-        adjust = 2;
-      else
-        adjust = 3;
-
-      numer = 64'd1 <<< (28 + adjust);
-      rounded = (numer + (cube >>> 1)) / cube;
-
-      out_exp = 508 - 3 * $signed({{1'b0, x[14:7]}}) - adjust;
-      if (out_exp >= 255)
-        y = {{x[15], 15'h7f80}};
-      else if (out_exp <= 0)
-        y = {{x[15], 15'd0}};
-      else
-        y = {{x[15], out_exp[7:0], rounded[6:0]}};
-    end
-  end
-endmodule
-"""
+    return emit_binary_recip_power(8, 7, 3, detail)
 
 
 def emit_bf16_recip_cbrt(detail: str) -> str:
-    return f"""// {detail}
-// exponent quotient/remainder plus exact reciprocal cube-root RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [8:0] sig;
-  reg [63:0] numer, rounded, trial, midpoint;
-  reg [8:0] biased_exp, exp_third, exp_rem, out_exp;
-  integer i;
-
-  function [63:0] scaled_cube;
-    input [63:0] v;
-    begin
-      scaled_cube = v * v * v * sig;
-    end
-  endfunction
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; numer = 0; rounded = 0; trial = 0; midpoint = 0;
-    biased_exp = 0; exp_third = 0; exp_rem = 0; out_exp = 0;
-
-    if (x[14:7] == 8'hff) begin
-      if (x[6:0] != 0)
-        y = 16'h7fc0;
-      else
-        y = {{x[15], 15'd0}};
-    end else if (x[14:7] == 0) begin
-      y = {{x[15], 15'h7f80}};
-    end else begin
-      sig = {{1'b1, x[6:0]}};
-      biased_exp = {{1'b0, x[14:7]}} + 2;
-      exp_third = biased_exp / 3;
-      exp_rem = biased_exp % 3;
-      out_exp = 169 - exp_third;
-      numer = 64'd1 <<< (31 - exp_rem);
-
-      rounded = 128;
-      for (i = 7; i >= 0; i = i - 1) begin
-        trial = rounded + (64'd1 <<< i);
-        if (scaled_cube(trial) <= numer)
-          rounded = trial;
-      end
-
-      midpoint = (rounded <<< 1) + 1;
-      if ((numer <<< 3) > scaled_cube(midpoint))
-        rounded = rounded + 1;
-
-      out_exp = out_exp + rounded[8];
-      y = {{x[15], out_exp[7:0], rounded[6:0]}};
-    end
-  end
-endmodule
-"""
+    return emit_inverse_cube_scan(8, 7, detail)
 
 
 def emit_fp16_exp(detail: str) -> str:
@@ -4300,7 +2977,7 @@ endmodule
     return template.replace("__DETAIL__", detail)
 
 
-def emit_fp16_sinh(detail: str) -> str:
+def emit_fp16_sinh(detail: str, words: Optional[Sequence[int]] = None) -> str:
     template = """// __DETAIL__
 // Q40 ln2 reduction and shared degree-7 exp for sinh reconstruction
 module top(input [15:0] x, output reg [15:0] y);
@@ -4392,7 +3069,10 @@ module top(input [15:0] x, output reg [15:0] y);
   end
 endmodule
 """
-    return template.replace("__DETAIL__", detail)
+    template = isolate_endpoint_kernel(template, words)
+    return template.replace("__DETAIL__", detail).replace(
+        "    end else if (xe != 0) begin",
+        emit_endpoint_guards(words) + "    end else if (xe != 0) begin", 1)
 
 
 def emit_fp16_tanh(detail: str) -> str:
@@ -4486,10 +3166,13 @@ module top(input [15:0] x, output reg [15:0] y);
   end
 endmodule
 """
-    return template.replace("__DETAIL__", detail)
+    # The positive Q40 quotient is normalized by the bounded loop; final RN10
+    # yields a significand in [1024, 2048], including its rounding carry.
+    return compact_semantic_rtl(template.replace("__DETAIL__", detail),
+                                normalized_activation_format=(5, 10))
 
 
-def emit_fp16_sigmoid(detail: str) -> str:
+def emit_fp16_sigmoid(detail: str, words: Optional[Sequence[int]] = None) -> str:
     template = """// __DETAIL__
 // structural FP16 logistic sigmoid: FP32 exp/add/div then FP16 RNE
 module top(input [15:0] x, output reg [15:0] y);
@@ -4622,458 +3305,59 @@ module top(input [15:0] x, output reg [15:0] y);
   end
 endmodule
 """
-    return template.replace("__DETAIL__", detail)
+    template = isolate_endpoint_kernel(template, words)
+    rtl = template.replace("__DETAIL__", detail).replace(
+        "    end else if (xe != 0) begin",
+        emit_endpoint_guards(words) + "    end else if (xe != 0) begin", 1)
+    # Keep endpoint isolation and all FP32 stages before the proved positive
+    # normalized-significand interval used by the final RN10 pack.
+    return compact_semantic_rtl(rtl, normalized_activation_format=(5, 10))
 
 
 def emit_fp16_square(detail: str) -> str:
-    return f"""// {detail}
-// structured FP16 square with DAZ+FTZ+RNE
-module top(input [15:0] x, output [15:0] y);
-  wire [4:0] exp_in = x[14:10];
-  wire [9:0] mant_in = x[9:0];
-  wire is_zero = (exp_in == 5'd0);
-  wire is_inf = (exp_in == 5'd31) && (mant_in == 10'd0);
-  wire is_nan = (exp_in == 5'd31) && (mant_in != 10'd0);
-  wire [10:0] full_mant = {{1'b1, mant_in}};
-  wire [21:0] prod = full_mant * full_mant;
-  wire shift = prod[21];
-  wire [6:0] exp_sum = {{2'b0, exp_in}} + {{2'b0, exp_in}} - 7'd15 + {{6'd0, shift}};
-  wire [9:0] mant_raw = shift ? prod[20:11] : prod[19:10];
-  wire round_bit = shift ? prod[10] : prod[9];
-  wire sticky_bit = shift ? |prod[9:0] : |prod[8:0];
-  wire round_up = round_bit & (sticky_bit | mant_raw[0]);
-  wire [10:0] mant_rounded = {{1'b0, mant_raw}} + {{10'd0, round_up}};
-  wire mant_carry = mant_rounded[10];
-  wire [9:0] mant_final = mant_carry ? 10'd0 : mant_rounded[9:0];
-  wire [6:0] exp_final = exp_sum + {{6'd0, mant_carry}};
-  wire underflow = exp_final[6] || (exp_final == 7'd0);
-  wire overflow = !exp_final[6] && (exp_final >= 7'd31);
-  wire [15:0] normal_result = {{1'b0, exp_final[4:0], mant_final}};
-  assign y =
-    is_nan ? 16'h7E00 :
-    is_zero ? 16'h0000 :
-    is_inf ? 16'h7C00 :
-    underflow ? 16'h0000 :
-    overflow ? 16'h7C00 :
-    normal_result;
-endmodule
-"""
+    return lowest_cost_source([emit_binary_square(5, 10, detail),
+                               emit_guarded_binary_square(5, 10, detail)])
 
 
 def emit_fp16_recip(detail: str) -> str:
-    return f"""// {detail}
-// exact FP16 reciprocal with integer quotient and RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [11:0] denom;
-  reg [31:0] numer, rounded, rem;
-  reg signed [31:0] out_exp;
-
-  always @(*) begin
-    y = 16'h0000;
-    denom = 0; numer = 0; rounded = 0; rem = 0; out_exp = 0;
-
-    if (x[14:10] == 5'h1f) begin
-      if (x[9:0] != 0)
-        y = 16'h7e00;
-      else
-        y = {{x[15], 15'h0000}};
-    end else if (x[14:10] == 0) begin
-      y = {{x[15], 15'h7c00}};
-    end else begin
-      denom = 12'd1024 + {{2'b00, x[9:0]}};
-      if (x[9:0] == 0) begin
-        rounded = 1024;
-        out_exp = 30 - $signed({{1'b0, x[14:10]}});
-      end else begin
-        numer = 32'd2097152;
-        rounded = numer / denom;
-        rem = numer - rounded * denom;
-        if (((rem << 1) > denom) ||
-            (((rem << 1) == denom) && rounded[0]))
-          rounded = rounded + 1;
-        out_exp = 29 - $signed({{1'b0, x[14:10]}});
-      end
-
-      if (rounded >= 2048) begin
-        rounded = 1024;
-        out_exp = out_exp + 1;
-      end
-
-      if (out_exp >= 31)
-        y = {{x[15], 15'h7c00}};
-      else if (out_exp <= 0)
-        y = {{x[15], 15'h0000}};
-      else
-        y = {{x[15], out_exp[4:0], rounded[9:0]}};
-    end
-  end
-endmodule
-"""
+    return emit_binary_reciprocal(5, 10, detail)
 
 
 def emit_fp16_recip_square(detail: str) -> str:
-    return f"""// {detail}
-// exact FP16 reciprocal square via significand-square quotient and RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [11:0] sig;
-  reg [23:0] denom;
-  reg [63:0] numer, rounded, rem;
-  reg signed [63:0] adjust, out_exp;
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; denom = 0; numer = 0; rounded = 0; rem = 0;
-    adjust = 0; out_exp = 0;
-
-    if (x[14:10] == 5'h1f) begin
-      if (x[9:0] != 0)
-        y = 16'h7e00;
-      else
-        y = 16'h0000;
-    end else if (x[14:10] == 0) begin
-      y = 16'h7c00;
-    end else begin
-      sig = 12'd1024 + {{2'b00, x[9:0]}};
-      denom = sig * sig;
-      if (denom <= 24'd2097152)
-        adjust = 1;
-      else
-        adjust = 2;
-
-      numer = 64'd1073741824 <<< adjust;
-      rounded = numer / denom;
-      rem = numer - rounded * denom;
-      if (((rem << 1) > denom) ||
-          (((rem << 1) == denom) && rounded[0]))
-        rounded = rounded + 1;
-
-      out_exp = 45 - ($signed({{1'b0, x[14:10]}}) <<< 1) - adjust;
-      if (rounded >= 2048) begin
-        rounded = 1024;
-        out_exp = out_exp + 1;
-      end
-
-      if (out_exp >= 31)
-        y = 16'h7c00;
-      else if (out_exp <= 0)
-        y = 16'h0000;
-      else
-        y = {{1'b0, out_exp[4:0], rounded[9:0]}};
-    end
-  end
-endmodule
-"""
+    return emit_binary_recip_power(5, 10, 2, detail)
 
 
 def emit_fp16_recip_sqrt(detail: str) -> str:
-    return f"""// {detail}
-// exact FP16 reciprocal square root using restoring integer root and RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [11:0] sig;
-  reg [63:0] numer, rounded, trial, midpoint;
-  reg signed [63:0] out_exp;
-  integer i;
-
-  function [63:0] scaled_square;
-    input [63:0] v;
-    begin
-      scaled_square = v * v * sig;
-    end
-  endfunction
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; numer = 0; rounded = 0; trial = 0; midpoint = 0;
-    out_exp = 0;
-
-    if (x[14:10] == 5'h1f) begin
-      if ((x[9:0] != 0) || x[15])
-        y = 16'h7e00;
-      else
-        y = 16'h0000;
-    end else if (x[14:10] == 0) begin
-      y = {{x[15], 15'h7c00}};
-    end else if (x[15]) begin
-      y = 16'h7e00;
-    end else begin
-      sig = 12'd1024 + {{2'b00, x[9:0]}};
-      numer = 64'd2147483648 <<< x[10];
-      out_exp = 64'sd22
-                - $signed(({{1'b0, x[14:10]}} + 7'd1) >>> 1);
-
-      rounded = 0;
-      for (i = 11; i >= 0; i = i - 1) begin
-        trial = rounded + (64'd1 <<< i);
-        if (scaled_square(trial) <= numer)
-          rounded = trial;
-      end
-
-      midpoint = (rounded <<< 1) + 1;
-      if ((numer <<< 2) > scaled_square(midpoint))
-        rounded = rounded + 1;
-      if (rounded >= 2048) begin
-        rounded = 1024;
-        out_exp = out_exp + 1;
-      end
-
-      if (out_exp >= 31)
-        y = 16'h7c00;
-      else if (out_exp <= 0)
-        y = 16'h0000;
-      else
-        y = {{out_exp[4:0], rounded[9:0]}};
-    end
-  end
-endmodule
-"""
+    return lowest_cost_source([emit_newton_rounded_rsqrt(5, 10, detail),
+                               emit_binary_reciprocal_sqrt(5, 10, detail)])
 
 
 def emit_fp16_cube(detail: str) -> str:
-    return f"""// {detail}
-// exact FP16 significand cube with power-of-two normalization and RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [11:0] sig;
-  reg [34:0] cube, rounded, half;
-  reg signed [63:0] adjust, shift_amt, out_exp;
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; cube = 0; rounded = 0; half = 0;
-    adjust = 0; shift_amt = 0; out_exp = 0;
-
-    if (x[14:10] == 5'h1f) begin
-      if (x[9:0] != 0)
-        y = 16'h7e00;
-      else
-        y = {{x[15], 15'h7c00}};
-    end else if (x[14:10] == 0) begin
-      y = {{x[15], 15'h0000}};
-    end else begin
-      sig = {{1'b1, x[9:0]}};
-      cube = sig * sig * sig;
-      if (cube < 35'd2147483648)
-        adjust = 0;
-      else if (cube < 35'd4294967296)
-        adjust = 1;
-      else
-        adjust = 2;
-
-      shift_amt = 20 + adjust;
-      rounded = cube >>> shift_amt;
-      half = 35'd524288 <<< adjust;
-      rounded = (cube + half - 1 + rounded[0]) >>> shift_amt;
-
-      out_exp = 3 * $signed({{1'b0, x[14:10]}}) - 30 + adjust;
-      if (rounded >= 2048) begin
-        rounded = 1024;
-        out_exp = out_exp + 1;
-      end
-      if (out_exp >= 31)
-        y = {{x[15], 15'h7c00}};
-      else if ((out_exp == 0) &&
-               (cube >= (35'd2047 <<< shift_amt)))
-        y = {{x[15], 15'h0400}};
-      else if (out_exp <= 0)
-        y = {{x[15], 15'h0000}};
-      else
-        y = {{x[15], out_exp[4:0], rounded[9:0]}};
-    end
-  end
-endmodule
-"""
+    return emit_binary_cube(5, 10, detail)
 
 
 def emit_fp16_cbrt(detail: str) -> str:
-    return f"""// {detail}
-// exact cube root rounded first to FP32, then to FP16
-module top(input [15:0] x, output reg [15:0] y);
-  reg [11:0] sig;
-  reg [127:0] numer, rounded, trial, midpoint;
-  reg [24:0] fp16_sig;
-  reg [12:0] discarded;
-  reg [6:0] exp_third, exp_rem, out_exp;
-  integer i;
-
-  function [127:0] cube;
-    input [127:0] v;
-    begin
-      cube = v * v * v;
-    end
-  endfunction
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; numer = 0; rounded = 0; trial = 0; midpoint = 0;
-    fp16_sig = 0; discarded = 0;
-    exp_third = 0; exp_rem = 0; out_exp = 0;
-
-    if (x[14:10] == 5'h1f) begin
-      if (x[9:0] != 0)
-        y = 16'h7e00;
-      else
-        y = {{x[15], 15'h7c00}};
-    end else if (x[14:10] == 0) begin
-      y = {{x[15], 15'h0000}};
-    end else begin
-      sig = {{1'b1, x[9:0]}};
-      exp_third = {{2'b00, x[14:10]}} / 3;
-      exp_rem = {{2'b00, x[14:10]}} % 3;
-      out_exp = exp_third + 10;
-      numer = {{116'd0, sig}} <<< (59 + exp_rem);
-
-      rounded = 8388608;
-      for (i = 22; i >= 0; i = i - 1) begin
-        trial = rounded + (128'd1 <<< i);
-        if (cube(trial) <= numer)
-          rounded = trial;
-      end
-
-      midpoint = (rounded <<< 1) + 1;
-      if (((numer <<< 3) > cube(midpoint)) ||
-          (((numer <<< 3) == cube(midpoint)) && rounded[0]))
-        rounded = rounded + 1;
-      if (rounded >= 16777216) begin
-        rounded = 8388608;
-        out_exp = out_exp + 1;
-      end
-
-      fp16_sig = rounded >>> 13;
-      discarded = rounded[12:0];
-      if ((discarded > 13'd4096) ||
-          ((discarded == 13'd4096) && fp16_sig[0]))
-        fp16_sig = fp16_sig + 1;
-      if (fp16_sig >= 2048) begin
-        fp16_sig = 1024;
-        out_exp = out_exp + 1;
-      end
-
-      y = {{x[15], out_exp[4:0], fp16_sig[9:0]}};
-    end
-  end
-endmodule
-"""
+    return lowest_cost_source([emit_binary_root(5, 10, 3, False, detail, precision=23),
+                               emit_staged_cubic_root(5, 10, detail, precision=23)])
 
 
 def emit_fp16_recip_cube(detail: str) -> str:
-    return f"""// {detail}
-// exact FP16 significand cube with reciprocal normalization and RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [11:0] sig;
-  reg [34:0] cube;
-  reg [95:0] numer, rounded, rem;
-  reg signed [63:0] adjust, out_exp;
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; cube = 0; numer = 0; rounded = 0; rem = 0;
-    adjust = 0; out_exp = 0;
-
-    if (x[14:10] == 5'h1f) begin
-      if (x[9:0] != 0)
-        y = 16'h7e00;
-      else
-        y = {{x[15], 15'h0000}};
-    end else if (x[14:10] == 0) begin
-      y = {{x[15], 15'h7c00}};
-    end else begin
-      sig = {{1'b1, x[9:0]}};
-      cube = sig * sig * sig;
-      if (cube == 35'd1073741824)
-        adjust = 0;
-      else if (cube < 35'd2147483648)
-        adjust = 1;
-      else if (cube < 35'd4294967296)
-        adjust = 2;
-      else
-        adjust = 3;
-
-      numer = 96'd1 <<< (40 + adjust);
-      rounded = numer / cube;
-      rem = numer - rounded * cube;
-      if (((rem << 1) > cube) ||
-          (((rem << 1) == cube) && rounded[0]))
-        rounded = rounded + 1;
-
-      out_exp = 60 - 3 * $signed({{1'b0, x[14:10]}}) - adjust;
-      if (rounded >= 2048) begin
-        rounded = 1024;
-        out_exp = out_exp + 1;
-      end
-
-      if (out_exp >= 31)
-        y = {{x[15], 15'h7c00}};
-      else if (out_exp <= 0)
-        y = {{x[15], 15'h0000}};
-      else
-        y = {{x[15], out_exp[4:0], rounded[9:0]}};
-    end
-  end
-endmodule
-"""
+    original = emit_binary_recip_power(5, 10, 3, detail)
+    try:
+        compact = emit_binary_reciprocal_power(5, 10, 3, detail)
+    except ValueError:
+        return original
+    return lowest_cost_source([original, compact])
 
 
 def emit_fp16_recip_cbrt(detail: str) -> str:
-    return f"""// {detail}
-// exponent quotient/remainder plus exact FP16 reciprocal cube-root RNE
-module top(input [15:0] x, output reg [15:0] y);
-  reg [11:0] sig;
-  reg [95:0] numer, rounded, trial, midpoint;
-  reg [6:0] exp_third, exp_rem, out_exp;
-  integer i;
-
-  function [95:0] scaled_cube;
-    input [95:0] v;
-    begin
-      scaled_cube = v * v * v * sig;
-    end
-  endfunction
-
-  always @(*) begin
-    y = 16'h0000;
-    sig = 0; numer = 0; rounded = 0; trial = 0; midpoint = 0;
-    exp_third = 0; exp_rem = 0; out_exp = 0;
-
-    if (x[14:10] == 5'h1f) begin
-      if (x[9:0] != 0)
-        y = 16'h7e00;
-      else
-        y = {{x[15], 15'h0000}};
-    end else if (x[14:10] == 0) begin
-      y = {{x[15], 15'h7c00}};
-    end else begin
-      sig = {{1'b1, x[9:0]}};
-      exp_third = {{2'b00, x[14:10]}} / 3;
-      exp_rem = {{2'b00, x[14:10]}} % 3;
-      out_exp = 19 - exp_third;
-      numer = 96'd1 <<< (43 - exp_rem);
-
-      rounded = 1024;
-      for (i = 10; i >= 0; i = i - 1) begin
-        trial = rounded + (96'd1 <<< i);
-        if (scaled_cube(trial) <= numer)
-          rounded = trial;
-      end
-
-      midpoint = (rounded <<< 1) + 1;
-      if (((numer <<< 3) > scaled_cube(midpoint)) ||
-          (((numer <<< 3) == scaled_cube(midpoint)) && rounded[0]))
-        rounded = rounded + 1;
-
-      out_exp = out_exp + rounded[11];
-      if (out_exp >= 31)
-        y = {{x[15], 15'h7c00}};
-      else if (out_exp <= 0)
-        y = {{x[15], 15'h0000}};
-      else
-        y = {{x[15], out_exp[4:0], rounded[9:0]}};
-    end
-  end
-endmodule
-"""
+    return emit_inverse_cube_scan(5, 10, detail)
 
 
-def try_float_simple_structured(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
-    desc = describe_truth(n_in, n_out, words)
+def try_float_simple_structured(
+    n_in: int, n_out: int, words: List[int], description=_DESCRIPTION_UNSET,
+) -> Optional[Candidate]:
+    desc = describe_truth(n_in, n_out, words) if description is _DESCRIPTION_UNSET else description
     if desc is None or desc.family != "floating-point unary":
         return None
     if desc.detail.startswith("BF16 exp(x),"):
@@ -5131,11 +3415,11 @@ def try_float_simple_structured(n_in: int, n_out: int, words: List[int]) -> Opti
     if desc.detail.startswith("FP16 tan(x),"):
         return Candidate(f"{desc.detail}; structural fixed-point tangent", emit_fp16_tan(desc.detail))
     if desc.detail.startswith("FP16 sinh(x),"):
-        return Candidate(f"{desc.detail}; structural fixed-point hyperbolic sine", emit_fp16_sinh(desc.detail))
+        return Candidate(f"{desc.detail}; structural fixed-point hyperbolic sine", emit_fp16_sinh(desc.detail, words))
     if desc.detail.startswith("FP16 tanh(x),"):
         return Candidate(f"{desc.detail}; structural fixed-point hyperbolic tangent", emit_fp16_tanh(desc.detail))
     if desc.detail.startswith("FP16 1/(1+exp(-x)),"):
-        return Candidate(f"{desc.detail}; structural fixed-point logistic sigmoid", emit_fp16_sigmoid(desc.detail))
+        return Candidate(f"{desc.detail}; structural fixed-point logistic sigmoid", emit_fp16_sigmoid(desc.detail, words))
     if desc.detail.startswith("FP16 1/x,"):
         return Candidate(f"{desc.detail}; structured reciprocal", emit_fp16_recip(desc.detail))
     if desc.detail.startswith("FP16 1/x^2,"):
@@ -5155,8 +3439,10 @@ def try_float_simple_structured(n_in: int, n_out: int, words: List[int]) -> Opti
     return None
 
 
-def try_float_sqrt_structured(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
-    desc = describe_truth(n_in, n_out, words)
+def try_float_sqrt_structured(
+    n_in: int, n_out: int, words: List[int], description=_DESCRIPTION_UNSET,
+) -> Optional[Candidate]:
+    desc = describe_truth(n_in, n_out, words) if description is _DESCRIPTION_UNSET else description
     if desc is None or desc.family != "floating-point unary":
         return None
     if " sqrt(x)," not in desc.detail:
@@ -5208,15 +3494,25 @@ def try_affine(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
     return Candidate("GF(2) affine outputs", module_wire(n_in, n_out, [f"  assign y = {{{concat}}};"]))
 
 
+def try_integer_model(n_in: int, n_out: int, words: List[int]) -> Optional[Candidate]:
+    """Adapt a full-domain learned word arithmetic model to the RTL API."""
+    model = infer_integer_model(n_in, n_out, words)
+    if model is None:
+        return None
+    family, verilog = model
+    return Candidate(family, verilog)
+
+
 STRUCTURAL_MATCHERS: Sequence[Callable[[int, int, List[int]], Optional[Candidate]]] = (
     try_constant,
     try_bit_projection,
     try_affine,
-    try_unsigned_mul,
-    try_signed_mul,
     try_unsigned_square,
     try_unsigned_div,
     try_isqrt,
+    try_unsigned_mul,
+    try_signed_mul,
+    try_integer_model,
     try_popcount,
     try_fp4_e2m1_dot2,
     try_signed_magnitude_q21_dot2,
@@ -5238,30 +3534,51 @@ STRUCTURAL_MATCHERS: Sequence[Callable[[int, int, List[int]], Optional[Candidate
 )
 
 
+def infer_from_words(
+    n_in: int,
+    n_out: int,
+    words: List[int],
+    allow_field_cases: bool = False,
+    allow_boolean_fallback: bool = False,
+    description=_DESCRIPTION_UNSET,
+) -> Optional[Candidate]:
+    """Infer from already decoded ABC-oriented words, sharing one description.
+
+    Omit description to classify lazily once; an explicit None means that
+    classification already found no semantic match. No process-global input
+    cache is used, so repeated calls with changed data remain independent.
+    """
+    matchers = list(STRUCTURAL_MATCHERS)
+    if allow_field_cases:
+        matchers.extend((try_float_field_factored, try_float_format_field_factored,
+                         try_16to8_field_factored))
+    semantic_matchers = (try_float_simple_structured, try_float_sqrt_structured,
+                         try_float_field_factored)
+    for matcher in matchers:
+        if matcher in semantic_matchers:
+            if description is _DESCRIPTION_UNSET:
+                description = describe_truth(n_in, n_out, words)
+            candidate = matcher(n_in, n_out, words, description=description)
+        else:
+            candidate = matcher(n_in, n_out, words)
+        if candidate is not None:
+            if candidate.high_level:
+                candidate.verilog = compact_semantic_rtl(candidate.verilog)
+            return candidate
+    if allow_boolean_fallback:
+        family, verilog, node_count = choose_exact_boolean_fallback(n_in, n_out, words)
+        return Candidate(family, verilog, high_level=False, structural_nodes=node_count)
+    return None
+
+
 def infer_truth(
     truth_path: Path,
     allow_field_cases: bool = False,
     allow_boolean_fallback: bool = False,
 ) -> Tuple[int, int, Optional[Candidate]]:
     n_in, n_out, words = read_truth_words(truth_path)
-    matchers = list(STRUCTURAL_MATCHERS)
-    if allow_field_cases:
-        matchers.append(try_float_field_factored)
-        matchers.append(try_float_format_field_factored)
-        matchers.append(try_16to8_field_factored)
-    for matcher in matchers:
-        candidate = matcher(n_in, n_out, words)
-        if candidate is not None:
-            return n_in, n_out, candidate
-    if allow_boolean_fallback:
-        family, verilog, node_count = choose_exact_boolean_fallback(n_in, n_out, words)
-        return n_in, n_out, Candidate(
-            family,
-            verilog,
-            high_level=False,
-            structural_nodes=node_count,
-        )
-    return n_in, n_out, None
+    return n_in, n_out, infer_from_words(
+        n_in, n_out, words, allow_field_cases, allow_boolean_fallback)
 
 
 def verify_candidate(truth: Path, verilog: Path, timeout: int) -> bool:
@@ -5284,15 +3601,15 @@ def verify_candidate(truth: Path, verilog: Path, timeout: int) -> bool:
     return row.get("status") == "pass"
 
 
-def verify_structural_candidate(truth: Path, verilog: Path, certificate: Path) -> bool:
+def verify_yosys_candidate(truth: Path, verilog: Path, timeout: int) -> bool:
     cmd = [
         sys.executable,
-        str(Path(__file__).resolve().parents[1] / "verify_truth_structural.py"),
+        str(Path(__file__).resolve().parents[1] / "verify_truth_yosys.py"),
         str(truth),
         str(verilog),
-        "--certificate",
-        str(certificate),
         "--json",
+        "--run-timeout",
+        str(timeout),
     ]
     proc = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     if proc.returncode != 0:
@@ -5301,7 +3618,29 @@ def verify_structural_candidate(truth: Path, verilog: Path, certificate: Path) -
         row = json.loads(proc.stdout)
     except json.JSONDecodeError:
         return False
-    return row.get("strict") is True
+    return row.get("status") == "pass" and row.get("frontend") == "pass"
+
+
+def verify_structural_candidate(truth: Path, verilog: Path, certificate: Path) -> bool:
+    """Check scalar DAGs and reusable Boolean functions through the frontend.
+
+    The legacy structural-only parser accepts packed nodes, whereas compact
+    fallback emitters also produce scalar DAGs and function calls. The fixed
+    frontend plus complete-domain checker covers all emitted representations.
+    """
+    cmd = [sys.executable, str(Path(__file__).resolve().parents[1] / "verify_truth_yosys.py"),
+           str(truth), str(verilog), "--no-cache", "--json"]
+    proc = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    try:
+        row = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        row = {"status": "error", "error": proc.stderr[-2000:]}
+    row["strict"] = proc.returncode == 0 and row.get("status") == "pass" and row.get("frontend") == "pass"
+    row["vectors_checked"] = row.get("vectors", 0)
+    row["output_bits_checked"] = row.get("n_outputs", 0) if row["strict"] else 0
+    certificate.parent.mkdir(parents=True, exist_ok=True)
+    certificate.write_text(json.dumps(row, indent=2, sort_keys=True) + "\n")
+    return row["strict"]
 
 
 def output_path_for(truth: Path, args: argparse.Namespace) -> Path:
@@ -5316,8 +3655,9 @@ def output_path_for(truth: Path, args: argparse.Namespace) -> Path:
 def process_one(truth: Path, args: argparse.Namespace) -> dict:
     n_in, n_out, words = read_truth_words(truth)
     desc = describe_truth(n_in, n_out, words)
-    _, _, candidate = infer_truth(
-        truth,
+    candidate = infer_from_words(
+        n_in, n_out, words,
+        description=desc,
         allow_field_cases=args.allow_field_cases,
         allow_boolean_fallback=args.allow_boolean_fallback,
     )
@@ -5351,14 +3691,17 @@ def process_one(truth: Path, args: argparse.Namespace) -> dict:
     )
     if candidate.structural_nodes is not None:
         row["structural_nodes"] = candidate.structural_nodes
-    if args.verify:
-        if candidate.high_level:
+    if args.verify or args.verify_yosys:
+        if args.verify_yosys:
+            verified = verify_yosys_candidate(truth, out_path, args.run_timeout)
+            row["verification_method"] = "Yosys-lowered exhaustive truth replay"
+        elif candidate.high_level:
             verified = verify_candidate(truth, out_path, args.run_timeout)
             row["verification_method"] = "exhaustive Verilog simulation"
         else:
             certificate = out_path.with_suffix(".certificate.json")
             verified = verify_structural_candidate(truth, out_path, certificate)
-            row["verification_method"] = "complete-domain bit-parallel structural replay"
+            row["verification_method"] = "fixed Yosys frontend and complete-domain replay"
             row["certificate"] = str(certificate)
         row["verify"] = "pass" if verified else "fail"
         if row["verify"] != "pass" and args.remove_failed:
@@ -5380,6 +3723,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out-dir", default="truth_reverse_out")
     parser.add_argument("--flat", action="store_true", help="Write <out-dir>/<case>.v instead of per-case dirs")
     parser.add_argument("--verify", action="store_true", help="Run exhaustive iverilog verification after generation")
+    parser.add_argument(
+        "--verify-yosys",
+        action="store_true",
+        help="Require Yosys frontend acceptance and exhaustive replay of its lowered Verilog",
+    )
     parser.set_defaults(allow_field_cases=False)
     parser.add_argument(
         "--allow-field-cases",

@@ -1,0 +1,98 @@
+{
+  "schema": "creas-tt100-final-publication/v1",
+  "scope": "Frozen final measurements and arithmetic aggregation only. This export does not replay LLM generation or certify RTL files.",
+  "selection": {
+    "final": true,
+    "experiment_id": "matched_tt100_skill_cost_20261008_v10",
+    "paper_snapshot_id": "final_tt100_validated_20261008",
+    "baseline_generation_reruns": 0
+  },
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "xhigh",
+  "generation_seconds_per_case": 600,
+  "validation_limits_seconds": {
+    "yosys_frontend": 120,
+    "iverilog_compile": 120,
+    "complete_domain_replay": 180
+  },
+  "validation": "Yosys parse/elaboration/structural checks and exact complete-domain input/output comparison. Unsupported cells use complete-domain Verilog simulation. Saved terminal RTL is independently checked after the generation budget.",
+  "truth_table_order": "ABC read_truth -xf: line j encodes output bit y[j]. For n-bit unsigned x, zero-based leftmost character index is 2^n - 1 - x.",
+  "endpoint_definitions": {
+    "V": "exact full-interface equivalence and fixed Yosys frontend acceptance",
+    "H": "V plus independently audited word/field structure without input-address answer overrides",
+    "V_cost_runtime": "all same-case pairs satisfying V in both conditions, irrespective of representation deviations",
+    "mean_cost_reduction": "100 * (1 - mean(with_skill) / mean(no_skill)) on the same cases"
+  },
+  "cost": {
+    "name": "Q",
+    "metric": "weighted Verilog syntax cost",
+    "final_scoring_identical_between_conditions": true,
+    "calculator_sha256": "685d655fe1bb6dadeb36921cb3da42de2791cc31b252ea86aeb3e5a8bbd5b014",
+    "weights_sha256": "65a0ff43df653831655cba564349ac536c755b53335d97ee3860f410bccbebc0",
+    "unit": "syntax cost units, not dollars or token counts",
+    "aggregation": "Each comparison uses the same cases for both arms. Percentage reduction is 100 * (1 - mean(with_skill) / mean(no_skill))."
+  },
+  "recorded_usage": "Token sums include only trials with available completed-turn usage. Missing usage remains blank, not zero. These sums are incomplete and are not a total monetary cost comparison.",
+  "generation_timing": "Summed per-case durations include model interaction and tool calls, including budget expirations. They are not the elapsed duration of concurrent execution.",
+  "representation_annotations": [
+    {
+      "case": "ex223",
+      "arm": "no_skill",
+      "V": true,
+      "H": false,
+      "included_in_V_cost_comparison": true,
+      "description": "Arithmetic RTL contains input-specific answer corrections. These corrections do not disqualify exact RTL from V, but the candidate is excluded from H."
+    },
+    {
+      "case": "ex227",
+      "arm": "no_skill",
+      "V": true,
+      "H": false,
+      "included_in_V_cost_comparison": true,
+      "description": "Arithmetic RTL contains input-specific answer corrections. These corrections do not disqualify exact RTL from V, but the candidate is excluded from H."
+    },
+    {
+      "case": "ex228",
+      "arm": "no_skill",
+      "V": true,
+      "H": false,
+      "included_in_V_cost_comparison": true,
+      "description": "Arithmetic RTL contains input-specific answer corrections. These corrections do not disqualify exact RTL from V, but the candidate is excluded from H."
+    }
+  ],
+  "excluded_material": [
+    "Third-party truth-table contents",
+    "Reference RTL answers",
+    "Private generation logs",
+    "Credentials and local tool paths",
+    "Complete source-bound equivalence archives"
+  ],
+  "source_files": [
+    {
+      "name": "final_tt100_case_results.csv",
+      "sha256": "5d356b4667b3e09f6a36b247e92d3154fce3bfac1278d2eb0b24aed7320d6e9a"
+    },
+    {
+      "name": "updated_skill_tt100_summary.json",
+      "sha256": "6b18facb2954afed2728d0a715864c75fdc9e4e0fefa1a727cf4587fe840f35b"
+    },
+    {
+      "name": "updated_skill_tt100_protocol.json",
+      "sha256": "66d9583fed00dd3ce844f8a1ccefada561f10c393937b3859139ba13366bf1a9"
+    },
+    {
+      "name": "final_experiment_selection.json",
+      "sha256": "31831006b8ec75462aa4c39976cfa87009d68c5a6e340f24b9b9ec92fb5370f5"
+    }
+  ],
+  "source_protocol_sha256": "f403b0c455fbfb8f1fd2bf2dcbb75196c3dc15ffc0b1155976e21a38355bc0f7",
+  "frozen_skill_manifest_sha256": "eb7e81b3432d92545c3561abd42f46b488b03ce2a68c4ea422e4d6a98b453311",
+  "independent_audit_sha256": "79e735f0c40b6b2cbe20981fdc8276fd209bd4a39347e27af20926231a41f3dd",
+  "independent_seal_sha256": "f3aa10a25c9c246710525471512660e99115e5195ded0721b22eddd65e5dfb64",
+  "limits": [
+    "Within-corpus evaluation, not an independent held-out benchmark.",
+    "Retained no-Skill candidates are uniformly rescored without regeneration.",
+    "Neither the newly installed release package nor arithmetic aggregation is a new LLM benchmark run.",
+    "Token records are incomplete."
+  ]
+}

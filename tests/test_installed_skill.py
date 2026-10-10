@@ -10,6 +10,31 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class InstalledSkill(unittest.TestCase):
+    def test_truth_checkpoint_from_standalone_install_and_foreign_cwd(self):
+        with tempfile.TemporaryDirectory(prefix="installed-truth-test-") as temp:
+            directory = Path(temp)
+            installed = directory / "custom-skill-location"
+            subprocess.run([sys.executable, str(ROOT / "scripts/install.py"),
+                            "--dest", str(installed)], check=True,
+                           capture_output=True, text=True, timeout=20)
+            foreign = directory / "unrelated-working-directory"
+            foreign.mkdir()
+            truth = foreign / "parity.truth"
+            truth.write_bytes((ROOT / "examples/parity/parity.truth").read_bytes())
+            output = foreign / "recovered.v"
+            command = [sys.executable, str(installed / "scripts/recover_truth.py"),
+                       str(truth), str(output), "--budget-seconds", "30", "--json", "--brief"]
+            first = subprocess.run(command, cwd=foreign, capture_output=True, text=True, timeout=40)
+            result = json.loads(first.stdout)
+            self.assertEqual(result["status"], "promoted", result)
+            self.assertTrue(output.is_file())
+            retained = output.read_bytes()
+            final = subprocess.run(command + ["--check-checkpoint"], cwd=foreign,
+                                   capture_output=True, text=True, timeout=20)
+            checked = json.loads(final.stdout)
+            self.assertEqual(checked["status"], "checkpoint_validated", checked)
+            self.assertEqual(output.read_bytes(), retained)
+
     def test_terminal_proof_from_standalone_install_and_foreign_cwd(self):
         with tempfile.TemporaryDirectory(prefix="installed-skill-test-") as temp:
             directory = Path(temp)

@@ -244,30 +244,93 @@ def parse_range_width(msb: str, lsb: str) -> Optional[int]:
         return None
 
 
-def parse_decl_widths(text: str) -> Dict[str, int]:
-    widths: Dict[str, int] = {}
-    statements = [s.strip() for s in text.split(";")]
-    for stmt in statements:
-        m = re.match(
-            r"^(input|output|wire|reg)\b\s*(?:signed|unsigned)?\s*"
-            r"(?:\[\s*([0-9]+)\s*:\s*([0-9]+)\s*\])?\s*(.*)$",
-            stmt,
-            flags=re.S,
-        )
-        if not m:
-            continue
-        width = 1
-        if m.group(2) is not None and m.group(3) is not None:
-            parsed = parse_range_width(m.group(2), m.group(3))
-            if parsed:
-                width = parsed
+class DeclaredWidths(dict):
+    """Legacy widths plus packed/unpacked shape for direct selected operands."""
+    def __init__(self):
+        super().__init__()
+        self.shapes = {}
 
-        names = m.group(4)
-        for part in names.split(","):
-            part = part.split("=", 1)[0].strip()
-            name = re.match(r"([A-Za-z_\\$][A-Za-z0-9_\\$]*)", part)
-            if name:
-                widths[name.group(1)] = width
+
+def constant_dimension(tokens: Sequence[str]) -> Optional[int]:
+    # Deliberately restricted: a full Verilog constant/type evaluator is out
+    # of scope. Unknown dimensions remain explicit instead of becoming bit1.
+    if len(tokens) == 3 and tokens[1] == ":" and tokens[0].isdigit() and tokens[2].isdigit():
+        return abs(int(tokens[0]) - int(tokens[2])) + 1
+    return None
+
+
+def bracket_tokens(tokens: Sequence[str], start: int) -> Tuple[List[str], int]:
+    depth = 1
+    index = start + 1
+    while index < len(tokens) and depth:
+        if tokens[index] == "[":
+            depth += 1
+        elif tokens[index] == "]":
+            depth -= 1
+        if depth:
+            index += 1
+    if depth:
+        raise ValueError("cost width: incomplete selection/declaration")
+    return list(tokens[start + 1:index]), index + 1
+
+
+def shape_width(packed: Sequence[Optional[int]]) -> Optional[int]:
+    width = 1
+    for dimension in packed:
+        if dimension is None:
+            return None
+        width *= dimension
+    return width
+
+
+def parse_decl_widths(text: str) -> Dict[str, int]:
+    widths = DeclaredWidths()
+    tokens = tokenize(strip_comments(text))
+    types = {"input", "output", "wire", "reg", "logic", "integer", "int", "byte", "shortint", "longint"}
+    index = 0
+    while index < len(tokens):
+        if tokens[index] not in types:
+            index += 1
+            continue
+        declared_type = tokens[index]
+        index += 1
+        while index < len(tokens) and tokens[index] in types | {"signed", "unsigned"}:
+            if tokens[index] in {"integer", "int", "byte", "shortint", "longint"}:
+                declared_type = tokens[index]
+            index += 1
+        packed = []
+        while index < len(tokens) and tokens[index] == "[":
+            dimensions, index = bracket_tokens(tokens, index)
+            packed.append(constant_dimension(dimensions))
+        if not packed and declared_type in {"integer", "int", "byte", "shortint", "longint"}:
+            packed = [{"integer": 32, "int": 32, "byte": 8, "shortint": 16, "longint": 64}[declared_type]]
+        while index < len(tokens) and re.fullmatch(r"[A-Za-z_$][\w$]*", tokens[index]) and tokens[index] not in types:
+            name = tokens[index]
+            index += 1
+            unpacked = 0
+            while index < len(tokens) and tokens[index] == "[":
+                _, index = bracket_tokens(tokens, index)
+                unpacked += 1
+            widths.shapes[name] = (tuple(packed), unpacked)
+            width = shape_width(packed)
+            if width is not None:
+                widths[name] = width
+            depth = 0
+            while index < len(tokens):
+                token = tokens[index]
+                if token in {",", ";", ")"} and depth == 0:
+                    break
+                if token in {"(", "[", "{"}:
+                    depth += 1
+                elif token in {")", "]", "}"}:
+                    depth -= 1
+                index += 1
+            if index < len(tokens) and tokens[index] == ",":
+                index += 1
+                if index < len(tokens) and tokens[index] in types:
+                    break
+                continue
+            break
     return widths
 
 
@@ -428,25 +491,63 @@ def token_width(tok: Optional[str], widths: Dict[str, int]) -> int:
     return widths.get(tok, 1)
 
 
+def selected_identifier_width(tokens: Sequence[str], start: int, widths: Dict[str, int]) -> int:
+    name = tokens[start]
+    shapes = getattr(widths, "shapes", {})
+    if name not in shapes and name not in widths:
+        raise ValueError("cost width: selected identifier has undeclared or unsupported type")
+    packed, unpacked = shapes[name] if name in shapes else ((widths[name],), 0)
+    packed = list(packed)
+    index = start + 1
+    while index < len(tokens) and tokens[index] == "[":
+        selection, index = bracket_tokens(tokens, index)
+        has_colon = ":" in selection
+        if unpacked:
+            if has_colon:
+                raise ValueError("cost width: unpacked array slice is unsupported")
+            unpacked -= 1
+            continue
+        if not packed:
+            # A scalar bit-select is itself scalar.
+            packed = [1]
+        if not has_colon:
+            packed.pop(0)
+        else:
+            width = constant_dimension(selection)
+            # Indexed part-select: base +: W or base -: W, fixed decimal W.
+            if width is None and len(selection) >= 3 and selection[-2] == ":" and selection[-3] in {"+", "-"} and selection[-1].isdigit():
+                width = int(selection[-1])
+            if width is None or width < 1:
+                raise ValueError("cost width: selected packed width is not a supported constant")
+            packed[0] = width
+    if unpacked:
+        raise ValueError("cost width: an unindexed unpacked array operand is unsupported")
+    width = shape_width(packed)
+    if width is None:
+        raise ValueError("cost width: selected word has unknown packed dimension")
+    return width
+
+
 def operand_width_left(tokens: Sequence[str], skip: Sequence[bool], i: int, widths: Dict[str, int]) -> int:
     j = i - 1
-    while j >= 0 and (skip[j] or tokens[j] in {")", "]"}):
-        if tokens[j] == "]":
-            k = j - 1
-            colon = False
-            nums: List[str] = []
-            while k >= 0 and tokens[k] != "[":
-                if tokens[k] == ":":
-                    colon = True
-                elif tokens[k].isdigit():
-                    nums.append(tokens[k])
-                k -= 1
-            if colon and len(nums) >= 2:
-                parsed = parse_range_width(nums[-1], nums[0])
-                if parsed:
-                    return parsed
-            return 1
+    while j >= 0 and (skip[j] or tokens[j] == ")"):
         j -= 1
+    if j >= 0 and tokens[j] == "]":
+        # Walk all selections back to their declared signal, including nested
+        # index expressions; array elements can still be whole packed words.
+        start = j
+        while start >= 0 and tokens[start] == "]":
+            depth = 1
+            start -= 1
+            while start >= 0 and depth:
+                if tokens[start] == "]":
+                    depth += 1
+                elif tokens[start] == "[":
+                    depth -= 1
+                start -= 1
+        if start >= 0 and re.fullmatch(r"[A-Za-z_$][\w$]*", tokens[start]):
+            return selected_identifier_width(tokens, start, widths)
+        return 1
     return token_width(tokens[j] if j >= 0 else None, widths)
 
 
@@ -454,6 +555,9 @@ def operand_width_right(tokens: Sequence[str], skip: Sequence[bool], i: int, wid
     j = i + 1
     while j < len(tokens) and skip[j]:
         j += 1
+    if j < len(tokens) and re.fullmatch(r"[A-Za-z_$][\w$]*", tokens[j]):
+        if j + 1 < len(tokens) and tokens[j + 1] == "[":
+            return selected_identifier_width(tokens, j, widths)
     return token_width(tokens[j] if j < len(tokens) else None, widths)
 
 
@@ -662,9 +766,11 @@ def direct_module_cost(module: Module) -> Tuple[int, Dict[str, int]]:
         elif tok in CASE_KEYWORDS:
             pass
         elif tok == "{":
-            cost, end = concat_cost(tokens, skip, i)
+            cost, _ = concat_cost(tokens, skip, i)
             add("concat", cost)
-            i = end
+            # Concatenation is an expression container, not a free operator
+            # boundary. Continue traversing its contents so nested arithmetic,
+            # comparisons, selections and concatenations are charged as usual.
         elif tok == "[":
             add("select")
         elif tok == "-":

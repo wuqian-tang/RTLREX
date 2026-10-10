@@ -1,0 +1,7 @@
+{
+  "status": "pass",
+  "method": "Yosys SAT miter, all assertions proved",
+  "multiplier_cells_checked": 887,
+  "rewrites_checked": 887,
+  "scope": "Unsigned square sizes 1..6, truncated/exact/widened outputs. Constant coefficients in both port positions, multiple operand/constant/output widths, all four signedness combinations, all input assignments."
+}

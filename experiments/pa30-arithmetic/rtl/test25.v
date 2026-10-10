@@ -1,0 +1,30 @@
+module top(in1, in2, out1, out2, out3, out4, out5, out6, out7, out8, out9, out10, out11, out12, out13, out14, out15, out16, out17, out18, out19, out20, out21);
+  input [5:0] in1, in2;
+  output [6:0] out1;
+  output out2, out3, out4, out5, out6, out7, out8, out9, out10, out11;
+  output out12, out13, out14, out15, out16, out17, out18, out19, out20, out21;
+
+  wire signed [6:0] diff;
+  assign diff = in1 - in2;
+  assign out1 = diff;
+  assign out2 = 1'b1;
+  assign out3 = diff < 7'sh45;
+  assign out4 = diff > 7'sh44;
+  assign out5 = diff < 7'sh51;
+  assign out6 = diff > 7'sh50;
+  assign out7 = diff < 7'sh5d;
+  assign out8 = diff > 7'sh5c;
+  assign out9 = diff < 7'sh69;
+  assign out10 = diff > 7'sh68;
+  assign out11 = diff < 7'sh75;
+  assign out12 = diff > 7'sd11;
+  assign out13 = diff < 7'sd24;
+  assign out14 = diff > 7'sd23;
+  assign out15 = diff < 7'sd36;
+  assign out16 = diff > 7'sd35;
+  assign out17 = diff < 7'sd48;
+  assign out18 = diff > 7'sd47;
+  assign out19 = diff < 7'sd60;
+  assign out20 = diff > 7'sd59;
+  assign out21 = 1'b1;
+endmodule

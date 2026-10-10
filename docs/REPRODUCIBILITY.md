@@ -1,42 +1,67 @@
 # Reproducibility scope
 
-This release makes the Skill instructions, deterministic tools and verification
-regressions inspectable and executable. The included synthetic tests are not
-benchmark results and are not an end-to-end LLM recovery evaluation.
+The release includes executable Skill tools, synthetic verification regressions,
+and [final experiment artifacts](../experiments/README.md). The experiment
+packages provide per-case data and scripts to check the reported aggregates.
+They do not bundle contest inputs, reference answers, model credentials, or the
+complete source-bound PA-30 proof archives.
 
-The associated manuscript reports strict certification for all 30 retained
-PA-30 candidates. Those results include later verification of retained
-development outputs. Portability edits in this release do not turn those
-historical runs into a new frozen-protocol experiment. The complete source-bound
-proof archives and original benchmark inputs are not part of this repository.
+## PA-30 synthesis and mapping
 
-To independently assess all paper numbers, a separate research artifact needs:
+[The PA-30 package](../experiments/pa30-arithmetic/README.md) evaluates all 30
+retained recovered RTL implementations. A uniform arithmetic-aware flow uses
+square symmetry, signed-digit constant multiplication, and Booth encoding.
+Original gate-level netlists are mapped directly. Both sides use the same
+Nangate45 typical-corner library and driving-cell, load, and mapping-delay
+constraints. Area and delay always come from the same mapped implementation.
 
-1. Legally redistributable inputs, or original download locations and hashes.
-2. Exact retained RTL, source hashes, complete proof plans and certificates.
-3. Fixed Skill commit, prompts, model identifier, configuration and budgets.
-4. Per-run results and the scripts that generate every comparison table.
-5. Clear distinctions between generation, fresh proof execution and archive replay.
+The reported paired means use the 29 circuits with completed measurements on
+both sides. The original test22 mapping reaches the 600-second limit, while
+the recovered implementation completes. Missing measurements are not zeros.
+The chosen synthesis profile is shared across cases, rather than selected
+separately to obtain each case's best area or delay.
 
-Agent-guided recovery requires a separately configured LLM host. Its model,
-context policy, runtime, token usage and randomness are not supplied by this
-repository. Existing limitations in the manuscript concerning frozen generation
-protocols, complete timing traces and separation of LLM/tool contributions are
-not resolved merely by releasing code.
+The retained original-to-recovered proofs and the arithmetic-lowering checks
+are separate evidence. Generic lowering is based on exact bit-vector
+identities and has bounded formal regression coverage of 887 rewritten
+multiplier instances. These checks do
+not constitute a new full-circuit equivalence certificate for every lowered
+JSON design. Native Yosys/ABC synthesis and mapping are trusted in this study.
+The package records this distinction, source hashes, library provenance,
+and measured tool versions. A portable rerun records its own tool identity
+rather than replacing the historical record.
 
-`examples/prompts/with_skill.txt` and `without_skill.txt` are **new illustrative
-templates**, not historical paper prompts. Their task bodies are identical;
-the first line changes Skill access. For a controlled experiment, configure
-the same model, interface, limits and inputs externally, enforce the access
-difference, and retain the actual rendered prompts and run traces. These
-templates do not by themselves demonstrate a fair measured ablation.
+## TT-100 recovery and cost comparison
 
-For a public release, freeze a Git tag and commit, run the tests from a clean
-checkout, and archive that exact tag with a persistent identifier. Reference
-the version actually evaluated. Never replace a historic verifier hash with
-the hash of a later implementation and describe the old execution as fresh.
+[The TT-100 package](../experiments/tt100-final/README.md) contains the final
+per-case results and the common-case comparisons. Validated RTL satisfies
+complete-domain equivalence and RTL validity checks. The high-level subset
+also satisfies the separately audited representation criterion. Input-specific
+output corrections are annotated and count toward validation, but not toward
+the high-level subset.
 
-The `.truth` reader uses one output bit per line and complemented input-index
-order, matching ABC-style input. The parity example is documented in
-`examples/parity/README.md`. Use the active allowed-syntax whitelist separately
-from numerical syntax cost.
+All terminal candidates use the same final syntax-cost evaluator and weights.
+Paired means compare the same cases, with unresolved or missing candidates
+excluded from numerical pairs but retained in the 100-case coverage counts.
+Recorded token usage is incomplete and does not establish a total LLM bill.
+Recomputing aggregate data is different from regenerating the agent runs.
+Generation requires a separately configured LLM host and the archived model,
+prompts, Skill version, budgets, and inputs described in the package metadata.
+
+## Software and prompts
+
+Synthetic tests check tool behavior, negative controls, and portability. They
+are not new benchmark recovery runs. Current installation and portability
+changes do not replace the hashes of the Skill and tools evaluated in the
+archived experiments.
+
+`examples/prompts/with_skill.txt` and `without_skill.txt` are illustrative
+templates. [Historical paper prompts](paper-prompts/README.md) are labeled
+separately. A controlled recovery comparison must keep the same model,
+interface, budgets, and inputs, enforce the Skill-access difference, and retain
+the actual prompts and traces.
+
+The `.truth` reader uses one output bit per nonempty line and complemented
+input-index order, matching ABC `read_truth -xf`. See the synthetic parity
+example in `examples/parity/README.md`. Numerical syntax cost and an allowed
+syntax whitelist are separate checks.
