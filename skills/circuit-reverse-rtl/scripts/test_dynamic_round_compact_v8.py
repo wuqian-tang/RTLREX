@@ -154,7 +154,7 @@ class DynamicRoundTests(unittest.TestCase):
                           'if (actual !== rounded) $fatal(1, "reference mismatch");',
                           '$display("%h", actual);']
                 expected.append(rne(value, shift) & ((1 << 64)-1))
-        lines += ['$finish; end', 'endmodule']
+        lines += ['$finish(0); end', 'endmodule']
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
             source, executable = base/'test.v', base/'test.vvp'

@@ -196,10 +196,10 @@ class TranscendentalWordTests(unittest.TestCase):
                     rounded=(number+bias+((number>>shift)&1))>>shift
                     statements.append(f"x=64'h{number&mask:016x}; shift=6'd{shift}; bias=65'd{bias}; #1; "
                         f"if(rne!==64'h{rounded&mask:016x} || asr!==64'h{(number>>shift)&mask:016x} || "
-                        f"quotient!==64'h{trunc&mask:016x}) begin $display(\"FAIL\"); $finish; end")
+                        f"quotient!==64'h{trunc&mask:016x}) begin $display(\"FAIL\"); $finish(0); end")
             testbench=('module tb; reg [63:0] x; reg [5:0] shift; reg signed [64:0] bias; '
                        'wire [63:0] rne, asr, quotient; top dut(x,shift,bias,rne,asr,quotient); '
-                       'initial begin\n'+'\n'.join(statements)+'\n$display("PASS"); $finish; end endmodule\n')
+                       'initial begin\n'+'\n'.join(statements)+'\n$display("PASS"); $finish(0); end endmodule\n')
             with tempfile.TemporaryDirectory()as temporary:
                 d=Path(temporary);v=d/'candidate.v';lowered=d/'lowered.v';tb=d/'tb.v';sim=d/'simv'
                 v.write_text(candidate);tb.write_text(testbench)

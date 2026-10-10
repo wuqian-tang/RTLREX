@@ -46,6 +46,11 @@ class TruthToolPortability(unittest.TestCase):
             self.assertEqual(result['status'], 'pass', result)
             self.assertEqual(result['vectors'], 8)
             self.assertTrue(result['coverage']['coverage_valid'])
+            for partition in result['partitions']:
+                self.assertEqual(partition['stdout'].splitlines(), [
+                    f"PARTITION_PASS offset={partition['offset']} stride=2 count=4 "
+                    f"first={partition['first']} last={partition['last']}"
+                ])
 
     def test_annotated_and_minimal_cost_csv_have_identical_weights(self):
         published = SCRIPTS / 'cost/syntax_cost.csv'

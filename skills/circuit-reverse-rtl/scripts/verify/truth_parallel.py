@@ -57,19 +57,19 @@ reg [{m-1}:0] expected[0:{N-1}];
 integer offset,stride,index,count,first,last;
 top dut(.{input_port}({input_port}),.{output_port}({output_port}));
 initial begin
- if (!$value$plusargs("OFFSET=%d",offset) || !$value$plusargs("STRIDE=%d",stride)) begin $display("PARTITION_INVALID_ARGS"); $finish; end
- if (offset<0 || offset>={K} || stride!={K}) begin $display("PARTITION_INVALID_ARGS"); $finish; end
+ if (!$value$plusargs("OFFSET=%d",offset) || !$value$plusargs("STRIDE=%d",stride)) begin $display("PARTITION_INVALID_ARGS"); $finish(0); end
+ if (offset<0 || offset>={K} || stride!={K}) begin $display("PARTITION_INVALID_ARGS"); $finish(0); end
  $readmemb("{values}",expected);
  count=0; first=-1; last=-1;
  for(index=offset;index<{N};index=index+stride) begin
   {input_port}=index; #1;
   if({output_port} !== expected[index]) begin
-   $display("PARTITION_MISMATCH offset=%0d stride=%0d index=%0d got=%b expected=%b",offset,stride,index,{output_port},expected[index]); $finish;
+   $display("PARTITION_MISMATCH offset=%0d stride=%0d index=%0d got=%b expected=%b",offset,stride,index,{output_port},expected[index]); $finish(0);
   end
   if(count==0)first=index; last=index; count=count+1;
  end
  $display("PARTITION_PASS offset=%0d stride=%0d count=%0d first=%0d last=%0d",offset,stride,count,first,last);
- $finish;
+ $finish(0);
 end
 endmodule
 ''')

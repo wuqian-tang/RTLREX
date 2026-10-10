@@ -58,7 +58,7 @@ class PackedSumTests(unittest.TestCase):
             source.write_text(emit_packed_q11_sum(lanes, 'maximum-lane boundary control'))
             body = '\n'.join(f'x=20\'d{value}; #1; if(y !== 8\'d{expected}) $fatal(1,"total {i}");'
                              for i, (value, expected) in enumerate(words))
-            bench.write_text('module tb; reg [19:0] x; wire [7:0] y; top dut(x,y); initial begin\n' + body + '\n$finish; end endmodule\n')
+            bench.write_text('module tb; reg [19:0] x; wire [7:0] y; top dut(x,y); initial begin\n' + body + '\n$finish(0); end endmodule\n')
             compile_result = subprocess.run(['iverilog', '-g2012', '-s', 'tb', '-o', str(executable), str(source), str(bench)], capture_output=True, text=True)
             self.assertEqual(compile_result.returncode, 0, compile_result.stderr)
             run_result = subprocess.run(['vvp', str(executable)], capture_output=True, text=True)

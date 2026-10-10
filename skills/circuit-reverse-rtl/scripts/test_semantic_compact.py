@@ -149,7 +149,7 @@ endmodule
                 remainder = value - (quotient << shift)
                 half = 1 << (shift - 1)
                 expected.append((quotient + int(remainder > half or (remainder == half and quotient & 1))) & ((1 << 64) - 1))
-        lines += ['$finish; end', 'endmodule']
+        lines += ['$finish(0); end', 'endmodule']
         with tempfile.TemporaryDirectory() as directory:
             src, executable = Path(directory) / 'test.v', Path(directory) / 'test.vvp'
             src.write_text('\n'.join(lines))

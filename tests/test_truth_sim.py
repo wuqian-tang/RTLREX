@@ -29,6 +29,8 @@ class TruthReplayTests(unittest.TestCase):
     def test_complete_replay_has_exactly_eight_rows(self):
         result = self.check('assign y = ^x;', 'pass')
         self.assertEqual(result['vectors'], 8)
+        self.assertEqual(result['interleaved_replay']['partitions'][0]['stdout'],
+                         'PARTITION_PASS offset=0 stride=1 count=8 first=0 last=7\n')
 
     def test_wrong_output_rejected(self):
         self.check('assign y = ~(^x);', 'mismatch')
