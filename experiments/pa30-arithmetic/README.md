@@ -60,7 +60,9 @@ The intermediate square has twice the unsigned operand width, so it is exact. Th
 
 ## Reproduce synthesis and mapping
 
-Original PA-30 gate inputs are not redistributed in this package. Supply the same input files arranged as `test01/top_primitive.v` through `test30/top_primitive.v`. The runner checks their recorded SHA-256 hashes before using them. It does not regenerate RTL with an LLM or choose new candidate files.
+Original PA-30 gate inputs are not redistributed in this package.
+[Official input downloads and checksums](../../benchmarks/pa30/README.md)
+are documented in the benchmark source directory. Supply the same input files arranged as `test01/top_primitive.v` through `test30/top_primitive.v`. The runner checks their recorded SHA-256 hashes before using them. It does not regenerate RTL with an LLM or choose new candidate files.
 
 Obtain the pinned public Nangate45 library and its license in a directory outside the source checkout:
 

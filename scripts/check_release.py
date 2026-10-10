@@ -2,6 +2,7 @@
 """Check the export boundary; this is a pattern scan, not an ownership audit."""
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -19,6 +20,12 @@ def main() -> int:
         ignored = {'.git', '__pycache__', '.venv', 'outputs', '.codex_skill_cache'}
         paths = [p for p in root.rglob('*') if p.is_file()
                  and not ignored.intersection(p.relative_to(root).parts)]
+    source_path = root / 'benchmarks/tt100/source.json'
+    licensed_inputs = {}
+    if source_path.exists():
+        source = json.loads(source_path.read_text())
+        licensed_inputs = {root / 'benchmarks/tt100' / row['path']: row['sha256']
+                           for row in source['inputs']}
     issues = [] if paths else [['.', 'no export files found']]
     blocked_dirs = {'experimental_results', 'paper_preparation', 'benchmarks_ICCAD22', 'external'}
     patterns = {
@@ -34,7 +41,9 @@ def main() -> int:
         if blocked_dirs.intersection(rel.parts) or path.name in {'overleaf.config', 'tool_paths.env', '.env'}:
             issues.append([str(rel), 'private/generated path'])
         data = path.read_bytes()
-        if data.startswith(b'\x7fELF') or b'\0' in data or len(data) > 2_000_000:
+        known_truth = (path in licensed_inputs and
+                       hashlib.sha256(data).hexdigest() == licensed_inputs[path])
+        if data.startswith(b'\x7fELF') or b'\0' in data or (len(data) > 2_000_000 and not known_truth):
             issues.append([str(rel), 'binary or oversized export'])
             continue
         text = data.decode('utf-8')

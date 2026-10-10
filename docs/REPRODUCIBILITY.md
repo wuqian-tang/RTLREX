@@ -3,8 +3,11 @@
 The release includes executable Skill tools, synthetic verification regressions,
 and [final experiment artifacts](../experiments/README.md). The experiment
 packages provide per-case data and scripts to check the reported aggregates.
-They do not bundle contest inputs, reference answers, model credentials, or the
-complete source-bound PA-30 proof archives.
+The [original TT-100 inputs](../benchmarks/tt100/README.md) are included with
+upstream attribution and the original MIT license.
+[PA-30 input sources and checksums](../benchmarks/pa30/README.md) are documented
+for separate acquisition. Reference answers, model credentials, and the
+complete source-bound PA-30 proof archives are not bundled.
 
 ## PA-30 synthesis and mapping
 

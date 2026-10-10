@@ -1,0 +1,713 @@
+{
+  "schema": "creas-tt100-inputs/v1",
+  "upstream_repository": "https://github.com/alanminko/iwls2026-ls-contest",
+  "upstream_revision": "91ad493f4b7732fcbf5384c24c18baef3e07a0c2",
+  "upstream_archive_path": "benchmarks/iwls2026_truth_tables.tar.gz",
+  "upstream_archive_sha256": "b795e284b5911baf84814e4f85ce8e10c3c8a277365967dcb83a5487a244cf72",
+  "license": "MIT",
+  "license_file": "LICENSE",
+  "license_sha256": "660f954df4a5dcf5fe278657281e0b7e2c99ef6f9138effeb2691caaf3238f35",
+  "case_count": 100,
+  "inputs": [
+    {
+      "case": "ex200",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "32f3c352086770a9f4ac2bcc3c1dddbdaf6dcbeb654c5e0ded8ffe18e235d652",
+      "path": "truth/ex200.truth"
+    },
+    {
+      "case": "ex201",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "88b84b2dad9ccc379e34a02039d7254ece387a90c454e0ceea4e3e3db79783e9",
+      "path": "truth/ex201.truth"
+    },
+    {
+      "case": "ex202",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "feaf0c5cf8a3f8ab59bba3e83b8bd01b09428b36c54ee2e7d9208daf1c5c54cf",
+      "path": "truth/ex202.truth"
+    },
+    {
+      "case": "ex203",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "81bc25e5ceb059349f4b0652fbd2891327d3c77fab13ba9ed036a79993f4ca63",
+      "path": "truth/ex203.truth"
+    },
+    {
+      "case": "ex204",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "9230759de71744c4820efed55b59cb8d75c14a0af71e8b9d267e337b5aeeb8d9",
+      "path": "truth/ex204.truth"
+    },
+    {
+      "case": "ex205",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "fcb5eded0ad2e0f90c4bdfa4d7d46ce524957a3f5deb31de10e5282432692845",
+      "path": "truth/ex205.truth"
+    },
+    {
+      "case": "ex206",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "92e2ee0ad4c9c4902f7b8e1f230d88612806a7a158891711097d5b1bc3fdf0e0",
+      "path": "truth/ex206.truth"
+    },
+    {
+      "case": "ex207",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "c626ca2d37792b0d10bfdf8da3f167bfea4d254c631a53389f3309c8e9b83145",
+      "path": "truth/ex207.truth"
+    },
+    {
+      "case": "ex208",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "e77915b31c77932bde9885e39d5c999b5a19f9bcb77e23fb8ff5a5955bad548f",
+      "path": "truth/ex208.truth"
+    },
+    {
+      "case": "ex209",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "087b7e277e84bc15b42e9c39e59618a6f364a9156634069457aaafb491308169",
+      "path": "truth/ex209.truth"
+    },
+    {
+      "case": "ex210",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "68c1547c366e721f4a3e3b9939c22a36ab24669149bf7d3e9b2157649b56809d",
+      "path": "truth/ex210.truth"
+    },
+    {
+      "case": "ex211",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "5659002824caf102d9fb924fcfb0fec0802474926bfa58dda8055b4dc781dea0",
+      "path": "truth/ex211.truth"
+    },
+    {
+      "case": "ex212",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "9821a407e61410ff9e99062e0cf463191aaad265e5ce7e6cf3f810a7ebfedb30",
+      "path": "truth/ex212.truth"
+    },
+    {
+      "case": "ex213",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "751c2909f6e1162e36a25cfbc0d38bd292c772a4430673e4df391ea8d8d01965",
+      "path": "truth/ex213.truth"
+    },
+    {
+      "case": "ex214",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "26babcbe5160c44afd9421f74b26b6a7098939b783413b1d6746a9419d32662d",
+      "path": "truth/ex214.truth"
+    },
+    {
+      "case": "ex215",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "bf0eb11e513b1b9e3ef1b803d17eb69058128716cbc4bfa33e1684754f5be0e6",
+      "path": "truth/ex215.truth"
+    },
+    {
+      "case": "ex216",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "2be25b5fa177a62cc3bc19282566e612388495109d89256d30ba89d5a272d693",
+      "path": "truth/ex216.truth"
+    },
+    {
+      "case": "ex217",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "5ed851271d2880bd6fa807ea961f044ffced919c8d0843e0ad8ca3208803d885",
+      "path": "truth/ex217.truth"
+    },
+    {
+      "case": "ex218",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "daa46faf4c3cc2c9b9f6029d1554b6f4daced5e59fa5cc315cadde2ccd95c450",
+      "path": "truth/ex218.truth"
+    },
+    {
+      "case": "ex219",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "1c75b7af4676543d6b6a992daa3e07694776f0b846c41d3f8fedadc0d66084e5",
+      "path": "truth/ex219.truth"
+    },
+    {
+      "case": "ex220",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "a38327ae668b761bc8681971546532482730a824dfe7e4a1cfec1c3d0ed0f2cd",
+      "path": "truth/ex220.truth"
+    },
+    {
+      "case": "ex221",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "77435a028769fd31492629a7f550d3b27cf66fb469c674ce09081d29112d7ad4",
+      "path": "truth/ex221.truth"
+    },
+    {
+      "case": "ex222",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "cc7e1c4096afee02f52dce0f7eaad0d65b53a6da4c8a51ace8f31e852bf7d5ea",
+      "path": "truth/ex222.truth"
+    },
+    {
+      "case": "ex223",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "60c88a8d382ef6fd3a0f70bcee8df33f070320f72300ee70465cc1ba1edefe75",
+      "path": "truth/ex223.truth"
+    },
+    {
+      "case": "ex224",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "9f69c2c09573ef535050c3fa3e61251d203812a06ac95d4762570224439f49a1",
+      "path": "truth/ex224.truth"
+    },
+    {
+      "case": "ex225",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "7fdc4900066af612512a0fa97d15a9f32042582cd4000d9044a4f966a23bab64",
+      "path": "truth/ex225.truth"
+    },
+    {
+      "case": "ex226",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "c4a0533ebcb7b1c95919a8f9454e0e44eeb463218dc872ca6dacc17eba70ca4f",
+      "path": "truth/ex226.truth"
+    },
+    {
+      "case": "ex227",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "0feac875631bee2bf2bc7d5337b0a0696b72752e7f0702849f618e36a83e7aad",
+      "path": "truth/ex227.truth"
+    },
+    {
+      "case": "ex228",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "1586b5c54ed983c124dcb5a055dbe637e4b1cea38fb627858e475b9b732f9dc2",
+      "path": "truth/ex228.truth"
+    },
+    {
+      "case": "ex229",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "baa229d6a7323a1c7e77691679f111bea9507fafaddd9b5513d0b86ae58ee90f",
+      "path": "truth/ex229.truth"
+    },
+    {
+      "case": "ex230",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "e76ccaefb45c6773de7e35fe188a94c52afc7b513ebc5b01e1a4b1bdb324d183",
+      "path": "truth/ex230.truth"
+    },
+    {
+      "case": "ex231",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "56cb26389765817558874c53affebae81944cc34f7f1a3e4ea0302dc7bafa1d0",
+      "path": "truth/ex231.truth"
+    },
+    {
+      "case": "ex232",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "c67bdb257688b93f53f100813e3848adead30e72de7636f70da05df8c5d87e2c",
+      "path": "truth/ex232.truth"
+    },
+    {
+      "case": "ex233",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "d52fe9b175c0807bed2d9eceaf87e804a9e3b9244e76f1ce7cb96f4102af2a37",
+      "path": "truth/ex233.truth"
+    },
+    {
+      "case": "ex234",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "ac6c0148838b3439ec01b5bc41cee7370549659bbe5eb0f20043d56e4ea3e52b",
+      "path": "truth/ex234.truth"
+    },
+    {
+      "case": "ex235",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "ad22d702e416ca64625693bdbacf42778f0cde5bf30545942948493b28970afa",
+      "path": "truth/ex235.truth"
+    },
+    {
+      "case": "ex236",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "265c3be9b960a27e4f4cc2ca7bd75f02de6b66aeaeed03b390b87e3714f88597",
+      "path": "truth/ex236.truth"
+    },
+    {
+      "case": "ex237",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "f210fd03d313f22036b96d5152772b4cb982ad9a301e9ac26e9bd215aa45fab8",
+      "path": "truth/ex237.truth"
+    },
+    {
+      "case": "ex238",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "1f167d7386534c0a234341b723c816eaefaacd6707287c9ddcbb345531a83bb2",
+      "path": "truth/ex238.truth"
+    },
+    {
+      "case": "ex239",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "2c2a4efcec585f1e9c7aedc41510e588f9c763a38676b14828444d16bbc235a5",
+      "path": "truth/ex239.truth"
+    },
+    {
+      "case": "ex240",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "9f910028005a378cc02e4bee5afa4a5ed0125046b1dc2e701dcbf48a50bfd521",
+      "path": "truth/ex240.truth"
+    },
+    {
+      "case": "ex241",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "9d579541f2af9599e3fa60189fac42797ce4d7ae6100b3ba9bc834c7dd2bef3c",
+      "path": "truth/ex241.truth"
+    },
+    {
+      "case": "ex242",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "cefd074156e1bfc1e82941e745d9d597604a9b7a2aad249f453f81e38b4164ad",
+      "path": "truth/ex242.truth"
+    },
+    {
+      "case": "ex243",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "2ef19a29e91d1cb40857787b36b2dd1017e55bf600a56e7af05635a03ee8f87e",
+      "path": "truth/ex243.truth"
+    },
+    {
+      "case": "ex244",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "4f82a97775a82d1ca5bc913df38b8178e1e5ae8116ff2b201c5baa2a42249340",
+      "path": "truth/ex244.truth"
+    },
+    {
+      "case": "ex245",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "f6ed8c1610f9ed5d188dba5455b1b956ee6159ade5dd3ce1c233dbab8993a7a3",
+      "path": "truth/ex245.truth"
+    },
+    {
+      "case": "ex246",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "a104eb8269554bc073c5e217476a5783281fd2da0192f513f541ac4399d6b81b",
+      "path": "truth/ex246.truth"
+    },
+    {
+      "case": "ex247",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "0fd083924157117837d6e4692cf8ce6367cd6118e59d6836a258e3c188cfb251",
+      "path": "truth/ex247.truth"
+    },
+    {
+      "case": "ex248",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "f990f4805668bad8bd42d7ea769cd47bcef5fd604853ddbdc18730e281d28b60",
+      "path": "truth/ex248.truth"
+    },
+    {
+      "case": "ex249",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "4649f60d1398a3408e0272a01ef1c9105a4464e2feaf88ba0eadd5f4d3720373",
+      "path": "truth/ex249.truth"
+    },
+    {
+      "case": "ex250",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "8c6e8a09b8a579ae24bc9d2e9a9c62e5ab684edfe20f4a7e7e734f4fa1d37bf7",
+      "path": "truth/ex250.truth"
+    },
+    {
+      "case": "ex251",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "6817f714363902cfffc4de49c70ceabad1a2ccd549bb2af2a09f045d7e8dfb51",
+      "path": "truth/ex251.truth"
+    },
+    {
+      "case": "ex252",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "bbf9c320de85a22edafc274cdde97ec56be3b858ec54bc7d66d217d2b0a5549b",
+      "path": "truth/ex252.truth"
+    },
+    {
+      "case": "ex253",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "0f25f43d83911f568e9f5d87758997ff5fa8c29fb7a79d1e5db5e98df3742a97",
+      "path": "truth/ex253.truth"
+    },
+    {
+      "case": "ex254",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "d96c4fe570fa4bee7a607b50e4e502f36996e1d2feca967bd822b0c1ec74aed6",
+      "path": "truth/ex254.truth"
+    },
+    {
+      "case": "ex255",
+      "n_inputs": 8,
+      "n_outputs": 8,
+      "sha256": "67fab318a9de73c133e62945fe27c2765d414f4cc1ce7d933d0b9a7327f437c7",
+      "path": "truth/ex255.truth"
+    },
+    {
+      "case": "ex256",
+      "n_inputs": 10,
+      "n_outputs": 10,
+      "sha256": "c915a50ec19e1e9b0cb826cd854b4bd192369dd82fcbccb98f6aa2d86bee7a8f",
+      "path": "truth/ex256.truth"
+    },
+    {
+      "case": "ex257",
+      "n_inputs": 12,
+      "n_outputs": 12,
+      "sha256": "e8979bdb19658b256cb1eaaa139676a597be2b84a37c77ac1f02f58e6a67a626",
+      "path": "truth/ex257.truth"
+    },
+    {
+      "case": "ex258",
+      "n_inputs": 14,
+      "n_outputs": 14,
+      "sha256": "d2cbac931aea785e63664e2c814593b3e43bf889a7ab53960d30ecc941bda122",
+      "path": "truth/ex258.truth"
+    },
+    {
+      "case": "ex259",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "bc09936da0d80d4cf2f579e8be73eb487b80a757ffbec7de3e82c24ec869dd72",
+      "path": "truth/ex259.truth"
+    },
+    {
+      "case": "ex260",
+      "n_inputs": 8,
+      "n_outputs": 8,
+      "sha256": "2e75e4483003aaac56afb94a22d1a51b5f8247b7ad0a7f9925d3743a32b62c4e",
+      "path": "truth/ex260.truth"
+    },
+    {
+      "case": "ex261",
+      "n_inputs": 10,
+      "n_outputs": 10,
+      "sha256": "b0c2a2cf11c7278237f7245b510708addc897bbf01ac7ce26bf1bc531b05e5da",
+      "path": "truth/ex261.truth"
+    },
+    {
+      "case": "ex262",
+      "n_inputs": 12,
+      "n_outputs": 12,
+      "sha256": "f8557e5547c84fed89504f874b638f2e95039882c3236fedf75212cc966f86a0",
+      "path": "truth/ex262.truth"
+    },
+    {
+      "case": "ex263",
+      "n_inputs": 14,
+      "n_outputs": 14,
+      "sha256": "0d1e591a240539734559c38f17f6f379ca46b8ae73ed51b67c86c15b1b553f4b",
+      "path": "truth/ex263.truth"
+    },
+    {
+      "case": "ex264",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "4b75f67afc6fa02515a7cddec7bf4281c818a14e647145343370794eec596739",
+      "path": "truth/ex264.truth"
+    },
+    {
+      "case": "ex265",
+      "n_inputs": 8,
+      "n_outputs": 4,
+      "sha256": "b3c31a1d2d2cfaf2dd439060c754c77479d09b18d2de8bcaa255e3397c45e00b",
+      "path": "truth/ex265.truth"
+    },
+    {
+      "case": "ex266",
+      "n_inputs": 10,
+      "n_outputs": 5,
+      "sha256": "0d024313245e77dc99fc92e04d9319f8642a4e46ce9dd6f3f4dec17b1fd81b12",
+      "path": "truth/ex266.truth"
+    },
+    {
+      "case": "ex267",
+      "n_inputs": 12,
+      "n_outputs": 6,
+      "sha256": "0050ac4363e97a7bebef6e13e5855ffe3103d1ff09016e895cdb6d51cf90f578",
+      "path": "truth/ex267.truth"
+    },
+    {
+      "case": "ex268",
+      "n_inputs": 14,
+      "n_outputs": 7,
+      "sha256": "3c7a0c7ef0e727e8cb62ceaf8d0ebf6ec2017af7c6f4c5769eb91c89581105b8",
+      "path": "truth/ex268.truth"
+    },
+    {
+      "case": "ex269",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "7347bc3f3175640dcf7d3d72bf0a7b19495d3e08b4f281f2b421bb9465d165d5",
+      "path": "truth/ex269.truth"
+    },
+    {
+      "case": "ex270",
+      "n_inputs": 8,
+      "n_outputs": 16,
+      "sha256": "117c0b2246a21f8ef2daddb44558f31be914d67fc7e6c8758d196ce44c14a651",
+      "path": "truth/ex270.truth"
+    },
+    {
+      "case": "ex271",
+      "n_inputs": 10,
+      "n_outputs": 20,
+      "sha256": "fd3a714fed904f3577cb45f54c2457e80a36d1259478edfd44703be30a5785de",
+      "path": "truth/ex271.truth"
+    },
+    {
+      "case": "ex272",
+      "n_inputs": 12,
+      "n_outputs": 24,
+      "sha256": "1fe3a5ec9cc492fe7971fcbe8c80db6f7ac236f0bc9c79666607a36535f1c63e",
+      "path": "truth/ex272.truth"
+    },
+    {
+      "case": "ex273",
+      "n_inputs": 14,
+      "n_outputs": 28,
+      "sha256": "0088d1631194b3199278338a946e30e9e75765b84d7ea9d300cc8c4f6479a847",
+      "path": "truth/ex273.truth"
+    },
+    {
+      "case": "ex274",
+      "n_inputs": 16,
+      "n_outputs": 32,
+      "sha256": "b40fb816ee8b036e825952e18947ddff203c0f0e506d6cff4f8b9f3878bd5e26",
+      "path": "truth/ex274.truth"
+    },
+    {
+      "case": "ex275",
+      "n_inputs": 8,
+      "n_outputs": 4,
+      "sha256": "b567c1cb07d353c830fa7e7ffe7163c0c212f979e6d8718369bc39201f5808a7",
+      "path": "truth/ex275.truth"
+    },
+    {
+      "case": "ex276",
+      "n_inputs": 10,
+      "n_outputs": 5,
+      "sha256": "d506081ce5463ac54e797b5b7a11834d711c5ad52dc4a3a557a7dbc035c94cc6",
+      "path": "truth/ex276.truth"
+    },
+    {
+      "case": "ex277",
+      "n_inputs": 12,
+      "n_outputs": 6,
+      "sha256": "17fc3d6e2b340863e76910b8fd6c2f0c922d0d281aa777a92e027b981f0a9365",
+      "path": "truth/ex277.truth"
+    },
+    {
+      "case": "ex278",
+      "n_inputs": 14,
+      "n_outputs": 7,
+      "sha256": "458282f5eeeb26f07661190ef129a359b90d7257558b62bfcdfb2e4e8853a3b4",
+      "path": "truth/ex278.truth"
+    },
+    {
+      "case": "ex279",
+      "n_inputs": 16,
+      "n_outputs": 8,
+      "sha256": "bf9e24deb921820769bc9562b8af06c72253d7ae5084ffcbfb871cf24f659155",
+      "path": "truth/ex279.truth"
+    },
+    {
+      "case": "ex280",
+      "n_inputs": 12,
+      "n_outputs": 12,
+      "sha256": "1ac6200ea6e586e89518e32b7a08a6e4ae85e8674ce3541d6af8651c298662df",
+      "path": "truth/ex280.truth"
+    },
+    {
+      "case": "ex281",
+      "n_inputs": 13,
+      "n_outputs": 13,
+      "sha256": "dcd50a8a9396ac1300863eeec030815177509d050dcbcc52a1a954d3d042fe70",
+      "path": "truth/ex281.truth"
+    },
+    {
+      "case": "ex282",
+      "n_inputs": 14,
+      "n_outputs": 14,
+      "sha256": "697ec473e9f5c5a4d2c0ea137a71ec57ee3b2050eea59d2effdfc6848baf4d14",
+      "path": "truth/ex282.truth"
+    },
+    {
+      "case": "ex283",
+      "n_inputs": 15,
+      "n_outputs": 15,
+      "sha256": "df5f35da95e2d9ea51e7f995e58d659ebaf7d3c10f62789e71d98127cb760d85",
+      "path": "truth/ex283.truth"
+    },
+    {
+      "case": "ex284",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "bae94701e49f3ec1c2354321e8b4d22261cbdcdb0c778c700fd0e283f0b4aaec",
+      "path": "truth/ex284.truth"
+    },
+    {
+      "case": "ex285",
+      "n_inputs": 12,
+      "n_outputs": 12,
+      "sha256": "12919f8b86763920e5a93467148e951f68684ebf393b3e23c4f8c049a5fd20ab",
+      "path": "truth/ex285.truth"
+    },
+    {
+      "case": "ex286",
+      "n_inputs": 13,
+      "n_outputs": 13,
+      "sha256": "6b943188b108687a4fa5f6eabd08f2ade08a52d6836909a283e4be8afa2d1bb2",
+      "path": "truth/ex286.truth"
+    },
+    {
+      "case": "ex287",
+      "n_inputs": 14,
+      "n_outputs": 14,
+      "sha256": "4cdeb63065dd0c0c51bdd8a26190598880b99f228e8f14709f8e7f284c6e0ece",
+      "path": "truth/ex287.truth"
+    },
+    {
+      "case": "ex288",
+      "n_inputs": 15,
+      "n_outputs": 15,
+      "sha256": "b56dbc9506ecd0f60052c47535551b646ca09eb75cb8468a21065f5051b34841",
+      "path": "truth/ex288.truth"
+    },
+    {
+      "case": "ex289",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "7cdc17cde8ddde0201bcd6709b424580b2bc30564192bd687168e1f2c8d1655c",
+      "path": "truth/ex289.truth"
+    },
+    {
+      "case": "ex290",
+      "n_inputs": 12,
+      "n_outputs": 12,
+      "sha256": "42f417514c1570315f5609ea0dd4269e0c78d574a176f79d69b14dc9c9a89213",
+      "path": "truth/ex290.truth"
+    },
+    {
+      "case": "ex291",
+      "n_inputs": 13,
+      "n_outputs": 13,
+      "sha256": "5d52ae1b8c219e70536983ef5472e27f67f56cfebe804e79126f91a85b8e7df8",
+      "path": "truth/ex291.truth"
+    },
+    {
+      "case": "ex292",
+      "n_inputs": 14,
+      "n_outputs": 14,
+      "sha256": "0323360f2236c5c783ac596a3fc47f0f268dc05fda4110dcb07f1282fa6b272a",
+      "path": "truth/ex292.truth"
+    },
+    {
+      "case": "ex293",
+      "n_inputs": 15,
+      "n_outputs": 15,
+      "sha256": "8a9775fca1b4e3e074a4de5586b2ca433d2f8b30036801705fe819b57a2b0d99",
+      "path": "truth/ex293.truth"
+    },
+    {
+      "case": "ex294",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "167fc586ba3d34a252a718c543b042d1f8e6de6acf308a02e60f7f875f8837ca",
+      "path": "truth/ex294.truth"
+    },
+    {
+      "case": "ex295",
+      "n_inputs": 12,
+      "n_outputs": 12,
+      "sha256": "dd85f1cfdc9f7055071c028fc1b1248c50990a77a3873bc47cc8163749570c3a",
+      "path": "truth/ex295.truth"
+    },
+    {
+      "case": "ex296",
+      "n_inputs": 13,
+      "n_outputs": 13,
+      "sha256": "bc3323b586eef0680e06f60326dd5e38a7047305b249e7c6d154c59fb4d2c44d",
+      "path": "truth/ex296.truth"
+    },
+    {
+      "case": "ex297",
+      "n_inputs": 14,
+      "n_outputs": 14,
+      "sha256": "a4878b7fcae599bd3ae2d1908adde19f8fca4425fe7a993535f60b66f235468e",
+      "path": "truth/ex297.truth"
+    },
+    {
+      "case": "ex298",
+      "n_inputs": 15,
+      "n_outputs": 15,
+      "sha256": "7cb3d5a4e5da1b54140ae0c26290ac4d0dc02fadf2729f6433ef066da1efb05d",
+      "path": "truth/ex298.truth"
+    },
+    {
+      "case": "ex299",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "sha256": "7c25a1f764b12327a1ebf58885897465dce2949d162d37eae9376f485fca7971",
+      "path": "truth/ex299.truth"
+    }
+  ]
+}

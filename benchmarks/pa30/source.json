@@ -1,0 +1,161 @@
+{
+  "schema": "creas-pa30-input-sources/v1",
+  "official_problem_page": "https://www.iccad-contest.org/2022/Problems.html",
+  "official_archive_page": "https://drive.google.com/file/d/1axlAw1rPXbTb_kYsvbwKshcEMF37SQWz/view",
+  "official_archive_download_url": "https://drive.google.com/uc?export=download&id=1axlAw1rPXbTb_kYsvbwKshcEMF37SQWz",
+  "official_archive_sha256": "c3161f738e11940a73a4a14222b1605786225df5952750fdb32fd218bee4b99d",
+  "redistribution": "Original gate inputs are not bundled. An explicit redistribution license has not been established.",
+  "case_count": 30,
+  "inputs": [
+    {
+      "case": "test01",
+      "path": "test01/top_primitive.v",
+      "sha256": "d54cc90acb43ea306dd94776114dcbceb0751ba55016af4389fc40e4b7fe9302"
+    },
+    {
+      "case": "test02",
+      "path": "test02/top_primitive.v",
+      "sha256": "a9f812b40559e183c41334e9392337f0384c0cca976c74117a2f8c12cf2e7753"
+    },
+    {
+      "case": "test03",
+      "path": "test03/top_primitive.v",
+      "sha256": "6f03995e7efc7a0eed90820b7b0b8214355e082f8b6561aebc66c696570b53e0"
+    },
+    {
+      "case": "test04",
+      "path": "test04/top_primitive.v",
+      "sha256": "a7a02287319857ced29a12cced070ca4cba5cd3b5387e5a5d8f5d7fffb19d0ec"
+    },
+    {
+      "case": "test05",
+      "path": "test05/top_primitive.v",
+      "sha256": "72e7786d2d1089bf87bac67f53d40a10e124222b4c60b5b5bde2f2e664754337"
+    },
+    {
+      "case": "test06",
+      "path": "test06/top_primitive.v",
+      "sha256": "7507325141015d8d8674ecbf3870bf71af9d25c0f0d1c889a14ae8f52cf247cb"
+    },
+    {
+      "case": "test07",
+      "path": "test07/top_primitive.v",
+      "sha256": "52fc439bce0e112e7a82ab0bdfe2c6399eeedcd7681bb7a4ae4c2c034de0bc55"
+    },
+    {
+      "case": "test08",
+      "path": "test08/top_primitive.v",
+      "sha256": "1511053916c3a33fadcfb5835c61ece478514e878326defd596cf2d33835bf3f"
+    },
+    {
+      "case": "test09",
+      "path": "test09/top_primitive.v",
+      "sha256": "a38bf40bf1a2518dbff5f7be481a8ff33e86d3871542d763bffc04a6e2d0b7c6"
+    },
+    {
+      "case": "test10",
+      "path": "test10/top_primitive.v",
+      "sha256": "287e2b7d0b4bb1ae8da02e19f8b5fdbbdadeb6ab72dd44ba44fc9fb43ccc74ae"
+    },
+    {
+      "case": "test11",
+      "path": "test11/top_primitive.v",
+      "sha256": "6646d703e0b355ff90d972b7fd6647c278a634ae10bbe63bbc5889a3cc1c4520"
+    },
+    {
+      "case": "test12",
+      "path": "test12/top_primitive.v",
+      "sha256": "247fe70bd80b638b659cef17236bac899806edf5894e61a095c67b8111cc5eb0"
+    },
+    {
+      "case": "test13",
+      "path": "test13/top_primitive.v",
+      "sha256": "bc803fd2c92932c4b3944886229f035cb6870564d5961070fa6124fe767a76fe"
+    },
+    {
+      "case": "test14",
+      "path": "test14/top_primitive.v",
+      "sha256": "8f0b08307e02e37fee8757060c5657a303681453d0b446b0a5c7b190a7f4e1f5"
+    },
+    {
+      "case": "test15",
+      "path": "test15/top_primitive.v",
+      "sha256": "2e01c3142a14d9efc5fb38e75fc1614ab6cc9bd61166666f912fea122cac253b"
+    },
+    {
+      "case": "test16",
+      "path": "test16/top_primitive.v",
+      "sha256": "6debe79a4246c3f2110fe9cf9d192517da456708dbbaf445bc8bb7de64fa3af4"
+    },
+    {
+      "case": "test17",
+      "path": "test17/top_primitive.v",
+      "sha256": "3be78a7fd21d4df739203abdf067be162222499597b01199b260945c18f96b8e"
+    },
+    {
+      "case": "test18",
+      "path": "test18/top_primitive.v",
+      "sha256": "46a24c5b34048beeeb085af936600a859f4d62db7eac0dcc7caad04794821254"
+    },
+    {
+      "case": "test19",
+      "path": "test19/top_primitive.v",
+      "sha256": "73aaa36e699eaa848b5c89d91eeec19c442e4a5c8d6224e49b59c23057350907"
+    },
+    {
+      "case": "test20",
+      "path": "test20/top_primitive.v",
+      "sha256": "22186adcc341817339aea9458ef3a1121b815aac4c560629e954f8829c1c6ae6"
+    },
+    {
+      "case": "test21",
+      "path": "test21/top_primitive.v",
+      "sha256": "4b13b72b75145f08549e5c5d9519fde496133d121136c4f2f8529b298e211ef3"
+    },
+    {
+      "case": "test22",
+      "path": "test22/top_primitive.v",
+      "sha256": "97d52a6c5e77704d339ef34d0797440bb84e8ed5679e80d93dc26ef0ffeb6268"
+    },
+    {
+      "case": "test23",
+      "path": "test23/top_primitive.v",
+      "sha256": "7c0608f1a7d7955b221ce9d9e3cd5306b6d1bf9ab5a7da907df909b4063f205d"
+    },
+    {
+      "case": "test24",
+      "path": "test24/top_primitive.v",
+      "sha256": "fc4dfc4f4d8710c1e6d3ce02d9dbc58f1c8b717deedf0be22c7850b20fa63545"
+    },
+    {
+      "case": "test25",
+      "path": "test25/top_primitive.v",
+      "sha256": "15de2b06e7595fd034b9e75a0709d04abb5e81dc3f85d9a45f97533332499f3f"
+    },
+    {
+      "case": "test26",
+      "path": "test26/top_primitive.v",
+      "sha256": "ca16bbf0af806304d8ff7e2c3a1a78656070ef402b9e247919042d9df513a115"
+    },
+    {
+      "case": "test27",
+      "path": "test27/top_primitive.v",
+      "sha256": "fd7bf0cad9ec6319085da78eb7b474aa9bb201b34470745c332e19347fd23889"
+    },
+    {
+      "case": "test28",
+      "path": "test28/top_primitive.v",
+      "sha256": "23c0eba7dc6bb6ce137bc3162252c083c60443628cacbd8ff9bbd18b44110b8f"
+    },
+    {
+      "case": "test29",
+      "path": "test29/top_primitive.v",
+      "sha256": "51f9192fd3c79edac2027499a1e0f29afb21d7330e6e4a70e6861779f10c69fe"
+    },
+    {
+      "case": "test30",
+      "path": "test30/top_primitive.v",
+      "sha256": "218b78e49fbb409af87277da67789253d3bcca87e1b4eec4ae77068fda005312"
+    }
+  ]
+}

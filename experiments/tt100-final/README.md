@@ -53,7 +53,8 @@ reports the common high-level subset separately.
 - `metadata.json`: endpoint definitions, budgets, tool/scorer provenance hashes,
   and source-file hashes from the selected final manuscript snapshot.
 - `input_manifest.json`: case names, interface widths, and truth-table hashes.
-  The third-party truth-table contents are not included.
+  The corresponding original truth tables are included separately in
+  `benchmarks/tt100/truth/`, with source attribution and the upstream MIT license.
 - `SHA256.json`: checksums of the files in this export.
 
 ## Verify the published arithmetic
@@ -79,8 +80,10 @@ durations, including budget expirations, rather than total elapsed time under
 parallel execution.
 
 The data are byte-identical to the selected final per-case manuscript CSV.
-The summary and metadata are compact exports from that snapshot. No third-party
-truth tables, reference answers, private logs, or credentials are published.
+The summary and metadata are compact exports from that snapshot. The frozen
+metadata records the scope of the original measurement export; the subsequently
+added original truth tables are stored separately in `benchmarks/tt100/`.
+Reference answers, private logs, and credentials are not included.
 This is an evaluation on the development corpus rather than a separate held-out
 benchmark. Retained no-Skill candidates are scored by the common final evaluator
 without rerunning their generation. Updating this software release does not

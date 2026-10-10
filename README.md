@@ -103,8 +103,11 @@ profile is required. [Source attribution](NOTICE.md) and
 The experiment packages include per-case measurements, aggregation scripts,
 and instructions for the published synthesis study. They distinguish measured
 data, retained recovery proofs, and regression checks of arithmetic lowering.
-Contest inputs, reference answers, paper PDFs and full PA-30 proof archives are
-not bundled. Replaying the synthesis study requires separately obtained inputs,
+The [100 original TT-100 truth tables](benchmarks/tt100/README.md) are included
+with their original MIT license and source attribution.
+[PA-30 source links and input checksums](benchmarks/pa30/README.md) are provided
+for separately obtaining its original netlists. Reference answers, paper PDFs
+and full PA-30 proof archives are not bundled. Replaying the synthesis study requires separately obtained inputs,
 the specified standard-cell library and EDA tools. Regenerating LLM recovery
 runs also requires an independently configured model host.
 

@@ -10,9 +10,14 @@ additional zero-cost keywords. See the
 for the original specification and distribution terms. The default CSV is not
 an official IWLS metric either.
 
-No contest specification PDF, benchmark netlist, truth-table dataset, golden
-answer, standard-cell library, Yosys source, ABC source or solver executable is
-redistributed here. External software remains subject to its own license:
+The original TT-100 truth tables are redistributed from the official
+[IWLS 2026 contest repository](https://github.com/alanminko/iwls2026-ls-contest),
+Copyright (c) 2026 alanminko, under its original MIT license.
+The license is preserved in `benchmarks/tt100/LICENSE`; source revisions and
+checksums are recorded in `benchmarks/tt100/source.json`.
+PA-30 original netlists, contest specification PDFs, golden answers,
+standard-cell libraries, Yosys source, ABC source, and solver executables are
+not redistributed here. External software remains subject to its own license:
 
 - [Yosys](https://github.com/YosysHQ/yosys): ISC license.
 - [Berkeley ABC](https://github.com/berkeley-abc/abc): upstream copyright terms.

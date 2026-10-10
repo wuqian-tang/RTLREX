@@ -11,6 +11,8 @@ mean cell area by 1.75% and mean delay by 3.03% over the same 29 completed pairs
 Individual circuits retain area–delay tradeoffs. The original test22 mapping
 times out and is excluded from both paired means.
 
-The packages preserve final measurements and their provenance. They do not
-include third-party contest inputs or reference RTL answers. Consult each
+The packages preserve final measurements and their provenance. The [original TT-100 truth tables](../benchmarks/tt100/README.md) are included
+separately under `benchmarks/tt100/`, with upstream license and attribution.
+[PA-30 input sources](../benchmarks/pa30/README.md) are documented for separate
+acquisition. Reference RTL answers are not included. Consult each
 package for exact input requirements and verification scope.
