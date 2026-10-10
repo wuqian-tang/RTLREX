@@ -102,6 +102,34 @@ def equivalent(actual, expected) -> bool:
     return actual == expected
 
 
+def verify_function_inventory(indexed: dict, inputs: dict) -> None:
+    """Check record correspondence, not the semantics of descriptive labels."""
+    with (ROOT / "recovered_functions.csv").open(newline="") as handle:
+        inventory = list(csv.DictReader(handle))
+    assert len(inventory) == 100
+    assert len({r["case"] for r in inventory}) == 100
+    assert {r["case"] for r in inventory} == set(inputs)
+    groups = {}
+    for row in inventory:
+        selected = indexed[(row["case"], "with_skill")]
+        original = inputs[row["case"]]
+        assert row["V"] == "1" and selected["V"]
+        assert row["H"] in ("0", "1")
+        assert int(row["H"]) == int(selected["H"])
+        assert int(row["syntax_cost"]) == selected["syntax_cost"]
+        assert int(row["input_bits"]) == original["n_inputs"]
+        assert int(row["output_bits"]) == original["n_outputs"]
+        assert row["input_sha256"] == selected["input_sha256"] == original["sha256"]
+        assert row["candidate_sha256"] == selected["candidate_sha256"]
+        assert all(row[k].strip() for k in
+                   ("recovered_function_en", "recovered_function_zh", "recovery_description"))
+        assert (row["function_group"] == "bit-level Boolean") == (row["H"] == "0")
+        groups[row["function_group"]] = groups.get(row["function_group"], 0) + 1
+    assert sum(int(r["H"]) for r in inventory) == 80
+    assert groups == {"floating-point": 52, "integer": 25, "fixed-point": 3,
+                      "bit-level Boolean": 20}
+
+
 def main() -> None:
     manifest = json.loads((ROOT / "SHA256.json").read_text())
     for name, expected in manifest.items():
@@ -113,6 +141,8 @@ def main() -> None:
     source_inputs = {r["case"]: r["sha256"] for r in json.loads((ROOT / "input_manifest.json").read_text())}
     assert all(r["input_sha256"] == source_inputs[r["case"]] for r in rows)
     indexed = {(r["case"], r["arm"]): r for r in rows}
+    source_interfaces = {r["case"]: r for r in json.loads((ROOT / "input_manifest.json").read_text())}
+    verify_function_inventory(indexed, source_interfaces)
     with (ROOT / "cost_pairs.csv").open(newline="") as handle:
         pairs = list(csv.DictReader(handle))
     assert {r["case"] for r in pairs} == set(actual["paired_cost_runtime"]["V"]["case_ids"])

@@ -39,6 +39,14 @@ reports the common high-level subset separately.
   final Q, elapsed generation time, recorded token usage, and input/candidate
   hashes. A blank `policy_compliant` means no terminal candidate was available
   for that representation review. Representation policy does not filter V.
+- `recovered_functions.csv`: 100 final CREAS cases with English and Chinese
+  function summaries, packed interface widths, V/H, Q, full recognition
+  descriptions, and final candidate/input hashes. All 100 satisfy V, with
+  52 floating-point, 25 integer, and 3 fixed-point high-level implementations,
+  plus 20 exact bit-level Boolean implementations. Function names summarize
+  CREAS recognition rather than official benchmark annotations. For refined
+  candidates, descriptions originate from recognition records for the same
+  truth table, while hashes and costs refer to the final selected RTL.
 - `cost_pairs.csv`: all 81 common validated cases, final costs, comparison
   outcome from CREAS's perspective, and membership in the common H subset.
 - `summary.json`: aggregates recomputed from the case records.
@@ -58,6 +66,9 @@ python3 experiments/tt100-final/verify_results.py
 
 The script checks file hashes, all 200 records, case/input pairing, V/H counts,
 cost wins/ties/losses, means, generation durations, and recorded token totals.
+It also checks the recovered-function inventory against final measurements
+and the input manifest, including all interface widths and the 100/80 V/H
+counts. These joins do not independently certify the descriptive function names.
 It verifies the arithmetic of the published measurement records. It does not
 rerun RTL equivalence checks or the original generation experiment.
 
