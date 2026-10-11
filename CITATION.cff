@@ -1,13 +1,13 @@
 cff-version: 1.2.0
-message: "Cite the version of CREAS you actually use; paper metadata will be added after publication of a preprint."
+message: "Cite the version of RTLREX you actually use; paper metadata will be added after publication of a preprint."
 type: software
-title: "CREAS"
+title: "RTLREX"
 authors:
-  - name: "CREAS contributors"
+  - name: "RTLREX contributors"
 version: 0.1.0-rc1
 license: MIT
-repository-code: "https://github.com/wuqian-tang/CREAS"
-abstract: "The software companion to CREAS, providing the circuit-reverse-rtl Agent Skill and reusable tools for high-level combinational RTL recovery with external exact-equivalence checking."
+repository-code: "https://github.com/wuqian-tang/RTLREX"
+abstract: "The software companion to RTLREX, an LLM-guided framework for high-level RTL recovery with exact equivalence checking. Domain-specific recovery procedures and tools are packaged as the circuit-reverse-rtl Agent Skill."
 keywords:
   - circuit reverse engineering
   - RTL

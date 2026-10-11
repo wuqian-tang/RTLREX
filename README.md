@@ -1,13 +1,14 @@
-# CREAS
+# RTLREX
 
-CREAS is an LLM-guided framework for recovering high-level RTL from
-combinational gate netlists and complete truth tables. An LLM proposes
-hypotheses and proof plans through a domain-specific Agent Skill; external
-tools check the recovered implementation against the input.
+RTLREX is an LLM-guided framework for recovering high-level RTL from
+combinational gate netlists and complete truth tables, with exact equivalence
+checking. An LLM plans recovery and refinement using domain-specific procedures
+and tools for probing, recognition, RTL generation, and rewriting. Independent
+verification checks candidates against the original input before acceptance.
 
-This repository contains **one Skill**, `circuit-reverse-rtl`, with reusable
-probing, recovery, rewriting, and exact-equivalence tools. It is the software
-companion to the CREAS paper. **CREAS** names the framework and repository;
+The domain-specific procedures and tools are packaged as **one Agent Skill**,
+`circuit-reverse-rtl`. This repository is the software companion to the RTLREX
+paper. **RTLREX** names the framework and repository;
 `circuit-reverse-rtl` remains the installable Skill identifier and invocation
 name. The package does not contain a model or require an API key to run its
 checkers and tests.
@@ -39,8 +40,8 @@ Z3 and a C++17 compiler. See [dependencies](docs/DEPENDENCIES.md) for versions a
 tool configuration. NumPy is used by some truth-table recognition paths:
 
 ```bash
-git clone https://github.com/wuqian-tang/CREAS.git
-cd CREAS
+git clone https://github.com/wuqian-tang/RTLREX.git
+cd RTLREX
 python3 -m venv .venv
 . .venv/bin/activate
 python3 -m pip install -r requirements.txt
@@ -113,8 +114,8 @@ runs also requires an independently configured model host.
 
 ## Citation and license
 
-This repository accompanies *CREAS: LLM-Guided Circuit Reverse Engineering
-with an Agent Skill*. Software citation metadata is in
+This repository accompanies *RTLREX: An LLM-Guided Framework for High-Level RTL
+Recovery with Exact Equivalence Checking*. Software citation metadata is in
 [CITATION.cff](CITATION.cff). A paper DOI/arXiv identifier will be added when one
 exists.
 
