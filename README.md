@@ -114,7 +114,7 @@ runs also requires an independently configured model host.
 
 ## Citation and license
 
-This repository accompanies *RTLREX: An LLM-Guided Framework for High-Level RTL
+This repository accompanies *RTLREX: LLM-Guided Framework for High-Level RTL
 Recovery with Exact Equivalence Checking*. Software citation metadata is in
 [CITATION.cff](CITATION.cff). A paper DOI/arXiv identifier will be added when one
 exists.
