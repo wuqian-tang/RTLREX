@@ -22,6 +22,8 @@ checkers and tests.
 - Strict ABC/SMT checking, independent algebraic replay, native ROBDD coefficient
   checking, complete cofactor coverage, and checked proof composition.
 - Synthetic examples, negative controls, an installer, and portable tests.
+- [BF16 exponential running example](examples/bf16-exp/README.md), with the
+  actual initial and rewritten RTL, verification records, and frozen scoring files.
 - Agent instructions and references describing proof obligations and boundaries.
 - [Representative historical paper prompts](docs/paper-prompts/README.md), with
   source mapping and a clear distinction from illustrative examples.

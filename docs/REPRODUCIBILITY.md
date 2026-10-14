@@ -51,6 +51,11 @@ Recomputing aggregate data is different from regenerating the agent runs.
 Generation requires a separately configured LLM host and the archived model,
 prompts, Skill version, budgets, and inputs described in the package metadata.
 
+The [BF16 running example](../examples/bf16-exp/README.md) additionally provides
+two original experiment RTL candidates, archived verification outcomes, and the
+frozen TT-100 scoring files. Its commands recompute costs or independently recheck
+complete-domain equivalence without regenerating an LLM recovery run.
+
 ## Software and prompts
 
 Synthetic tests check tool behavior, negative controls, and portability. They

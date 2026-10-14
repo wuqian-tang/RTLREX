@@ -60,6 +60,14 @@ reports the common high-level subset separately.
   `benchmarks/tt100/truth/`, with source attribution and the upstream MIT license.
 - `SHA256.json`: checksums of the files in this export.
 
+## Running example
+
+The [`ex200` BF16 exponential example](../../examples/bf16-exp/README.md) provides
+the initial and rewritten RTL, verification results, and syntax costs Q = 32
+and Q = 24. It includes the frozen final evaluator and weights, plus commands
+for independently checking both implementations against the original truth table.
+The final RTL hash and cost agree with this package's `ex200` measurement record.
+
 ## Verify the published arithmetic
 
 Run from any working directory using Python 3, with no EDA tools or LLM:

@@ -1,0 +1,55 @@
+[
+  {
+    "case": "ex200",
+    "cost": 32,
+    "detail": {
+      "!=": 1,
+      "*": 1,
+      "+": 1,
+      "-": 1,
+      "/": 2,
+      "<": 1,
+      "<<<": 1,
+      "==": 1,
+      ">=": 1,
+      ">>>": 1,
+      "?:": 1,
+      "if": 8,
+      "select": 11,
+      "||": 1
+    },
+    "module_costs": {
+      "top": 32
+    },
+    "rtl": "initial.v",
+    "candidate_sha256": "9ca1c6214e0c8525817ff15720bc5363f2733faaad0811119b270a51ef7de34d",
+    "calculator_sha256": "685d655fe1bb6dadeb36921cb3da42de2791cc31b252ea86aeb3e5a8bbd5b014",
+    "weights_sha256": "65a0ff43df653831655cba564349ac536c755b53335d97ee3860f410bccbebc0"
+  },
+  {
+    "case": "ex200",
+    "cost": 24,
+    "detail": {
+      "!=": 1,
+      "*": 1,
+      "+": 1,
+      "-": 1,
+      "/": 2,
+      "<": 1,
+      "<<<": 1,
+      "==": 1,
+      ">=": 1,
+      ">>>": 1,
+      "?:": 1,
+      "select": 11,
+      "||": 1
+    },
+    "module_costs": {
+      "top": 24
+    },
+    "rtl": "rewritten.v",
+    "candidate_sha256": "3aa6a53c7258e3b343425f82c3355b4e3971cadfe7b710b33f57299645204133",
+    "calculator_sha256": "685d655fe1bb6dadeb36921cb3da42de2791cc31b252ea86aeb3e5a8bbd5b014",
+    "weights_sha256": "65a0ff43df653831655cba564349ac536c755b53335d97ee3860f410bccbebc0"
+  }
+]
