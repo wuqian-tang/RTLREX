@@ -1,6 +1,6 @@
 # PA-30 arithmetic synthesis and standard-cell mapping
 
-This package contains the final, uniform synthesis comparison used in the LifeRTL paper. Recovered high-level arithmetic exposes square symmetry and constant coefficients, enabling arithmetic lowering and Booth synthesis before standard-cell mapping. The original gate-level inputs are mapped directly. Both flows use the same Nangate45 typical library, a 2 ns ABC target, `BUF_X1` input driver, and 10 fF output load.
+This package contains the final, uniform synthesis comparison used in the RTLREX paper. Recovered high-level arithmetic exposes square symmetry and constant coefficients, enabling arithmetic lowering and Booth synthesis before standard-cell mapping. The original gate-level inputs are mapped directly. Both flows use the same Nangate45 typical library, a 2 ns ABC target, `BUF_X1` input driver, and 10 fF output load.
 
 All 30 recovered designs complete synthesis, mapping, and timing analysis. The original `test22` reaches the 600 s synthesis/mapping limit. Arithmetic means use the same 29 completed pairs, without selecting a different profile for each case.
 
@@ -40,8 +40,8 @@ The retained recovered RTL has existing strict proofs against the original gate-
 Run the rule regression with a compatible Yosys:
 
 ```sh
-python3 experiments/pa30-arithmetic/check_lowering.py --yosys yosys --output /tmp/lifertl-pa30-rule-check
-python3 experiments/pa30-arithmetic/check_cube_normalization.py --yosys yosys --output /tmp/lifertl-pa30-cube-check
+python3 experiments/pa30-arithmetic/check_lowering.py --yosys yosys --output /tmp/rtlrex-pa30-rule-check
+python3 experiments/pa30-arithmetic/check_cube_normalization.py --yosys yosys --output /tmp/rtlrex-pa30-cube-check
 ```
 
 To apply the generic lowering independently, supply a Yosys JSON design containing native arithmetic cells before `alumacc`:
@@ -53,10 +53,10 @@ python3 experiments/pa30-arithmetic/arithmetic_lowering.py --help
 To regenerate inputs, including the unsigned-cube normalization, use:
 
 ```sh
-python3 experiments/pa30-arithmetic/prepare_inputs.py --yosys yosys --output /tmp/lifertl-pa30-regenerated-inputs
+python3 experiments/pa30-arithmetic/prepare_inputs.py --yosys yosys --output /tmp/rtlrex-pa30-regenerated-inputs
 ```
 
-The intermediate square has twice the unsigned operand width, so it is exact. The final product is reduced to the original output width, matching Verilog's result. The recorded 256-value validation in `normalization/test11.json` is for the archived RTL expression replacement, not a separate full-circuit certificate for newly regenerated JSON. Freshly generated files can differ in names and internal representation from the archived inputs. To measure them, pass both `--json-dir /tmp/lifertl-pa30-regenerated-inputs` and `--input-manifest /tmp/lifertl-pa30-regenerated-inputs/input_manifest.json` to the runner. Do not replace the frozen published measurements with these new measurements.
+The intermediate square has twice the unsigned operand width, so it is exact. The final product is reduced to the original output width, matching Verilog's result. The recorded 256-value validation in `normalization/test11.json` is for the archived RTL expression replacement, not a separate full-circuit certificate for newly regenerated JSON. Freshly generated files can differ in names and internal representation from the archived inputs. To measure them, pass both `--json-dir /tmp/rtlrex-pa30-regenerated-inputs` and `--input-manifest /tmp/rtlrex-pa30-regenerated-inputs/input_manifest.json` to the runner. Do not replace the frozen published measurements with these new measurements.
 
 ## Reproduce synthesis and mapping
 
@@ -67,7 +67,7 @@ are documented in the benchmark source directory. Supply the same input files ar
 Obtain the pinned public Nangate45 library and its license in a directory outside the source checkout:
 
 ```sh
-python3 experiments/pa30-arithmetic/fetch_library.py --output /tmp/lifertl-nangate45
+python3 experiments/pa30-arithmetic/fetch_library.py --output /tmp/rtlrex-nangate45
 ```
 
 Then run both profiles:
@@ -75,11 +75,11 @@ Then run both profiles:
 ```sh
 python3 experiments/pa30-arithmetic/run_experiment.py \
   --inputs-dir /path/to/pa30-inputs \
-  --liberty /tmp/lifertl-nangate45/NangateOpenCellLibrary_typical_no_wireload.lib \
+  --liberty /tmp/rtlrex-nangate45/NangateOpenCellLibrary_typical_no_wireload.lib \
   --yosys /path/to/yosys --abc /path/to/abc --sta /path/to/sta \
-  --output /tmp/lifertl-pa30-measurement --jobs 4
+  --output /tmp/rtlrex-pa30-measurement --jobs 4
 python3 experiments/pa30-arithmetic/aggregate.py \
-  --measurements /tmp/lifertl-pa30-measurement/measurements.csv
+  --measurements /tmp/rtlrex-pa30-measurement/measurements.csv
 ```
 
 The executable options also honor `YOSYS`, `ABC`, and `OPENSTA` (or `STA`), then search `PATH`. The measured Yosys is `0.63+161` with Git revision prefix `5fd39ff3e`, which supports `synth -booth`. ABC reports version 1.01, compiled March 18, 2026. OpenSTA is 2.0.17. Use the executable hashes in the provenance file for exact binary matching. The runner records the actual hashes and versions of supplied tools, so runs with different tool builds remain distinguishable.

@@ -10,7 +10,7 @@ per-case identities. Use the official page for other distributions and updates.
 
 The original input netlists are not redistributed here because an explicit
 redistribution license has not been established. Source attribution does not
-change the upstream terms. The recovered LifeRTL outputs are included separately
+change the upstream terms. The recovered RTLREX outputs are included separately
 in `experiments/pa30-arithmetic/rtl/`.
 
 Download and unpack the inputs from the official source, then arrange the

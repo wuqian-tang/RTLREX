@@ -2,7 +2,7 @@
 
 This directory redistributes the 100 original truth tables `ex200.truth` through
 `ex299.truth` from the official [IWLS 2026 contest repository](https://github.com/alanminko/iwls2026-ls-contest).
-They are unchanged and match every input hash in the final LifeRTL experiment
+They are unchanged and match every input hash in the final RTLREX experiment
 records in `experiments/tt100-final/input_manifest.json`.
 
 - Source revision: `91ad493f4b7732fcbf5384c24c18baef3e07a0c2`.
@@ -16,7 +16,7 @@ records in `experiments/tt100-final/input_manifest.json`.
 The format follows ABC `read_truth -xf`: each nonempty line describes one
 output bit, and an unsigned input value `x` selects character `2**n - 1 - x`
 from the left. The inputs contain no recovered RTL or function annotations.
-LifeRTL's recovered function descriptions and measurements are stored separately
+RTLREX's recovered function descriptions and measurements are stored separately
 in `experiments/tt100-final/`.
 
 Run `python3 benchmarks/verify_inputs.py` from the repository root to verify all
