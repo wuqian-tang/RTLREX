@@ -1,4 +1,4 @@
 interface:
-  display_name: "RTLREX Circuit Recovery"
+  display_name: "LifeRTL Circuit Recovery"
   short_description: "Infer compact equivalent RTL from low-level circuits"
   default_prompt: "Use $circuit-reverse-rtl to infer compact RTL, prove equivalence, and report cost."
