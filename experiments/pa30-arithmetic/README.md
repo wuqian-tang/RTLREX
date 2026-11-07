@@ -23,7 +23,8 @@ python3 experiments/pa30-arithmetic/aggregate.py --verify-published
 
 ## What is included
 
-- `rtl/`: the 30 unchanged recovered RTL artifacts whose original-to-recovery proofs were retained. Their original syntax costs and recovery classifications are unchanged.
+- `rtl/`: the 30 unchanged recovered RTL artifacts whose original-to-recovery proofs were retained.
+- `proof_records/`: field-selected historical receipts for all 30 proof routes. Source/candidate identities are checked against the frozen proof index and input manifest, and original record hashes are retained separately from exported receipt hashes. These receipts are not self-contained replay certificates. Original-derived AIGs, auxiliary netlist cones, raw logs and historical tool snapshots are not bundled. Their original syntax costs and recovery classifications are unchanged.
 - `synthesis_json/`: the exact lowered logic used for synthesis, with source-location metadata removed and source-derived hidden cell/net names shortened for portability. These metadata and name changes alter file hashes, but preserve the logic, connections, widths, and synthesis operations. Tool tie-breaking can depend on names, so exported-file reruns need not be byte-identical to the archived netlists. Both archived and published JSON hashes are recorded separately.
 - `arithmetic_lowering.py`: the generic pre-`alumacc` JSON transformation, identical to the measured implementation. It expands unsigned squares using symmetric partial products and constant multipliers using canonical signed digits, at the existing output width. It has no case-ID dispatch.
 - `check_lowering.py`: bounded formal regression for the arithmetic rules.
@@ -32,6 +33,12 @@ python3 experiments/pa30-arithmetic/aggregate.py --verify-published
 - `prepare_inputs.py`: regenerates lowered JSON from the retained recovered RTL. Its generic unsigned-cube rule replaces `x ** 3` by a full-width square followed by a product, resolving the unsupported native power cell in `test11` without a case-ID branch. It preserves the recovered RTL files.
 - `check_cube_normalization.py`: bounded SAT regression against explicitly sized cube products and a guard check that signed negative exponents remain unchanged.
 - `data/provenance.json`: tool versions, measured executable hashes, library provenance, and the frozen raw archive manifest hash. The raw archive contains additional logs and exploratory profiles and is not bundled here.
+
+Verify receipt identities without running EDA tools:
+
+```sh
+python3 experiments/pa30-arithmetic/check_proof_records.py
+```
 
 ## Correctness scope
 

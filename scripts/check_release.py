@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import csv
 import json
 import re
 import subprocess
@@ -26,6 +27,16 @@ def main() -> int:
         source = json.loads(source_path.read_text())
         licensed_inputs = {root / 'benchmarks/tt100' / row['path']: row['sha256']
                            for row in source['inputs']}
+    # Larger terminal RTL is allowed only when it matches the frozen result row.
+    # This exception never bypasses binary or credential checks.
+    published_rtl = {}
+    results = root / 'experiments/tt100-final/case_results.csv'
+    if results.exists():
+        with results.open(newline='') as handle:
+            for row in csv.DictReader(handle):
+                if (re.fullmatch(r'ex2[0-9]{2}', row['case']) and
+                        row['arm'] in {'with_skill', 'no_skill'} and row['candidate_sha256']):
+                    published_rtl[results.parent / 'rtl' / row['arm'] / (row['case'] + '.v')] = row['candidate_sha256']
     issues = [] if paths else [['.', 'no export files found']]
     blocked_dirs = {'experimental_results', 'paper_preparation', 'benchmarks_ICCAD22', 'external'}
     patterns = {
@@ -43,7 +54,9 @@ def main() -> int:
         data = path.read_bytes()
         known_truth = (path in licensed_inputs and
                        hashlib.sha256(data).hexdigest() == licensed_inputs[path])
-        if data.startswith(b'\x7fELF') or b'\0' in data or (len(data) > 2_000_000 and not known_truth):
+        known_rtl = (path in published_rtl and
+                     hashlib.sha256(data).hexdigest() == published_rtl[path])
+        if data.startswith(b'\x7fELF') or b'\0' in data or (len(data) > 2_000_000 and not (known_truth or known_rtl)):
             issues.append([str(rel), 'binary or oversized export'])
             continue
         text = data.decode('utf-8')

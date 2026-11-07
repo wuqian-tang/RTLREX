@@ -7,7 +7,8 @@ The [original TT-100 inputs](../benchmarks/tt100/README.md) are included with
 upstream attribution and the original MIT license.
 [PA-30 input sources and checksums](../benchmarks/pa30/README.md) are documented
 for separate acquisition. Reference answers, model credentials, and the
-complete source-bound PA-30 proof archives are not bundled.
+complete source-bound PA-30 replay bundles are not included. Historical proof
+receipts with source/candidate identities are provided for all 30 cases.
 
 ## PA-30 synthesis and mapping
 
@@ -48,8 +49,17 @@ Paired means compare the same cases, with unresolved or missing candidates
 excluded from numerical pairs but retained in the 100-case coverage counts.
 Recorded token usage is incomplete and does not establish a total LLM bill.
 Recomputing aggregate data is different from regenerating the agent runs.
-Generation requires a separately configured LLM host and the archived model,
-prompts, Skill version, budgets, and inputs described in the package metadata.
+Generation requires a separately configured LLM host. Final task prompts,
+protocol extracts, generic helpers and the evaluated Skill snapshot are now
+included under `experiments/tt100-final/`. Baseline generation used an earlier
+cost calculator; both arms' final terminals use identical final scoring. The
+archive records this difference rather than claiming a contemporaneous,
+byte-identical two-arm generation setup.
+
+All 183 terminal RTL files are included, alongside 200 historical receipts.
+`check_artifacts.py --score` recomputes their final costs, and `--recheck`
+performs fresh complete-domain checks using the current portable tools.
+These commands do not regenerate LLM runs or overwrite published outcomes.
 
 The [BF16 running example](../examples/bf16-exp/README.md) additionally provides
 two original experiment RTL candidates, archived verification outcomes, and the
@@ -61,7 +71,8 @@ complete-domain equivalence without regenerating an LLM recovery run.
 Synthetic tests check tool behavior, negative controls, and portability. They
 are not new benchmark recovery runs. Current installation and portability
 changes do not replace the hashes of the Skill and tools evaluated in the
-archived experiments.
+archived experiments. The evaluated snapshot omits only machine-local tool
+configuration and a compiled sampler; both omissions are explicitly recorded.
 
 `examples/prompts/with_skill.txt` and `without_skill.txt` are illustrative
 templates. [Historical paper prompts](paper-prompts/README.md) are labeled

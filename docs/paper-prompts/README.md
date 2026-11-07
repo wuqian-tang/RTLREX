@@ -1,4 +1,6 @@
-# Representative historical paper prompts
+# Earlier development prompts
+
+For the final TT-100 comparison, use the [final protocol archive](../../experiments/tt100-final/protocol/README.md). The files below are earlier development records and do not define that comparison.
 
 These are three archived task instructions from the paper's development runs,
 not newly designed examples or a full model/system transcript. Only assigned

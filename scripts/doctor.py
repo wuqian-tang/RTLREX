@@ -5,25 +5,23 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
-import os
-import shutil
+from pathlib import Path
 import sys
+import shutil
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills/circuit-reverse-rtl/scripts"))
+from verify.tooling import optional_tool
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--require-all', action='store_true')
     args = parser.parse_args()
-    options = {
-        'YOSYS': ('yosys',), 'ABC': ('abc', 'berkeley-abc', 'yosys-abc'),
-        'YOSYS_SMTBMC': ('yosys-smtbmc',), 'Z3': ('z3',),
-        'IVERILOG': ('iverilog',), 'VVP': ('vvp',), 'CXX': ('g++',),
-    }
-    found = {}
-    for key, defaults in options.items():
-        override = os.environ.get(key) if key in {'YOSYS', 'ABC', 'YOSYS_SMTBMC'} else None
-        names = (override,) if override else defaults
-        found[key] = next((p for name in names if (p := shutil.which(name))), None)
+    keys = ('YOSYS', 'ABC', 'YOSYS_SMTBMC', 'Z3', 'IVERILOG', 'VVP', 'CXX')
+    found = {key: optional_tool(key) for key in keys if key != 'Z3'}
+    # yosys-smtbmc launches z3 by name, so it must really be available on PATH.
+    found['Z3'] = shutil.which('z3')
     report = {'python': sys.version.split()[0], 'python_supported': sys.version_info >= (3, 10),
               'tools': found, 'numpy_available': importlib.util.find_spec('numpy') is not None,
               'note': 'Paths are local diagnostics. Tool presence does not establish backend compatibility.'}

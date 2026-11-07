@@ -4,7 +4,7 @@ type: software
 title: "RTLREX"
 authors:
   - name: "RTLREX contributors"
-version: 0.1.0-rc1
+version: 0.1.0-rc2
 license: MIT
 repository-code: "https://github.com/wuqian-tang/RTLREX"
 abstract: "The software companion to RTLREX, an LLM-guided framework for exact high-level RTL recovery. Domain-specific recovery procedures and tools are packaged as the circuit-reverse-rtl Agent Skill."

@@ -1,0 +1,20 @@
+{
+  "schema": "rtlrex-pa30-historical-proof-receipt/v1",
+  "case": "test07",
+  "scope": "Selected fields from a historical proof record, with source identities cross-checked against the frozen experiment index. Not a new proof or a self-contained replay certificate.",
+  "engine": "case_split_sliced_algebraic",
+  "original_record_sha256": "c754f4ab024eba46b4b9d4408d5ad7448f6b93c826cf166eca7d03ceffd3ac71",
+  "original_record_fields": {
+    "status": "strict_algebraic_equivalence"
+  },
+  "reference_sha256": "52fc439bce0e112e7a82ab0bdfe2c6399eeedcd7681bb7a4ae4c2c034de0bc55",
+  "candidate_sha256": "d8e01f8f3026b07fdd16e0f40c71f52b1fc81192fe64eb3d0c173dcb984eb6c6",
+  "source_binding": {
+    "basis": "Frozen proof index and synthesis input manifest; current input and candidate bytes independently hash-checked on export.",
+    "hashes_embedded_in_original_record": {
+      "original_sha256_occurs_in_record": true,
+      "candidate_sha256_occurs_in_record": true
+    }
+  },
+  "replay_scope": "Original and derived netlists, auxiliary proof circuits, tool snapshots and raw logs are not bundled. Obtain PA-30 inputs separately. These receipts support provenance inspection, not complete replay of all historical proof routes."
+}

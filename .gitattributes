@@ -1,2 +1,6 @@
 # Preserve archived CSV bytes and allow their standard CRLF row endings.
 *.csv whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Historical RTL and evaluated sources must retain original bytes and hashes.
+experiments/tt100-final/rtl/** -text whitespace=-blank-at-eol,-blank-at-eof
+experiments/tt100-final/evaluated_skill/** -text whitespace=-blank-at-eol,-blank-at-eof
+experiments/tt100-final/protocol/** -text

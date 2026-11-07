@@ -1,4 +1,10 @@
-# Release-candidate validation
+# Release validation
+
+The current distribution is `0.1.0-rc2`. Its clean-export validation is recorded
+below. The September entries are historical, not a description of the current
+file or test counts.
+
+## Earlier 0.1.0-rc1 validation
 
 The `0.1.0-rc1` preparation was checked on 2026-09-12 in a copy outside the
 research workspace. **108 tests passed in 49.650 seconds, with no skipped
@@ -46,3 +52,30 @@ whose input port is named `i`. In the 117-test local suite, 116 passed on the
 first run; one algebraic-cone test exceeded its 10-second process budget and
 passed immediately when rerun in isolation (four of four tests in that file).
 The release-content audit then passed across 136 tracked and nonignored files.
+
+## 0.1.0-rc2 preparation — 2026-11-07
+
+On the Linux/Python 3.10.12 toolchain described above:
+
+- 131 root tests and 151 Skill tests pass, without skips.
+- All 200 TT-100 artifact/result joins and 183 terminal-file hashes match.
+  The frozen final scorer reproduces all 183 recorded terminal costs.
+- All 100 original truth-table inputs match their source/experiment manifests.
+- All 30 PA-30 historical proof receipts match the frozen record, input and
+  candidate identities. PA-30 published aggregates and package hashes match.
+- Fresh cache-disabled equivalence checks pass for both conditions on `ex200`
+  and `ex255`. This is a four-candidate export smoke check, not a rerun of the
+  200 LLM experiments or a new validation claim for every terminal.
+- The 136-file current portable Skill inventory is complete and hash-checked.
+- The release-content pattern scan passes. Private transcripts, credentials,
+  machine-local tool configuration and the compiled historical sampler are
+  excluded. Historical RTL whitespace is intentionally preserved for hash identity.
+
+The original September provenance file is preserved unchanged under
+`docs/history/`. The current inventory records the portable package, while the
+TT-100 archive independently checks its original evaluated Skill manifest.
+
+A clean Git archive export also passes the dependency doctor, runnable demo,
+release scan, source inventory, input checks, TT-100 result/artifact/cost checks,
+and PA-30 result/receipt checks. Artifact inventory checking rejects unlisted
+terminal files and evaluated Skill sources.

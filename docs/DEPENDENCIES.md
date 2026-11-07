@@ -38,9 +38,11 @@ The source environment used for release validation has Python 3.10.12, NumPy
 validation results are recorded with the release review.
 
 Verification tool selection supports explicit CLI paths, environment variables
-`YOSYS`, `ABC`, `YOSYS_SMTBMC`, an optional local `scripts/tool_paths.env`, and
-ordinary `PATH` discovery. ABC may be named `abc`, `berkeley-abc` or `yosys-abc`.
-Place `z3`, `iverilog`, `vvp` and `g++` in `PATH`. Local tool configuration is
+`YOSYS`, `ABC`, `YOSYS_SMTBMC`, `IVERILOG`, `VVP`, and `CXX`, an optional
+local `scripts/tool_paths.env` where supported, and ordinary `PATH` discovery.
+The dependency doctor uses the same executable resolver for these variables. ABC may be named `abc`, `berkeley-abc` or `yosys-abc`.
+Place `z3` in `PATH` for the SMT driver. Icarus and the compiler can also be
+configured using the overrides above. Local tool configuration is
 ignored by Git; executable files are not bundled.
 
 ```bash

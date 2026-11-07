@@ -24,8 +24,9 @@ checkers and tests.
 - [BF16 exponential running example](examples/bf16-exp/README.md), with the
   actual initial and rewritten RTL, verification records, and frozen scoring files.
 - Agent instructions and references describing proof obligations and boundaries.
-- [Representative historical paper prompts](docs/paper-prompts/README.md), with
-  source mapping and a clear distinction from illustrative examples.
+- [Final TT-100 task prompts and protocol](experiments/tt100-final/protocol/README.md),
+  with a separate evaluated Skill snapshot and both generation-time scorers.
+- [Earlier development prompts](docs/paper-prompts/README.md), labelled separately.
 - [Final experiment artifacts](experiments/README.md), including PA-30
   arithmetic-aware synthesis and mapping measurements and TT-100 paired costs.
 
@@ -102,14 +103,16 @@ mapped area, delay and power. Supply your own `--cost-csv` when a different
 profile is required. [Source attribution](NOTICE.md) and
 [reproduction scope](docs/REPRODUCIBILITY.md) explain the distinctions.
 
-The experiment packages include per-case measurements, aggregation scripts,
-and instructions for the published synthesis study. They distinguish measured
+The experiment packages include per-case measurements, all available final
+TT-100 RTL, historical verification receipts, final scoring files, task prompts,
+aggregation scripts, and instructions for the published synthesis study. They distinguish measured
 data, retained recovery proofs, and regression checks of arithmetic lowering.
 The [100 original TT-100 truth tables](benchmarks/tt100/README.md) are included
 with their original MIT license and source attribution.
 [PA-30 source links and input checksums](benchmarks/pa30/README.md) are provided
 for separately obtaining its original netlists. Reference answers, paper PDFs
-and full PA-30 proof archives are not bundled. Replaying the synthesis study requires separately obtained inputs,
+and full PA-30 replay bundles are not included. All 30 PA-30 historical proof
+receipts are included, with their original record and source/candidate hashes. Replaying the synthesis study requires separately obtained inputs,
 the specified standard-cell library and EDA tools. Regenerating LLM recovery
 runs also requires an independently configured model host.
 
@@ -117,7 +120,8 @@ runs also requires an independently configured model host.
 
 This repository accompanies *RTLREX: LLM-Guided Framework for
 Exact High-Level RTL Recovery*. Software citation metadata is in
-[CITATION.cff](CITATION.cff). A paper DOI/arXiv identifier will be added when one
+[CITATION.cff](CITATION.cff). See [release notes](docs/RELEASE_NOTES.md) for
+version `0.1.0-rc2` and its distinction from the evaluated experiment snapshot. A paper DOI/arXiv identifier will be added when one
 exists.
 
 The project code and documentation are licensed under the [MIT License](LICENSE).

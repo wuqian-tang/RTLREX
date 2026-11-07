@@ -1,0 +1,18 @@
+{
+  "original_manifest_sha256": "eb7e81b3432d92545c3561abd42f46b488b03ce2a68c4ea422e4d6a98b453311",
+  "original_files": 137,
+  "byte_identical_files_exported": 135,
+  "omitted": [
+    {
+      "path": "scripts/sampling/fast_primitive_sampler",
+      "sha256": "58950788adf54efa211f29cc8e110168f525ee0a40a37e13c71ea3b3eead2e8a",
+      "reason": "Machine-local executable configuration or compiled sampler; corresponding algorithm sources are included."
+    },
+    {
+      "path": "scripts/tool_paths.env",
+      "sha256": "e6c64244b523de8aaa7b534e1ff9bfeea545b29349cda0541ee29414dbf5107d",
+      "reason": "Machine-local executable configuration or compiled sampler; corresponding algorithm sources are included."
+    }
+  ],
+  "note": "Historical snapshot for inspection. Use current root Skill for portable installation; do not overwrite historical files to make them runnable."
+}

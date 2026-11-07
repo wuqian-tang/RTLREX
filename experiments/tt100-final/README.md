@@ -2,8 +2,13 @@
 
 This directory contains the final TT-100 measurements used by the manuscript.
 Both conditions use GPT-5.6 Sol with `xhigh` reasoning and a 600-second generation
-budget per case. Both conditions use the same model, task instructions,
-generic tools, syntax-cost calculator, and independent verifier. The LLM agent
+budget per case. Both conditions use the same model, task requirements, generic EDA tools,
+and validation procedure. The baseline uses retained earlier runs, without
+regeneration. Its generation-time cost calculator differs from RTLREX's, and
+the task prompts differ in their calculator description and Skill access
+instruction. Every terminal candidate is scored with the same frozen final
+calculator and weights. The exact prompts and both generation scorers are
+provided in `protocol/`. The LLM agent
 baseline does not receive RTLREX's domain-specific recovery procedures and
 tools, which are packaged as an Agent Skill. The package remains frozen during
 the experiment. Machine-readable records retain the original condition keys:
@@ -59,6 +64,59 @@ reports the common high-level subset separately.
   The corresponding original truth tables are included separately in
   `benchmarks/tt100/truth/`, with source attribution and the upstream MIT license.
 - `SHA256.json`: checksums of the files in this export.
+- `rtl/`: all 183 terminal files, unchanged from their recorded hashes: 100
+  RTLREX and 83 baseline. Baseline `ex251` was rejected and `ex297` was
+  inconclusive. The other 17 baseline runs have no terminal file. These are
+  original outcomes, not missing export files.
+- `records/`: 200 field-selected historical validation, representation-review
+  and final-cost receipts. Original source-record hashes and export hashes are
+  separate. They omit private paths, raw logs, model transcripts, and commands.
+  They are provenance records, not newly executed proofs. In particular,
+  baseline `ex208` has a successful diagnostic check but no terminal candidate
+  and remains V=false.
+- `artifacts.json`: joins terminal files, receipts, prompts and published rows.
+- `scoring/`: the exact final evaluator and weight table.
+- `protocol/`: the actual condition-specific prompt templates, 200 rendered task
+  prompts, selected protocol fields, generic helper sources and generation
+  scorers. Rendered prompt hashes match the original run summaries.
+- `evaluated_skill/`: 135 byte-identical files from the 137-file evaluated Skill
+  manifest. Only machine-local `tool_paths.env` and the compiled native sampler
+  are omitted; the sampler source is included. Original omitted hashes are
+  recorded in `protocol/evaluated_skill_export.json`. This is an inspection
+  snapshot, distinct from the portable installable Skill at the repository root.
+
+## Check terminal files and final scores
+
+```sh
+python3 experiments/tt100-final/check_artifacts.py --score
+```
+
+This checks all 200 joins, all 183 terminal identities and published costs,
+input identities, prompt hashes, and the evaluated Skill snapshot. It does
+not infer H from function names or reclassify the original outcomes.
+
+For fresh complete-domain RTL checks with installed EDA tools:
+
+```sh
+python3 experiments/tt100-final/check_artifacts.py --recheck \
+  --cases ex200 ex255 --out outputs/tt100-fresh-check
+```
+
+Omit `--cases` to check all available terminals, or select `--arm with_skill`
+or `--arm no_skill`. Use a new output directory. Fresh checks use the current
+portable checker with caching disabled and never overwrite historical records.
+A historically validated candidate that fails a fresh check produces a nonzero
+exit code. Historical failed/inconclusive outcomes remain labelled as such,
+even if a different tool version subsequently validates them.
+
+## Regenerating agent runs
+
+The protocol archive exposes the model, effort, CLI version, task texts, tool
+identities, time limits, and historical Skill. No model credentials or private
+system/developer messages are included. Configure your own model host and
+sandbox using [the protocol guide](protocol/README.md). These materials do not
+guarantee identical LLM outputs or elapsed times, and the release does not
+provide a one-command replay of the original model service.
 
 ## Running example
 
@@ -70,7 +128,7 @@ The final RTL hash and cost agree with this package's `ex200` measurement record
 
 ## Verify the published arithmetic
 
-Run from any working directory using Python 3, with no EDA tools or LLM:
+Run from the repository root using Python 3, with no EDA tools or LLM:
 
 ```sh
 python3 experiments/tt100-final/verify_results.py

@@ -24,8 +24,11 @@ jobs:
       - run: python3 -m pip install -r requirements.txt
       - run: python3 scripts/doctor.py --require-all
       - run: python3 scripts/check_release.py
+      - run: python3 scripts/check_source_manifest.py
       - run: python3 experiments/pa30-arithmetic/aggregate.py --verify-published
       - run: python3 experiments/tt100-final/verify_results.py
+      - run: python3 experiments/tt100-final/check_artifacts.py --score
+      - run: python3 experiments/pa30-arithmetic/check_proof_records.py
       - run: python3 benchmarks/verify_inputs.py
       - run: python3 -m unittest discover -s tests -p 'test_*.py' -v
       - run: python3 -m unittest discover -s skills/circuit-reverse-rtl/scripts -p 'test_*.py' -v
