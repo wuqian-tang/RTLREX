@@ -15,7 +15,13 @@ The original TT-100 truth tables are redistributed from the official
 Copyright (c) 2026 alanminko, under its original MIT license.
 The license is preserved in `benchmarks/tt100/LICENSE`; source revisions and
 checksums are recorded in `benchmarks/tt100/source.json`.
-PA-30 original netlists, contest specification PDFs, golden answers,
+The 30 original PA-30 netlists are included unchanged under
+`benchmarks/pa30/inputs/`, with official source attribution and file checksums.
+They are third-party contest data, not MIT-licensed project code. No explicit
+redistribution license has been identified; see
+[the PA-30 data notice](benchmarks/pa30/NOTICE.md).
+
+Contest specification PDFs, golden answers,
 standard-cell libraries, Yosys source, ABC source, and solver executables are
 not redistributed here. External software remains subject to its own license:
 

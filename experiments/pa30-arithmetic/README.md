@@ -29,7 +29,7 @@ python3 experiments/pa30-arithmetic/aggregate.py --verify-published
 - `arithmetic_lowering.py`: the generic pre-`alumacc` JSON transformation, identical to the measured implementation. It expands unsigned squares using symmetric partial products and constant multipliers using canonical signed digits, at the existing output width. It has no case-ID dispatch.
 - `check_lowering.py`: bounded formal regression for the arithmetic rules.
 - `normalization/test11.v` and its evidence record: a synthesis-only replacement of an unsigned eight-bit cube by explicitly sized square and cube products. All 256 active input values were checked. The original recovered RTL remains in `rtl/test11.v`.
-- `run_experiment.py`: a portable runner for the two final profiles. Original benchmark inputs and third-party tools/libraries are supplied separately.
+- `run_experiment.py`: a portable runner for the two final profiles. Original benchmark inputs are included under `benchmarks/pa30/inputs/`; third-party tools/libraries are supplied separately.
 - `prepare_inputs.py`: regenerates lowered JSON from the retained recovered RTL. Its generic unsigned-cube rule replaces `x ** 3` by a full-width square followed by a product, resolving the unsupported native power cell in `test11` without a case-ID branch. It preserves the recovered RTL files.
 - `check_cube_normalization.py`: bounded SAT regression against explicitly sized cube products and a guard check that signed negative exponents remain unchanged.
 - `data/provenance.json`: tool versions, measured executable hashes, library provenance, and the frozen raw archive manifest hash. The raw archive contains additional logs and exploratory profiles and is not bundled here.
@@ -67,9 +67,10 @@ The intermediate square has twice the unsigned operand width, so it is exact. Th
 
 ## Reproduce synthesis and mapping
 
-Original PA-30 gate inputs are not redistributed in this package.
-[Official input downloads and checksums](../../benchmarks/pa30/README.md)
-are documented in the benchmark source directory. Supply the same input files arranged as `test01/top_primitive.v` through `test30/top_primitive.v`. The runner checks their recorded SHA-256 hashes before using them. It does not regenerate RTL with an LLM or choose new candidate files.
+All 30 original PA-30 gate inputs are included under `benchmarks/pa30/inputs/`,
+arranged as `test01/top_primitive.v` through `test30/top_primitive.v`.
+[Official sources, checksums and third-party data terms](../../benchmarks/pa30/README.md)
+are documented in the benchmark directory. The runner checks their recorded SHA-256 hashes before using them. It does not regenerate RTL with an LLM or choose new candidate files.
 
 Obtain the pinned public Nangate45 library and its license in a directory outside the source checkout:
 
@@ -81,7 +82,7 @@ Then run both profiles:
 
 ```sh
 python3 experiments/pa30-arithmetic/run_experiment.py \
-  --inputs-dir /path/to/pa30-inputs \
+  --inputs-dir benchmarks/pa30/inputs \
   --liberty /tmp/rtlrex-nangate45/NangateOpenCellLibrary_typical_no_wireload.lib \
   --yosys /path/to/yosys --abc /path/to/abc --sta /path/to/sta \
   --output /tmp/rtlrex-pa30-measurement --jobs 4

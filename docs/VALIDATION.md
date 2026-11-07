@@ -79,3 +79,13 @@ A clean Git archive export also passes the dependency doctor, runnable demo,
 release scan, source inventory, input checks, TT-100 result/artifact/cost checks,
 and PA-30 result/receipt checks. Artifact inventory checking rejects unlisted
 terminal files and evaluated Skill sources.
+
+## PA-30 original input addition — 2026-11-07
+
+All 30 bundled original netlists match the frozen experiment input hashes.
+The input checker validates 100 TT-100 and 30 PA-30 inputs. The PA-30 aggregate
+and all 30 historical receipt identity checks still pass. The root suite now
+passes 133 tests, including acceptance of an unchanged large PA-30 input and
+rejection after byte modification. The release-content scan passes. No recovery,
+proof, or synthesis experiment was regenerated. Public redistribution terms
+for the third-party PA-30 data remain unconfirmed.

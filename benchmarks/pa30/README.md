@@ -1,4 +1,4 @@
-# PA-30 original input sources
+# PA-30 original benchmark inputs
 
 The paper uses the 30 combinational primitive-gate Verilog inputs from
 [ICCAD 2022 CAD Contest Problem A](https://www.iccad-contest.org/2022/Problems.html).
@@ -8,16 +8,22 @@ All 30 primitive-gate files in that official archive were checked against the
 final experiment hashes. `source.json` records the archive checksum and the
 per-case identities. Use the official page for other distributions and updates.
 
-The original input netlists are not redistributed here because an explicit
-redistribution license has not been established. Source attribution does not
-change the upstream terms. The recovered RTLREX outputs are included separately
+All 30 original primitive-gate netlists are included unchanged under `inputs/`.
+These are the exact input files used in the experiments, not recovered RTL or
+contest reference answers. The recovered RTLREX outputs are included separately
 in `experiments/pa30-arithmetic/rtl/`.
 
-Download and unpack the inputs from the official source, then arrange the
-original gate-level files as:
+The contest makes these files publicly downloadable. No explicit redistribution
+license has been identified in the reviewed source materials. They remain
+third-party data and are **not covered by this repository's MIT license**.
+Attribution and public availability do not establish an additional license.
+See [NOTICE.md](NOTICE.md). The repository remains private while public
+redistribution terms are unresolved.
+
+The included layout is:
 
 ```text
-<pa30-inputs>/
+benchmarks/pa30/inputs/
   test01/top_primitive.v
   ...
   test30/top_primitive.v
@@ -28,8 +34,9 @@ are recorded in `experiments/pa30-arithmetic/input_manifest.json`, under
 `original_gate_input` and `original_gate_sha256`. Check all 30 files with:
 
 ```sh
-python3 benchmarks/verify_inputs.py --pa30-dir /path/to/pa30-inputs
+python3 benchmarks/verify_inputs.py --pa30-dir benchmarks/pa30/inputs
 ```
 
-The synthesis and mapping runner also validates these input hashes. Its full
+The same command accepts a separately downloaded input directory in place of
+`benchmarks/pa30/inputs`. The synthesis and mapping runner also validates these input hashes. Its full
 instructions are in `experiments/pa30-arithmetic/README.md`.

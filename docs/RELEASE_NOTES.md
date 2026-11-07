@@ -1,5 +1,13 @@
 # Release notes
 
+## PA-30 input addition — 2026-11-07 (after rc2)
+
+- Include all 30 original primitive-gate netlists with exact experiment hashes.
+- Update synthesis instructions and CI to use and verify the bundled inputs.
+- Preserve upstream provenance and distinguish these third-party inputs from
+  MIT-licensed project code. Public redistribution terms remain unconfirmed.
+- Final measurements, recovered RTL and historical proof receipts are unchanged.
+
 ## 0.1.0-rc2 — 2026-11-07
 
 This release prepares the software companion and final experiment artifacts

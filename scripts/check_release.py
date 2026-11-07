@@ -27,6 +27,16 @@ def main() -> int:
         source = json.loads(source_path.read_text())
         licensed_inputs = {root / 'benchmarks/tt100' / row['path']: row['sha256']
                            for row in source['inputs']}
+    # Original PA-30 inputs are third-party data, not MIT-licensed project code.
+    # Permit large text netlists only with the frozen experiment identity.
+    pa_inputs = {}
+    pa_manifest = root / 'experiments/pa30-arithmetic/input_manifest.json'
+    if pa_manifest.exists():
+        for row in json.loads(pa_manifest.read_text())['cases']:
+            case = row['case']
+            if (re.fullmatch(r'test(?:0[1-9]|[12][0-9]|30)', case) and
+                    row['original_gate_input'] == f'{case}/top_primitive.v'):
+                pa_inputs[root / 'benchmarks/pa30/inputs' / row['original_gate_input']] = row['original_gate_sha256']
     # Larger terminal RTL is allowed only when it matches the frozen result row.
     # This exception never bypasses binary or credential checks.
     published_rtl = {}
@@ -56,7 +66,9 @@ def main() -> int:
                        hashlib.sha256(data).hexdigest() == licensed_inputs[path])
         known_rtl = (path in published_rtl and
                      hashlib.sha256(data).hexdigest() == published_rtl[path])
-        if data.startswith(b'\x7fELF') or b'\0' in data or (len(data) > 2_000_000 and not (known_truth or known_rtl)):
+        known_pa_input = (path in pa_inputs and
+                          hashlib.sha256(data).hexdigest() == pa_inputs[path])
+        if data.startswith(b'\x7fELF') or b'\0' in data or (len(data) > 2_000_000 and not (known_truth or known_rtl or known_pa_input)):
             issues.append([str(rel), 'binary or oversized export'])
             continue
         text = data.decode('utf-8')

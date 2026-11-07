@@ -4,7 +4,7 @@
   "official_archive_page": "https://drive.google.com/file/d/1axlAw1rPXbTb_kYsvbwKshcEMF37SQWz/view",
   "official_archive_download_url": "https://drive.google.com/uc?export=download&id=1axlAw1rPXbTb_kYsvbwKshcEMF37SQWz",
   "official_archive_sha256": "c3161f738e11940a73a4a14222b1605786225df5952750fdb32fd218bee4b99d",
-  "redistribution": "Original gate inputs are not bundled. An explicit redistribution license has not been established.",
+  "redistribution": "Official publicly downloadable contest inputs, included with source attribution. No explicit redistribution license has been identified. The project MIT license does not apply to these third-party files.",
   "case_count": 30,
   "inputs": [
     {
@@ -157,5 +157,6 @@
       "path": "test30/top_primitive.v",
       "sha256": "218b78e49fbb409af87277da67789253d3bcca87e1b4eec4ae77068fda005312"
     }
-  ]
+  ],
+  "bundled_input_directory": "inputs"
 }

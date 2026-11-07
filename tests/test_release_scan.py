@@ -34,3 +34,26 @@ class ReleaseScanTests(unittest.TestCase):
             with (root/'experiments/tt100-final/case_results.csv').open('w') as f:
                 writer=csv.DictWriter(f,fieldnames=['case','arm','candidate_sha256']);writer.writeheader();writer.writerow(dict(case='ex299',arm='with_skill',candidate_sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
             r=self.scan(root);self.assertNotEqual(r.returncode,0);self.assertIn('credential',r.stdout)
+
+    def pa_fixture(self, root):
+        self.fixture(root)
+        p=root/'benchmarks/pa30/inputs/test22/top_primitive.v'
+        p.parent.mkdir(parents=True)
+        p.write_text('// original netlist\n'+' '*2_000_001)
+        package=root/'experiments/pa30-arithmetic'
+        package.mkdir(parents=True)
+        (package/'input_manifest.json').write_text(json.dumps({'cases':[{
+            'case':'test22', 'original_gate_input':'test22/top_primitive.v',
+            'original_gate_sha256':hashlib.sha256(p.read_bytes()).hexdigest()}]}))
+        return p
+
+    def test_exact_large_pa30_input_allowed(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);self.pa_fixture(root);r=self.scan(root)
+            self.assertEqual(r.returncode,0,r.stdout)
+
+    def test_modified_large_pa30_input_rejected(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);p=self.pa_fixture(root)
+            p.write_text(p.read_text()+'changed');r=self.scan(root)
+            self.assertNotEqual(r.returncode,0)

@@ -4,3 +4,5 @@
 experiments/tt100-final/rtl/** -text whitespace=-blank-at-eol,-blank-at-eof
 experiments/tt100-final/evaluated_skill/** -text whitespace=-blank-at-eol,-blank-at-eof
 experiments/tt100-final/protocol/** -text
+# Original contest netlists must retain the experiment's exact file hashes.
+benchmarks/pa30/inputs/** -text whitespace=-blank-at-eol,-blank-at-eof

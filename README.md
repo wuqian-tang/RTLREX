@@ -109,10 +109,12 @@ aggregation scripts, and instructions for the published synthesis study. They di
 data, retained recovery proofs, and regression checks of arithmetic lowering.
 The [100 original TT-100 truth tables](benchmarks/tt100/README.md) are included
 with their original MIT license and source attribution.
-[PA-30 source links and input checksums](benchmarks/pa30/README.md) are provided
-for separately obtaining its original netlists. Reference answers, paper PDFs
+[All 30 original PA-30 netlists](benchmarks/pa30/README.md) are included unchanged
+with official source links, input checksums, and a third-party data notice.
+They are not covered by the project's MIT license; public redistribution terms
+remain to be confirmed. Reference answers, paper PDFs
 and full PA-30 replay bundles are not included. All 30 PA-30 historical proof
-receipts are included, with their original record and source/candidate hashes. Replaying the synthesis study requires separately obtained inputs,
+receipts are included, with their original record and source/candidate hashes. Replaying the synthesis study uses the included inputs and requires
 the specified standard-cell library and EDA tools. Regenerating LLM recovery
 runs also requires an independently configured model host.
 

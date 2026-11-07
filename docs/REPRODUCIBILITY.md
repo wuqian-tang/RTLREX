@@ -5,8 +5,10 @@ and [final experiment artifacts](../experiments/README.md). The experiment
 packages provide per-case data and scripts to check the reported aggregates.
 The [original TT-100 inputs](../benchmarks/tt100/README.md) are included with
 upstream attribution and the original MIT license.
-[PA-30 input sources and checksums](../benchmarks/pa30/README.md) are documented
-for separate acquisition. Reference answers, model credentials, and the
+[All 30 original PA-30 inputs](../benchmarks/pa30/README.md) are included unchanged,
+with sources, checksums and a third-party data notice. They are not MIT-licensed
+project code; public redistribution terms remain unresolved.
+Reference answers, model credentials, and the
 complete source-bound PA-30 replay bundles are not included. Historical proof
 receipts with source/candidate identities are provided for all 30 cases.
 

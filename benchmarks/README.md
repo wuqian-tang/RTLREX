@@ -3,7 +3,7 @@
 | Benchmark | Inputs | Source and verification |
 | --- | --- | --- |
 | TT-100 | All 100 original `ex200.truth`–`ex299.truth` files are included in `tt100/truth/` | [Source, pinned revision, and original MIT license](tt100/README.md) |
-| PA-30 | Original primitive-gate netlists are obtained separately | [Official download links, expected layout, and checksums](pa30/README.md) |
+| PA-30 | All 30 original primitive-gate netlists are included in `pa30/inputs/` | [Official source, third-party terms, and checksums](pa30/README.md) |
 
 Verify all included TT-100 files without EDA tools or an LLM:
 
@@ -11,10 +11,10 @@ Verify all included TT-100 files without EDA tools or an LLM:
 python3 benchmarks/verify_inputs.py
 ```
 
-Also verify a separately obtained PA-30 input directory:
+Verify both included benchmark suites:
 
 ```sh
-python3 benchmarks/verify_inputs.py --pa30-dir /path/to/pa30-inputs
+python3 benchmarks/verify_inputs.py --pa30-dir benchmarks/pa30/inputs
 ```
 
 The verifier compares the input files to the hashes used in the final experiment
