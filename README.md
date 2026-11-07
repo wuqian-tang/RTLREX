@@ -102,7 +102,7 @@ power. Use `--cost-csv` to select different weights.
   with their upstream MIT license and attribution.
 - [PA-30 inputs](benchmarks/pa30/README.md): all 30 original netlists, with
   source links and checksums. These are third-party data, outside the project's
-  MIT license; public redistribution terms remain unconfirmed.
+  MIT license. Public redistribution terms remain unconfirmed.
 
 Rerunning synthesis requires the specified EDA tools and standard-cell library.
 Regenerating recovery runs additionally requires an LLM host. See
@@ -120,4 +120,4 @@ announcement.
 The project code and documentation are licensed under the [MIT License](LICENSE).
 Academic and commercial use, modification and redistribution are permitted
 provided the copyright and permission notices are retained. External tools and
-data retain their own terms; see [NOTICE.md](NOTICE.md).
+data retain their own terms. See [NOTICE.md](NOTICE.md).
