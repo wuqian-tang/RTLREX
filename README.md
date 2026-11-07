@@ -1,39 +1,31 @@
 # RTLREX
 
 RTLREX is an LLM-guided framework for exact high-level RTL recovery from
-combinational gate-level netlists or complete truth tables. An LLM plans recovery and refinement using domain-specific procedures
-and tools for probing, recognition, RTL generation, and rewriting. Independent
-verification checks candidates against the original input before acceptance.
+combinational gate-level netlists or complete truth tables. An LLM coordinates
+function recovery, RTL generation, and cost-guided rewriting using domain-specific
+tools. Independent verification checks candidates against the original input.
 
-The domain-specific procedures and tools are packaged as **one Agent Skill**,
-`circuit-reverse-rtl`. This repository is the software companion to the RTLREX
-paper. **RTLREX** names the framework and repository;
-`circuit-reverse-rtl` remains the installable Skill identifier and invocation
-name. The package does not contain a model or require an API key to run its
-checkers and tests.
+The tools and procedures are packaged as an Agent Skill named
+`circuit-reverse-rtl`. Recovery with an LLM requires a separately configured
+model host. Standalone tools and tests run without an LLM or API key.
 
 ## What is included
 
-- Word-level recovery and syntax-cost tools, including truth-table recognition,
-  plus an opt-in exact low-level Boolean fallback for unmatched complete tables.
-- Budgeted complete-truth-table recovery with verified checkpoints, atomic
-  promotion of lower-cost candidates, and bounded refinement.
-- Strict ABC/SMT checking, independent algebraic replay, native ROBDD coefficient
-  checking, complete cofactor coverage, and checked proof composition.
-- Synthetic examples, negative controls, an installer, and portable tests.
-- [BF16 exponential running example](examples/bf16-exp/README.md), with the
-  actual initial and rewritten RTL, verification records, and frozen scoring files.
-- Agent instructions and references describing proof obligations and boundaries.
-- [Final TT-100 task prompts and protocol](experiments/tt100-final/protocol/README.md),
-  with a separate evaluated Skill snapshot and both generation-time scorers.
-- [Earlier development prompts](docs/paper-prompts/README.md), labelled separately.
-- [Final experiment artifacts](experiments/README.md), including PA-30
-  arithmetic-aware synthesis and mapping measurements and TT-100 paired costs.
+- Function-recovery, RTL-generation, and syntax-cost tools, with verified
+  checkpoints and cost-guided refinement.
+- Equivalence checking through ABC, SMT, arithmetic proofs, and complete
+  truth-table validation. See [supported proof routes](docs/PROOF_SCOPE.md).
+- Agent instructions, an installer, examples, and verification tests.
+- [BF16 exponential example](examples/bf16-exp/README.md), including initial
+  and rewritten RTL, verification records, and scoring files.
+- [Paper experiment artifacts](experiments/README.md), including final RTL,
+  measurements, verification records, task prompts, and analysis scripts.
 
-For netlists, the agent discovers useful hypotheses, intermediate words and proof
-plans. The complete-truth-table tool recognizes supported arithmetic families
-and verifies its emitted RTL. These tools do not guarantee that every circuit can be recovered or
-proved within a fixed budget. See [proof scope](docs/PROOF_SCOPE.md).
+For netlists, the agent proposes functions, intermediate RTL, and proof plans.
+For complete truth tables, the recovery tool matches supported function models
+and verifies the generated RTL. An optional Boolean fallback produces an exact
+low-level implementation when no supported model matches. Recovery and proof
+completion depend on the input and available resources.
 
 ## Quick start
 
@@ -52,10 +44,8 @@ python3 scripts/demo.py --out outputs/parity-demo
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-The demo strictly proves a synthetic three-input parity circuit, rejects an
-intentionally incorrect implementation, and exhaustively replays all eight
-truth-table rows. It makes **zero LLM calls**. Use a new `--out` directory when
-running it again.
+The demo checks a three-input parity circuit and rejects an incorrect
+implementation, without calling an LLM. Use a new `--out` directory for each run.
 
 To use the Skill with Codex, copy it to a new local skill directory:
 
@@ -76,7 +66,7 @@ and logs in outputs/recovery/. Prove exact equivalence before promoting final.v.
 If proof is inconclusive, report it as inconclusive and retain the evidence.
 ```
 
-## Standalone verification
+## Standalone tools
 
 ```bash
 python3 skills/circuit-reverse-rtl/scripts/cec.py reference.v candidate.v --strict-cec --json
@@ -87,44 +77,45 @@ python3 skills/circuit-reverse-rtl/scripts/truth_reverse.py function.truth --out
 python3 skills/circuit-reverse-rtl/scripts/verify_truth_structural.py function.truth structural.v --certificate certificate.json --json
 ```
 
-Always inspect the structured status. Random simulation without a
-counterexample is not a strict proof. Exhaustive replay of every row in a
-complete truth table is exact for that table. The structural fallback is
-reported separately from recovered word-level RTL. Supported algebraic and
-composed routes are documented in
-[the exact CEC reference](skills/circuit-reverse-rtl/references/exact_cec.md).
+Inspect each tool's returned status: passing sampled simulations alone does
+not establish equivalence. Matching every output for every input in a complete
+truth table establishes equivalence for that table. Boolean fallback results
+are distinct from recovered word-level RTL.
+See the [verification reference](skills/circuit-reverse-rtl/references/exact_cec.md)
+for detailed proof requirements.
 
 ## Cost and benchmark data
 
-The default CSV is a **custom truth-table study profile**, derived from the
-ICCAD 2022 Problem A syntax-cost specification. The calculator is this project's
-implementation, not an official contest parser. Syntax cost is distinct from
-mapped area, delay and power. Supply your own `--cost-csv` when a different
-profile is required. [Source attribution](NOTICE.md) and
-[reproduction scope](docs/REPRODUCIBILITY.md) explain the distinctions.
+The default syntax-cost weights extend the ICCAD 2022 Problem A specification
+for the truth-table study. The calculator is a project implementation, not the
+official contest parser. Syntax cost is distinct from mapped area, delay, and
+power. Use `--cost-csv` to select different weights.
 
-The experiment packages include per-case measurements, all available final
-TT-100 RTL, historical verification receipts, final scoring files, task prompts,
-aggregation scripts, and instructions for the published synthesis study. They distinguish measured
-data, retained recovery proofs, and regression checks of arithmetic lowering.
-The [100 original TT-100 truth tables](benchmarks/tt100/README.md) are included
-with their original MIT license and source attribution.
-[All 30 original PA-30 netlists](benchmarks/pa30/README.md) are included unchanged
-with official source links, input checksums, and a third-party data notice.
-They are not covered by the project's MIT license; public redistribution terms
-remain to be confirmed. Reference answers, paper PDFs
-and full PA-30 replay bundles are not included. All 30 PA-30 historical proof
-receipts are included, with their original record and source/candidate hashes. Replaying the synthesis study uses the included inputs and requires
-the specified standard-cell library and EDA tools. Regenerating LLM recovery
-runs also requires an independently configured model host.
+- [TT-100](experiments/tt100-final/README.md): final candidates, validation
+  records, and scripts for checking costs and reported results. The
+  [experiment protocol](experiments/tt100-final/protocol/README.md) provides
+  the task prompts, evaluated Skill snapshot, and scoring tools.
+- [PA-30](experiments/pa30-arithmetic/README.md): recovered RTL, synthesis and
+  mapping measurements, and historical recovery proof records. Complete
+  historical recovery-proof replay bundles are not included.
+- [TT-100 inputs](benchmarks/tt100/README.md): all 100 original truth tables,
+  with their upstream MIT license and attribution.
+- [PA-30 inputs](benchmarks/pa30/README.md): all 30 original netlists, with
+  source links and checksums. These are third-party data, outside the project's
+  MIT license; public redistribution terms remain unconfirmed.
+
+Rerunning synthesis requires the specified EDA tools and standard-cell library.
+Regenerating recovery runs additionally requires an LLM host. See
+[reproduction scope](docs/REPRODUCIBILITY.md) for instructions and the distinction
+between the current software and the code used in the experiments. Software
+changes are documented in the [release notes](docs/RELEASE_NOTES.md).
 
 ## Citation and license
 
-This repository accompanies *RTLREX: LLM-Guided Framework for
-Exact High-Level RTL Recovery*. Software citation metadata is in
-[CITATION.cff](CITATION.cff). See [release notes](docs/RELEASE_NOTES.md) for
-version `0.1.0-rc2` and its distinction from the evaluated experiment snapshot. A paper DOI/arXiv identifier will be added when one
-exists.
+This repository accompanies *RTLREX: LLM-Guided Framework for Exact High-Level
+RTL Recovery*. Software citation metadata is provided in
+[CITATION.cff](CITATION.cff). The paper's arXiv identifier will be added upon
+announcement.
 
 The project code and documentation are licensed under the [MIT License](LICENSE).
 Academic and commercial use, modification and redistribution are permitted
