@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "Cite the version of RTLREX you actually use; paper metadata will be added after publication of a preprint."
+message: "If you use RTLREX in research, please cite the paper below. Cite the software version separately when needed for reproducibility."
 type: software
 title: "RTLREX"
 authors:
@@ -13,3 +13,26 @@ keywords:
   - RTL
   - agent skill
   - formal equivalence
+preferred-citation:
+  type: article
+  title: "RTLREX: LLM-Guided Framework for Exact High-Level RTL Recovery"
+  authors:
+    - family-names: Tang
+      given-names: Wuqian
+    - family-names: Liu
+      given-names: Fangzhou
+    - family-names: Wang
+      given-names: Ruijie
+    - family-names: Hwang
+      given-names: TingTing
+    - family-names: Yu
+      given-names: Bei
+    - family-names: Wang
+      given-names: Chun-Yao
+  journal: arXiv
+  year: 2026
+  date-published: "2026-11-07"
+  identifiers:
+    - type: other
+      value: "arXiv:2611.10798"
+  url: "https://arxiv.org/abs/2611.10798"

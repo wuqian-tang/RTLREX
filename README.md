@@ -1,5 +1,7 @@
 # RTLREX
 
+[Paper](https://arxiv.org/abs/2611.10798) · [PDF](https://arxiv.org/pdf/2611.10798)
+
 RTLREX is an LLM-guided framework for exact high-level RTL recovery from
 combinational gate-level netlists or complete truth tables. An LLM coordinates
 function recovery, RTL generation, and cost-guided rewriting using domain-specific
@@ -113,9 +115,22 @@ changes are documented in the [release notes](docs/RELEASE_NOTES.md).
 ## Citation and license
 
 This repository accompanies *RTLREX: LLM-Guided Framework for Exact High-Level
-RTL Recovery*. Software citation metadata is provided in
-[CITATION.cff](CITATION.cff). The paper's arXiv identifier will be added upon
-announcement.
+RTL Recovery*, available as [arXiv:2611.10798](https://arxiv.org/abs/2611.10798).
+Paper and software citation metadata are provided in [CITATION.cff](CITATION.cff).
+If you use RTLREX in research, please cite the paper:
+
+```bibtex
+@misc{Tang2026RTLREX,
+  author = {Tang, Wuqian and Liu, Fangzhou and Wang, Ruijie and Hwang, TingTing and Yu, Bei and Wang, Chun-Yao},
+  title = {{RTLREX: LLM-Guided Framework for Exact High-Level RTL Recovery}},
+  year = {2026},
+  eprint = {2611.10798},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.AR},
+  url = {https://arxiv.org/abs/2611.10798},
+  note = {arXiv preprint}
+}
+```
 
 The project code and documentation are licensed under the [MIT License](LICENSE).
 Academic and commercial use, modification and redistribution are permitted
