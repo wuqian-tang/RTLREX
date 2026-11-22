@@ -1,0 +1,46 @@
+{
+  "created_utc": "2026-10-10T14:55:32.207088+00:00",
+  "profiles": {
+    "timed_original": {
+      "mode": "original",
+      "delay_ps": 2000,
+      "constrained": true
+    },
+    "timed_booth": {
+      "mode": "booth",
+      "delay_ps": 2000,
+      "constrained": true
+    }
+  },
+  "selected_profiles": [
+    "timed_original",
+    "timed_booth"
+  ],
+  "mapping_timeout_seconds": 600,
+  "workers": 4,
+  "measurement_sha256": "62156062463cf6d0c9593e881c072dfd5c7675450cde29613ac384edc8aa05ee",
+  "arithmetic_lowering_sha256": "f45c842e3bda6ce4b4290991b80bb258a8ab7d6c3af41c9e1f5424ad444953bc",
+  "library_sha256": "244792ed3c47d9e3c0c1127089f229e6daa249a882e2bb1230ee5fcf87bceaad",
+  "mapping_constraints_sha256": "27a3b674307b432b08d07b2866b77df9dd9320176e6a8d0a4dd3d1e1d17d096b",
+  "tools": {
+    "yosys": {
+      "sha256": "440de91eddef71f0341eab0f7211978dc1b471fd6be09d4d8085da7250f6d487",
+      "version": "Yosys 0.63+161 (git sha1 5fd39ff3e, g++ 11.4.0-1ubuntu1~22.04.3 -fPIC -O3)"
+    },
+    "abc": {
+      "sha256": "5855164fc7971126377e05235249216a9e9178499c2aad0ccfe280e9d1ae4672",
+      "version": "======== ABC command line \"version\"\nUC Berkeley, ABC 1.01 (compiled Mar 18 2026 02:02:31)"
+    },
+    "opensta": {
+      "sha256": "9630070fdbcfd2a92a9d0dc6b6e5480f7be8e216b720f1fb32f447fb4cedc2ff",
+      "version": "2.0.17"
+    }
+  },
+  "archive_manifest_sha256": "e57ec38893da5b9e5d4a9aaf702b1f39d27c13f0663429bc5aef82d08170e82b",
+  "library_provenance": {
+    "upstream_commit": "d26bf27e1467d4ac903655694ac31e2ec3f85260",
+    "url": "https://raw.githubusercontent.com/The-OpenROAD-Project/OpenROAD-flow-scripts/d26bf27e1467d4ac903655694ac31e2ec3f85260/flow/platforms/nangate45/lib/NangateOpenCellLibrary_typical.lib",
+    "upstream_sha256": "8d540a4d4cf6d09d27c87ad067857a9c0c2eeb023ab7a56e058cd3113db4e9b1",
+    "derivation": "Replace default_wire_load declaration with experiment comment, disabling the default wire-load model; no interconnect parasitics."
+  }
+}

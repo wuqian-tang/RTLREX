@@ -1,0 +1,6 @@
+{
+  "status": "pass",
+  "sat_proved_cube_instances": 46,
+  "negative_exponent_cells_preserved": 23,
+  "scope": "Unsigned widths 1..6; truncated/exact/widened outputs; unsigned and signed positive-three exponents. Signed negative-one exponents remain exactly unchanged."
+}

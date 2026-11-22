@@ -1,0 +1,9 @@
+{
+  "README.md": "f148d4ddb2c7d4a30c2a0e626ee0a68a25c13fc35fcf534d2dea3d8ec9ab58b0",
+  "costs.json": "7ebf095caddbfb55b340ccb81a6b7f3a0c6dbcfac1d842734bc31caf905a2e57",
+  "initial.v": "9ca1c6214e0c8525817ff15720bc5363f2733faaad0811119b270a51ef7de34d",
+  "rewritten.v": "3aa6a53c7258e3b343425f82c3355b4e3971cadfe7b710b33f57299645204133",
+  "scoring/RTL_cost_calculator.py": "685d655fe1bb6dadeb36921cb3da42de2791cc31b252ea86aeb3e5a8bbd5b014",
+  "scoring/syntax_cost.csv": "65a0ff43df653831655cba564349ac536c755b53335d97ee3860f410bccbebc0",
+  "verification.json": "13ce1769625595ae7ba40aea056662ad3cbcdf7b4dd5e7bc25fdfc901b4e38af"
+}

@@ -1,0 +1,171 @@
+{
+  "case": "ex200",
+  "scope": "Archived independent RTL-checking results from the original recovery and rewrite, not new model runs.",
+  "truth": "../../benchmarks/tt100/truth/ex200.truth",
+  "records": [
+    {
+      "rtl": "initial.v",
+      "status": "pass",
+      "frontend": "pass",
+      "frontend_flow": "read_verilog; hierarchy -check -top top; proc; opt; check -assert; write_verilog -noattr",
+      "interface_status": "pass",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "vectors": 65536,
+      "verification_method": "complete-domain interleaved Icarus Verilog replay",
+      "candidate_sha256": "9ca1c6214e0c8525817ff15720bc5363f2733faaad0811119b270a51ef7de34d",
+      "truth_sha256": "32f3c352086770a9f4ac2bcc3c1dddbdaf6dcbeb654c5e0ded8ffe18e235d652",
+      "source_receipt_sha256": "bb238de24ccfd1c63bae05245af855419294d0d30a77cde893e47f058348d374",
+      "checker_sha256": {
+        "utils.py": "f5149ae7f5ee528103a49e05c8a6487799859ad1b748a21451267a1631b6bf91",
+        "truth_bitparallel.py": "cbdbe7ad4081b0595f14b22c72863b254662c5fa54cd70f71bfde80d168548e1",
+        "truth_parallel.py": "0fc92f98e28f71c9d2be4a250e7d243d4eef839181278a0d2edb34ae2893f914",
+        "truth_sim.py": "e919415ababb07a8e03c55fc00fd2fe09a5fd4edd2fe9e0b69a60aa3e9f4f7bf",
+        "truth_verification_cache.py": "69feefc0fff7289f73b23026b7ffe9d71b496ca574c49e7f60f88ba895f22727",
+        "truth_yosys.py": "9af230bbb7f58926906890607d3b44a4b94a71f0d2780ea8d3d0ea4df7f58978"
+      },
+      "coverage": {
+        "coverage_valid": true,
+        "disjoint_residue_classes": true,
+        "expected_counts": [
+          16384,
+          16384,
+          16384,
+          16384
+        ],
+        "index_domain": [
+          0,
+          65535
+        ],
+        "offsets": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "partition_rule": "x=offset+t*stride for t>=0 and x<vectors",
+        "stride": 4
+      },
+      "partitions": [
+        {
+          "offset": 0,
+          "stride": 4,
+          "count": 16384,
+          "first": 0,
+          "last": 65532,
+          "status": "pass",
+          "returncode": 0
+        },
+        {
+          "offset": 1,
+          "stride": 4,
+          "count": 16384,
+          "first": 1,
+          "last": 65533,
+          "status": "pass",
+          "returncode": 0
+        },
+        {
+          "offset": 2,
+          "stride": 4,
+          "count": 16384,
+          "first": 2,
+          "last": 65534,
+          "status": "pass",
+          "returncode": 0
+        },
+        {
+          "offset": 3,
+          "stride": 4,
+          "count": 16384,
+          "first": 3,
+          "last": 65535,
+          "status": "pass",
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "rtl": "rewritten.v",
+      "status": "pass",
+      "frontend": "pass",
+      "frontend_flow": "read_verilog; hierarchy -check -top top; proc; opt; check -assert; write_verilog -noattr",
+      "interface_status": "pass",
+      "n_inputs": 16,
+      "n_outputs": 16,
+      "vectors": 65536,
+      "verification_method": "complete-domain interleaved Icarus Verilog replay",
+      "candidate_sha256": "3aa6a53c7258e3b343425f82c3355b4e3971cadfe7b710b33f57299645204133",
+      "truth_sha256": "32f3c352086770a9f4ac2bcc3c1dddbdaf6dcbeb654c5e0ded8ffe18e235d652",
+      "source_receipt_sha256": "24975b3115dd0e96a3a278608cac09065d0f10c7275da006ae8a4266ee688eec",
+      "checker_sha256": {
+        "utils.py": "f5149ae7f5ee528103a49e05c8a6487799859ad1b748a21451267a1631b6bf91",
+        "truth_bitparallel.py": "cbdbe7ad4081b0595f14b22c72863b254662c5fa54cd70f71bfde80d168548e1",
+        "truth_parallel.py": "0fc92f98e28f71c9d2be4a250e7d243d4eef839181278a0d2edb34ae2893f914",
+        "truth_sim.py": "e919415ababb07a8e03c55fc00fd2fe09a5fd4edd2fe9e0b69a60aa3e9f4f7bf",
+        "truth_verification_cache.py": "69feefc0fff7289f73b23026b7ffe9d71b496ca574c49e7f60f88ba895f22727",
+        "truth_yosys.py": "9af230bbb7f58926906890607d3b44a4b94a71f0d2780ea8d3d0ea4df7f58978"
+      },
+      "coverage": {
+        "coverage_valid": true,
+        "disjoint_residue_classes": true,
+        "expected_counts": [
+          16384,
+          16384,
+          16384,
+          16384
+        ],
+        "index_domain": [
+          0,
+          65535
+        ],
+        "offsets": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "partition_rule": "x=offset+t*stride for t>=0 and x<vectors",
+        "stride": 4
+      },
+      "partitions": [
+        {
+          "offset": 0,
+          "stride": 4,
+          "count": 16384,
+          "first": 0,
+          "last": 65532,
+          "status": "pass",
+          "returncode": 0
+        },
+        {
+          "offset": 1,
+          "stride": 4,
+          "count": 16384,
+          "first": 1,
+          "last": 65533,
+          "status": "pass",
+          "returncode": 0
+        },
+        {
+          "offset": 2,
+          "stride": 4,
+          "count": 16384,
+          "first": 2,
+          "last": 65534,
+          "status": "pass",
+          "returncode": 0
+        },
+        {
+          "offset": 3,
+          "stride": 4,
+          "count": 16384,
+          "first": 3,
+          "last": 65535,
+          "status": "pass",
+          "returncode": 0
+        }
+      ]
+    }
+  ]
+}

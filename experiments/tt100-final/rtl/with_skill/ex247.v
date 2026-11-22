@@ -1,0 +1,38 @@
+// FP8 E5M2 divide x[7:0]/x[15:8], RNE, canonical NaN, finite saturation
+// Word arithmetic; normalized integer encoding with exact ties-to-even rounding.
+module top(input [15:0] x, output reg [7:0] y);
+  wire [6:0] a = x[14:8], b = x[6:0];
+  function [32:0] magnitude;
+    input [6:0] v;
+    reg [4:0] exponent;
+    reg [1:0] fraction;
+    reg normal;
+    begin
+      exponent = v[6:2];
+      fraction = v;
+      normal = exponent != 0;
+      magnitude = {normal, fraction} << (exponent - normal);
+    end
+  endfunction
+  wire [32:0] ma = magnitude(a), mb = magnitude(b);
+  wire [66:0] target = mb << 17;
+  reg [6:0] lower_code;
+  reg [7:0] trial;
+  reg [33:0] midpoint;
+  reg [66:0] threshold;
+  reg [6:0] weight;
+  always @(*) begin
+    lower_code = 0;
+    trial = 0;
+    midpoint = 0;
+    threshold = 0;
+    for (weight = 7'd64; weight; weight = weight >> 1) begin
+      trial = lower_code + weight;
+      midpoint = magnitude(trial) + magnitude(trial - 1'b1);
+      threshold = midpoint * ma;
+      if ((trial <= 126) && (target >= threshold + trial[0])) lower_code = trial;
+    end
+    y = {(x[15] != x[7]), lower_code};
+    if ((a == 127) || (b == 127) || ((ma == 0) && (mb == 0))) y = 8'h7f;
+  end
+endmodule

@@ -1,0 +1,54 @@
+[
+  {
+    "path": "check.py",
+    "sha256": "47fa1a804afc2c417cf78f69eb75b4c16473296a937796e979627d3cb05be7d2"
+  },
+  {
+    "path": "cost.py",
+    "sha256": "810eed80594d4d7e565760dc8d227b5728012b473298fe89d47e8f059498ff88"
+  },
+  {
+    "path": "scripts/cost/RTL_cost_calculator.py",
+    "sha256": "e551de4461e9308d589279c14204516db6702079796505b6aaa0e5fcacd70ee6"
+  },
+  {
+    "path": "scripts/cost/__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "scripts/cost/syntax_cost.csv",
+    "sha256": "65a0ff43df653831655cba564349ac536c755b53335d97ee3860f410bccbebc0"
+  },
+  {
+    "path": "scripts/truth/__init__.py",
+    "sha256": "e96792d556b54841dab04338ebacdd86581798318d2642d456526728c931e035"
+  },
+  {
+    "path": "scripts/truth/utils.py",
+    "sha256": "f5149ae7f5ee528103a49e05c8a6487799859ad1b748a21451267a1631b6bf91"
+  },
+  {
+    "path": "scripts/verify/__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "scripts/verify/truth_bitparallel.py",
+    "sha256": "cbdbe7ad4081b0595f14b22c72863b254662c5fa54cd70f71bfde80d168548e1"
+  },
+  {
+    "path": "scripts/verify/truth_parallel.py",
+    "sha256": "0fc92f98e28f71c9d2be4a250e7d243d4eef839181278a0d2edb34ae2893f914"
+  },
+  {
+    "path": "scripts/verify/truth_sim.py",
+    "sha256": "e919415ababb07a8e03c55fc00fd2fe09a5fd4edd2fe9e0b69a60aa3e9f4f7bf"
+  },
+  {
+    "path": "scripts/verify/truth_verification_cache.py",
+    "sha256": "69feefc0fff7289f73b23026b7ffe9d71b496ca574c49e7f60f88ba895f22727"
+  },
+  {
+    "path": "scripts/verify/truth_yosys.py",
+    "sha256": "9af230bbb7f58926906890607d3b44a4b94a71f0d2780ea8d3d0ea4df7f58978"
+  }
+]

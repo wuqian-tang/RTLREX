@@ -1,0 +1,244 @@
+{
+  "schema": "rtlrex-tt100-validation-receipt/v1",
+  "case": "ex242",
+  "arm": "with_skill",
+  "scope": "Field-selected historical records, not a new equivalence proof. Source-record hashes refer to unmodified private originals; this file has its own export hash.",
+  "input_sha256": "cefd074156e1bfc1e82941e745d9d597604a9b7a2aad249f453f81e38b4164ad",
+  "candidate_sha256": "e15b5555198c48245419a57683cff493f3223bd674462d9c99104e530fb2e7da",
+  "terminal_candidate_available": true,
+  "published_V": true,
+  "published_H": true,
+  "published_Q": 34,
+  "evaluation_target_is_terminal": true,
+  "source_record_sha256": {
+    "evaluation": "b46c044fa04045cc5159f7b8112b5886fea36bca848d5ce65a62b2e0caac0c50",
+    "summary": "6e80781f3add2c4526b62892a49e9c89465db4402aac43d93f74b06edefa343a",
+    "frontend": "52cc8cb897b6e8928026fc18c406f37e12ef1d6931cde5812a25640c59b6b767",
+    "frozen_checker": "41d1108a866288eae608740fe3567eb0d3941697539610718a413678faabb243",
+    "replay_certificate": "8231b2b67760299e077e57b1e34db239b29896da822f8c9a05ca7b48f7259960",
+    "representation_review": "3f60abdf803da2212bbbbe814415167382191faba3ef1de81df64d759ad4f66f",
+    "final_cost_review": "3da759cb3e5028638d2b0cdf000970eeda2814903431da656d19fc0ef8f534cf"
+  },
+  "evaluation": {
+    "schema": "matched-tt100-coordinator-evaluation/v4",
+    "status": "validated",
+    "V": true,
+    "H": null,
+    "exact": true,
+    "candidate_is_final": true,
+    "candidate_sha256": "e15b5555198c48245419a57683cff493f3223bd674462d9c99104e530fb2e7da",
+    "truth_sha256": "cefd074156e1bfc1e82941e745d9d597604a9b7a2aad249f453f81e38b4164ad",
+    "n_inputs": 16,
+    "n_outputs": 8,
+    "vectors": 65536,
+    "frontend": "pass",
+    "interface": {
+      "issues": [],
+      "ports": {
+        "x": {
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "direction": "input"
+        },
+        "y": {
+          "bits": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "direction": "output"
+        }
+      },
+      "state_or_memory_cells": [],
+      "status": "pass"
+    },
+    "checker_returncode": 0,
+    "checker_sha256": {
+      "scripts/truth/__init__.py": "e96792d556b54841dab04338ebacdd86581798318d2642d456526728c931e035",
+      "scripts/truth/utils.py": "f5149ae7f5ee528103a49e05c8a6487799859ad1b748a21451267a1631b6bf91",
+      "scripts/verify/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scripts/verify/truth_bitparallel.py": "cbdbe7ad4081b0595f14b22c72863b254662c5fa54cd70f71bfde80d168548e1",
+      "scripts/verify/truth_parallel.py": "0fc92f98e28f71c9d2be4a250e7d243d4eef839181278a0d2edb34ae2893f914",
+      "scripts/verify/truth_sim.py": "e919415ababb07a8e03c55fc00fd2fe09a5fd4edd2fe9e0b69a60aa3e9f4f7bf",
+      "scripts/verify/truth_verification_cache.py": "69feefc0fff7289f73b23026b7ffe9d71b496ca574c49e7f60f88ba895f22727",
+      "scripts/verify/truth_yosys.py": "9af230bbb7f58926906890607d3b44a4b94a71f0d2780ea8d3d0ea4df7f58978"
+    },
+    "evaluator_sha256": "396c96030e9ebedcbc7494888edda0f251d76d22ca806dec2ed1861a4899871b",
+    "coordinator_cache_enabled": false,
+    "tool_binary_sha256": {
+      "abc": {
+        "path": "<research-workspace>/external/abc/abc",
+        "sha256": "5855164fc7971126377e05235249216a9e9178499c2aad0ccfe280e9d1ae4672"
+      },
+      "iverilog": {
+        "path": "/usr/bin/iverilog",
+        "sha256": "1ba67856249142771239573b5d51c7f6e4d67a1e7931a0d0fab56e0d473d2167"
+      },
+      "vvp": {
+        "path": "/usr/bin/vvp",
+        "sha256": "075b114070eed3bc72e0e4559decf40520f3b693b1da9c94bba1defe8896966d"
+      },
+      "yosys": {
+        "path": "<research-workspace>/external/yosys/yosys",
+        "sha256": "440de91eddef71f0341eab0f7211978dc1b471fd6be09d4d8085da7250f6d487"
+      }
+    },
+    "policy": {
+      "H": "V AND independent hash-bound review confirms recovered word/field behavior",
+      "V": "final.v exists AND exact interface AND frontend pass AND exhaustive replay pass",
+      "auxiliary_export": "write_json after the fixed frontend flow",
+      "cache_enabled": false,
+      "compile_once": true,
+      "compile_timeout_seconds": 120,
+      "frontend_flow": "read_verilog; hierarchy -check -top top; proc; opt; check -assert; write_verilog -noattr",
+      "frontend_timeout_seconds": 120,
+      "replay_deadline_shared": true,
+      "replay_max_workers": 4,
+      "replay_timeout_seconds": 180,
+      "verification_backend": "complete-domain JSON bit-parallel supported cells; otherwise complete-domain interleaved Icarus"
+    },
+    "evaluated_at_utc": "2026-10-08T15:25:32.756980+00:00"
+  },
+  "frozen_checker": {
+    "status": "pass",
+    "verification_method": "complete-domain interleaved Icarus Verilog replay",
+    "candidate_sha256": "e15b5555198c48245419a57683cff493f3223bd674462d9c99104e530fb2e7da",
+    "truth_sha256": "cefd074156e1bfc1e82941e745d9d597604a9b7a2aad249f453f81e38b4164ad",
+    "n_inputs": 16,
+    "n_outputs": 8,
+    "vectors": 65536,
+    "checker_sha256": {
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_skill_cost_20261008_v10/generic/scripts/truth/utils.py": "f5149ae7f5ee528103a49e05c8a6487799859ad1b748a21451267a1631b6bf91",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_skill_cost_20261008_v10/generic/scripts/verify/truth_bitparallel.py": "cbdbe7ad4081b0595f14b22c72863b254662c5fa54cd70f71bfde80d168548e1",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_skill_cost_20261008_v10/generic/scripts/verify/truth_parallel.py": "0fc92f98e28f71c9d2be4a250e7d243d4eef839181278a0d2edb34ae2893f914",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_skill_cost_20261008_v10/generic/scripts/verify/truth_sim.py": "e919415ababb07a8e03c55fc00fd2fe09a5fd4edd2fe9e0b69a60aa3e9f4f7bf",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_skill_cost_20261008_v10/generic/scripts/verify/truth_verification_cache.py": "69feefc0fff7289f73b23026b7ffe9d71b496ca574c49e7f60f88ba895f22727",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_skill_cost_20261008_v10/generic/scripts/verify/truth_yosys.py": "9af230bbb7f58926906890607d3b44a4b94a71f0d2780ea8d3d0ea4df7f58978"
+    },
+    "frontend_flow": "read_verilog; hierarchy -check -top top; proc; opt; check -assert; write_verilog -noattr",
+    "interface": {
+      "issues": [],
+      "ports": {
+        "x": {
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "direction": "input"
+        },
+        "y": {
+          "bits": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "direction": "output"
+        }
+      },
+      "state_or_memory_cells": [],
+      "status": "pass"
+    },
+    "replay_workers": 4,
+    "bitparallel_fallback_reason": "unsupported cell type $mul"
+  },
+  "replay_certificate": {
+    "status": "pass",
+    "verification_method": "complete-domain interleaved Icarus Verilog replay",
+    "candidate_sha256": "96cecfbe51d1ccf8ac1d92ba874705c56b6ff8733081dfa2f35fa6d588867049",
+    "truth_sha256": "cefd074156e1bfc1e82941e745d9d597604a9b7a2aad249f453f81e38b4164ad",
+    "n_inputs": 16,
+    "n_outputs": 8,
+    "vectors": 65536,
+    "workers": 4,
+    "coverage": {
+      "coverage_valid": true,
+      "disjoint_residue_classes": true,
+      "expected_counts": [
+        16384,
+        16384,
+        16384,
+        16384
+      ],
+      "index_domain": [
+        0,
+        65535
+      ],
+      "offsets": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "partition_rule": "x=offset+t*stride for t>=0 and x<vectors",
+      "stride": 4
+    },
+    "cache_enabled": false,
+    "deadline_policy": "single shared replay deadline after compilation",
+    "shared_replay_timeout_seconds": 180,
+    "checker_sha256": "0fc92f98e28f71c9d2be4a250e7d243d4eef839181278a0d2edb34ae2893f914"
+  },
+  "representation_review": {
+    "case": "ex242",
+    "arm": "with_skill",
+    "candidate_sha256": "e15b5555198c48245419a57683cff493f3223bd674462d9c99104e530fb2e7da",
+    "high_level": true,
+    "source_word_level": true,
+    "representation_policy_compliant": true,
+    "rationale": "Complete actual native finite E4M3 division source read:18bit dyadic magnitude decode,37bit doubled scaled numerator,19bit adjacent numeric code-midpoint and37bit midpoint-times-denominator product. Seven bit-prefix decisions compare against parity-biased integer midpoint threshold;127NaN and0/0 guard,126 finite clamp and quotient sign/zero exposed. Every width/function/loop expression read. This searches numeric output encodings by exact arithmetic, not stored input answers; current native proof required for exactness.",
+    "policy_rationale": "Readable finite word decode/arithmetic/normalization/rounding and format exceptions. No LUT/ROM, embedded truth strings, input-answer enumeration, benchmark dispatch or isolated input patch. Numeric midpoint decisions derive from word math, not answer storage; lexical helper cost does not imply physical sharing.",
+    "scope": "TT H is exactV plus audited word/field recovery plus representation policy; no PA cost threshold",
+    "reviewed_at_utc": "2026-10-08T15:28:07.529170+00:00"
+  },
+  "final_cost_review": {
+    "schema": "terminal-syntax-cost/v1",
+    "case": "ex242",
+    "arm": "with_skill",
+    "candidate_sha256": "e15b5555198c48245419a57683cff493f3223bd674462d9c99104e530fb2e7da",
+    "calculator_sha256": "685d655fe1bb6dadeb36921cb3da42de2791cc31b252ea86aeb3e5a8bbd5b014",
+    "cost": 34,
+    "status": "pass",
+    "returncode": 0
+  },
+  "prompt_sha256": "c29c3497a583df8c69fba391a1e3d159a696709374b857d7c00e726dafac629e",
+  "protocol_sha256": "f403b0c455fbfb8f1fd2bf2dcbb75196c3dc15ffc0b1155976e21a38355bc0f7"
+}

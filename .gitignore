@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+tool_paths.env
+.codex_skill_cache/
+.pytest_cache/
+build/
+dist/
+outputs/
+*.log
+*.vcd
+skills/circuit-reverse-rtl/scripts/sampling/fast_primitive_sampler
+overleaf.config
+.DS_Store

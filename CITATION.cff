@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use RTLREX in research, please cite the paper below. Cite the software version separately when needed for reproducibility."
+type: software
+title: "RTLREX"
+authors:
+  - name: "RTLREX contributors"
+license: MIT
+repository-code: "https://github.com/wuqian-tang/RTLREX"
+abstract: "The software companion to RTLREX, an LLM-guided framework for exact high-level RTL recovery. Domain-specific recovery procedures and tools are packaged as the circuit-reverse-rtl Agent Skill."
+keywords:
+  - circuit reverse engineering
+  - RTL
+  - agent skill
+  - formal equivalence
+preferred-citation:
+  type: article
+  title: "RTLREX: LLM-Guided Framework for Exact High-Level RTL Recovery"
+  authors:
+    - family-names: Tang
+      given-names: Wuqian
+    - family-names: Liu
+      given-names: Fangzhou
+    - family-names: Wang
+      given-names: Ruijie
+    - family-names: Hwang
+      given-names: TingTing
+    - family-names: Yu
+      given-names: Bei
+    - family-names: Wang
+      given-names: Chun-Yao
+  journal: arXiv
+  year: 2026
+  date-published: "2026-11-07"
+  identifiers:
+    - type: other
+      value: "arXiv:2611.10798"
+  url: "https://arxiv.org/abs/2611.10798"

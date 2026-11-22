@@ -1,0 +1,212 @@
+{
+  "schema": "rtlrex-tt100-validation-receipt/v1",
+  "case": "ex282",
+  "arm": "no_skill",
+  "scope": "Field-selected historical records, not a new equivalence proof. Source-record hashes refer to unmodified private originals; this file has its own export hash.",
+  "input_sha256": "697ec473e9f5c5a4d2c0ea137a71ec57ee3b2050eea59d2effdfc6848baf4d14",
+  "candidate_sha256": "46f52118b6e61ef3702115c7a94ca4986b687f22ec50fb54ca019d1091395919",
+  "terminal_candidate_available": true,
+  "published_V": true,
+  "published_H": false,
+  "published_Q": 1005,
+  "evaluation_target_is_terminal": true,
+  "source_record_sha256": {
+    "evaluation": "49496ea36a7e1009cf8f4a5924cf70e01dfcaac6e4cc0ee039143df47861f145",
+    "summary": "59dd1ff4ee7bfbdd03ab1b8e8b78abe8f9513dc8a5aadb1453dbf7f47d4df89f",
+    "frontend": "ee6ec5233cab5e24fe35453f4bc7fd5cb50b173742635c3220f6ccf75a8a1f83",
+    "frozen_checker": "a3232c296551b0fe4ab0a9b5caf98fb4404c65cb1ffe2199368febcaa14ccf16",
+    "representation_review": "54726af988612ab48f8cea960675a66177e94f3479cb7d01fa61d6a7632f7abd",
+    "final_cost_review": "126217e83fe03297ca4bbcd1aa1acc40f1545a2949ceb62aa6a817debdfe0d9a"
+  },
+  "evaluation": {
+    "schema": "matched-tt100-coordinator-evaluation/v4",
+    "status": "validated",
+    "V": true,
+    "H": null,
+    "exact": true,
+    "candidate_is_final": true,
+    "candidate_sha256": "46f52118b6e61ef3702115c7a94ca4986b687f22ec50fb54ca019d1091395919",
+    "truth_sha256": "697ec473e9f5c5a4d2c0ea137a71ec57ee3b2050eea59d2effdfc6848baf4d14",
+    "n_inputs": 14,
+    "n_outputs": 14,
+    "vectors": 16384,
+    "frontend": "pass",
+    "interface": {
+      "issues": [],
+      "ports": {
+        "x": {
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "direction": "input"
+        },
+        "y": {
+          "bits": [
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29
+          ],
+          "direction": "output"
+        }
+      },
+      "state_or_memory_cells": [],
+      "status": "pass"
+    },
+    "checker_returncode": 0,
+    "checker_sha256": {
+      "scripts/truth/__init__.py": "e96792d556b54841dab04338ebacdd86581798318d2642d456526728c931e035",
+      "scripts/truth/utils.py": "f5149ae7f5ee528103a49e05c8a6487799859ad1b748a21451267a1631b6bf91",
+      "scripts/verify/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scripts/verify/truth_bitparallel.py": "cbdbe7ad4081b0595f14b22c72863b254662c5fa54cd70f71bfde80d168548e1",
+      "scripts/verify/truth_parallel.py": "0fc92f98e28f71c9d2be4a250e7d243d4eef839181278a0d2edb34ae2893f914",
+      "scripts/verify/truth_sim.py": "e919415ababb07a8e03c55fc00fd2fe09a5fd4edd2fe9e0b69a60aa3e9f4f7bf",
+      "scripts/verify/truth_verification_cache.py": "69feefc0fff7289f73b23026b7ffe9d71b496ca574c49e7f60f88ba895f22727",
+      "scripts/verify/truth_yosys.py": "9af230bbb7f58926906890607d3b44a4b94a71f0d2780ea8d3d0ea4df7f58978"
+    },
+    "evaluator_sha256": "396c96030e9ebedcbc7494888edda0f251d76d22ca806dec2ed1861a4899871b",
+    "coordinator_cache_enabled": false,
+    "tool_binary_sha256": {
+      "iverilog": {
+        "path": "/usr/bin/iverilog",
+        "sha256": "1ba67856249142771239573b5d51c7f6e4d67a1e7931a0d0fab56e0d473d2167"
+      },
+      "vvp": {
+        "path": "/usr/bin/vvp",
+        "sha256": "075b114070eed3bc72e0e4559decf40520f3b693b1da9c94bba1defe8896966d"
+      },
+      "yosys": {
+        "path": "<research-workspace>/external/yosys/yosys",
+        "sha256": "440de91eddef71f0341eab0f7211978dc1b471fd6be09d4d8085da7250f6d487"
+      }
+    },
+    "policy": {
+      "H": "V AND independent hash-bound review confirms recovered word/field behavior",
+      "V": "final.v exists AND exact interface AND frontend pass AND exhaustive replay pass",
+      "auxiliary_export": "write_json after the fixed frontend flow",
+      "cache_enabled": false,
+      "compile_once": true,
+      "compile_timeout_seconds": 120,
+      "frontend_flow": "read_verilog; hierarchy -check -top top; proc; opt; check -assert; write_verilog -noattr",
+      "frontend_timeout_seconds": 120,
+      "replay_deadline_shared": true,
+      "replay_max_workers": 4,
+      "replay_timeout_seconds": 180,
+      "verification_backend": "complete-domain JSON bit-parallel supported cells; otherwise complete-domain interleaved Icarus"
+    },
+    "evaluated_at_utc": "2026-10-06T12:47:09.237469+00:00"
+  },
+  "frozen_checker": {
+    "status": "pass",
+    "verification_method": "complete-domain bit-parallel replay of Yosys JSON cells",
+    "candidate_sha256": "46f52118b6e61ef3702115c7a94ca4986b687f22ec50fb54ca019d1091395919",
+    "truth_sha256": "697ec473e9f5c5a4d2c0ea137a71ec57ee3b2050eea59d2effdfc6848baf4d14",
+    "n_inputs": 14,
+    "n_outputs": 14,
+    "vectors": 16384,
+    "checker_sha256": {
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_20261006_v5/generic/scripts/truth/utils.py": "f5149ae7f5ee528103a49e05c8a6487799859ad1b748a21451267a1631b6bf91",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_20261006_v5/generic/scripts/verify/truth_bitparallel.py": "cbdbe7ad4081b0595f14b22c72863b254662c5fa54cd70f71bfde80d168548e1",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_20261006_v5/generic/scripts/verify/truth_parallel.py": "0fc92f98e28f71c9d2be4a250e7d243d4eef839181278a0d2edb34ae2893f914",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_20261006_v5/generic/scripts/verify/truth_sim.py": "e919415ababb07a8e03c55fc00fd2fe09a5fd4edd2fe9e0b69a60aa3e9f4f7bf",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_20261006_v5/generic/scripts/verify/truth_verification_cache.py": "69feefc0fff7289f73b23026b7ffe9d71b496ca574c49e7f60f88ba895f22727",
+      "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_20261006_v5/generic/scripts/verify/truth_yosys.py": "9af230bbb7f58926906890607d3b44a4b94a71f0d2780ea8d3d0ea4df7f58978"
+    },
+    "frontend_flow": "read_verilog; hierarchy -check -top top; proc; opt; check -assert; write_verilog -noattr",
+    "interface": {
+      "issues": [],
+      "ports": {
+        "x": {
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "direction": "input"
+        },
+        "y": {
+          "bits": [
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29
+          ],
+          "direction": "output"
+        }
+      },
+      "state_or_memory_cells": [],
+      "status": "pass"
+    },
+    "replay_workers": 4
+  },
+  "representation_review": {
+    "case": "ex282",
+    "arm": "no_skill",
+    "candidate_sha256": "46f52118b6e61ef3702115c7a94ca4986b687f22ec50fb54ca019d1091395919",
+    "high_level": false,
+    "source_word_level": false,
+    "representation_policy_compliant": true,
+    "rationale": "Independent complete-source grammar audit consumes every statement: 977 shared scalar input-bit-controlled mux nodes, 14 scalar aliases and a packed 14-bit output. This is a shared Boolean decision graph, not recovered word/field arithmetic. Independent coordinator full-domain proof passes; H remains false. Independent uncached coordinator evidence confirms fixed frontend, exact interface and all 16384 inputs; current truth/candidate/lowered/generic checker hashes and complete replay evidence checked.",
+    "policy_rationale": "Shared Boolean ROBDD fallback is explicitly allowed by the frozen common prompt. The complete source has only shared scalar mux nodes and one-bit leaves, with no table/ROM, embedded truth data or input-address answer enumeration.",
+    "scope": "TT-100: V plus explicit word/field recovery; PA-30 cost-reduction criterion is not applicable",
+    "reviewed_at_utc": "2026-10-06T12:47:53.496130+00:00"
+  },
+  "final_cost_review": {
+    "schema": "retained-baseline-uniform-v7-cost/v1",
+    "case": "ex282",
+    "arm": "no_skill",
+    "candidate_sha256": "46f52118b6e61ef3702115c7a94ca4986b687f22ec50fb54ca019d1091395919",
+    "calculator_sha256": "685d655fe1bb6dadeb36921cb3da42de2791cc31b252ea86aeb3e5a8bbd5b014",
+    "csv_sha256": "65a0ff43df653831655cba564349ac536c755b53335d97ee3860f410bccbebc0",
+    "cost": 1005,
+    "status": "pass",
+    "returncode": 0,
+    "generation_reruns": 0
+  },
+  "prompt_sha256": "5534845fe759308c8354ed66a59f7c44d121c2359cf5a5916324e8ea537245f0",
+  "protocol_sha256": "e30ee56d1cff3c5f3462e28671a907d22bd9e6a6620bf4fe06faf810e2dffad1"
+}

@@ -1,0 +1,133 @@
+{
+  "schema": "rtlrex-protocol-extract/v1",
+  "source_sha256": "f403b0c455fbfb8f1fd2bf2dcbb75196c3dc15ffc0b1155976e21a38355bc0f7",
+  "scope": "Selected fields of original protocol; absolute research paths replaced, no credentials or run transcripts.",
+  "original_fields": {
+    "schema": "skill-only-tt100-cost-followup/v10",
+    "date": "2026-10-06",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "xhigh",
+    "cli_version": "codex-cli 0.160.0",
+    "wall_seconds_per_case": 600,
+    "max_parallel_cases": 4,
+    "repetitions": 1,
+    "prompt_sha256": "134593c23dad5e49e30c5e04d577751ed605dd436fa942eec02814f5cf7873eb",
+    "skill_manifest_sha256": "eb7e81b3432d92545c3561abd42f46b488b03ce2a68c4ea422e4d6a98b453311",
+    "isolation": "Bubblewrap filesystem/PID namespace. Same generic checker/engines in both arms; with_skill alone gets frozen package at /opt/creas/skills/circuit-reverse-rtl. Compatibility aliases contain only engine binaries, not host repository inputs or candidates. No user config, host skills, old candidates, golden RTL or other trials.",
+    "shared_validation": {
+      "both_arms_identical": false,
+      "validation_only": true,
+      "recognizers_provided": false,
+      "backend": "complete-domain Yosys JSON bit-parallel supported cells; unsupported cells interleaved complete-domain Icarus replay",
+      "replay_workers_policy": {
+        "small_domain_input_threshold": 12,
+        "small_domain_workers": 1,
+        "large_domain_workers": 4,
+        "maximum_workers": 4
+      },
+      "replay_max_workers": 4,
+      "replay_small_domain_threshold": 12,
+      "replay_small_domain_workers": 1,
+      "replay_deadline_seconds": 180,
+      "replay_deadline_shared": true,
+      "replay_compile_once": true,
+      "replay_partition_rule": "ordinary x=offset+t*K; offsets 0..K-1; x<2^n; complete disjoint residue classes",
+      "agent_checker_cache": false,
+      "coordinator_cache": false,
+      "checker_root": "generic",
+      "checker_manifest_sha256": "463143a3c23cae3aea4e30bf5787528710af983d948132fb7d3cd2cdc47f3892",
+      "historical_reference_checker_identical": true
+    },
+    "shared_cost": {
+      "cost_only": true,
+      "recognizers_provided": false,
+      "both_current_and_historical_terminals_uniformly_scored": true,
+      "wrapper_sha256": "041bf96514149bba61a3372e86b7c50e56186f64c95803773031d948f31acac4",
+      "calculator_sha256": "685d655fe1bb6dadeb36921cb3da42de2791cc31b252ea86aeb3e5a8bbd5b014",
+      "weights_sha256": "65a0ff43df653831655cba564349ac536c755b53335d97ee3860f410bccbebc0",
+      "implementation_manifest_sha256": "2c9ac51c48545450c780d5c2867e1c027f45c2ed24f8ae8033bfee653c836a06",
+      "historical_generation_objective": "Original V5 scorer immutable; old no-Skill is uniformly measured, never regenerated or reoptimized",
+      "new_generation_objective": "Same fixed V7 concat-complete core685d and original CSV65a; no score changes for V10",
+      "primary_price_version_identifier": "fixed-V7-concat-complete-core685d-unmodified-CSV65a",
+      "original_v6_uniform_sensitivity_required": true
+    },
+    "comparison_design": "Prospective cost-focused Skill-only100 vs immutable original no-Skill reference; within-corpus development across epochs, not concurrent two-arm randomized ablation",
+    "development_corpus": "Same TT100 used in previous development; not heldout generalization",
+    "final_version_policy": "Frozen100; no investigator feedback, selective cases, output imports or failed-agent retries",
+    "generation_then_evaluation": true,
+    "independent_evaluation_workers": 2,
+    "generic_source": "Original13 V5 helpers byte-identical; validation original120/120/180 cacheoff; only public cost entrypoint separately frozen V7 concat-complete scorer",
+    "frontend_seconds": 120,
+    "compile_seconds": 120,
+    "replay_seconds": 180,
+    "tools": {
+      "yosys": {
+        "path": "<research-workspace>/external/yosys/yosys",
+        "sha256": "440de91eddef71f0341eab0f7211978dc1b471fd6be09d4d8085da7250f6d487"
+      },
+      "yosys_smtbmc": {
+        "path": "<research-workspace>/external/yosys/yosys-smtbmc",
+        "sha256": "0192f63913bdff347912602315504d5a6ed9e3ff8fbf0dbcdc7c33e5b66681d9"
+      },
+      "abc": {
+        "path": "<research-workspace>/external/abc/abc",
+        "sha256": "5855164fc7971126377e05235249216a9e9178499c2aad0ccfe280e9d1ae4672"
+      },
+      "z3": {
+        "path": "<user-home>/.local/bin/z3",
+        "sha256": "a06c2a851d58c5f5a7c1e5de188fd0e1b1135e778112aee83ffd1a433685516b"
+      },
+      "codex": {
+        "path": "<user-home>/.nvm/versions/node/v22.22.1/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex",
+        "sha256": "12eb3e81114588aca3b7998f4f19e8997b056aca08e57a7ca7c8a3ec8c652aad"
+      },
+      "bwrap": {
+        "path": "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_skill_cost_20261008_v10/bin/bwrap",
+        "sha256": "bf6cf3d4456665f5d80c14eb79a76e0ce87b39a0883e614a161658b4ec33492c"
+      },
+      "shared_checker": {
+        "path": "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_skill_cost_20261008_v10/generic/check.py",
+        "sha256": "47fa1a804afc2c417cf78f69eb75b4c16473296a937796e979627d3cb05be7d2"
+      },
+      "iverilog": {
+        "path": "/usr/bin/iverilog",
+        "sha256": "1ba67856249142771239573b5d51c7f6e4d67a1e7931a0d0fab56e0d473d2167"
+      },
+      "vvp": {
+        "path": "/usr/bin/vvp",
+        "sha256": "075b114070eed3bc72e0e4559decf40520f3b693b1da9c94bba1defe8896966d"
+      },
+      "shared_cost": {
+        "path": "<research-workspace>/paper_preparation/additional_experiments/matched_tt100_skill_cost_20261008_v10/public_cost.py",
+        "sha256": "041bf96514149bba61a3372e86b7c50e56186f64c95803773031d948f31acac4"
+      }
+    },
+    "token_budget": "not a hard cap; actual completed-turn usage reported; missing usage stays missing",
+    "endpoint": "V = exact full-interface equivalence AND fixed frontend acceptance; H = V AND audited high-level representation",
+    "checkpoint_policy": {
+      "with_skill": "frozen worker atomically publishes first verified final.v; cost refinement has persistent limits of at most two proposals, at most 120 seconds of wall time from the first verified checkpoint, and stopping after two nonimprovements; initial limits may be reduced, never enlarged; only verified lower-cost candidates can replace the checkpoint",
+      "with_skill_internal_initial_generation_default_seconds": 240,
+      "with_skill_max_cost_proposals": 2,
+      "with_skill_cost_wall_window_seconds": 120,
+      "with_skill_max_nonimprovements": 2,
+      "with_skill_limits_persistent": true,
+      "with_skill_limits_may_only_decrease": true,
+      "with_skill_verification_cache": false,
+      "with_skill_receipt_reuse": "local unchanged candidate/truth/tool/flow/source context receipt only; external proof cache disabled",
+      "both_arm_external_agent_wall_seconds": 600,
+      "internal_budget_role": "The 240-second generation default and checkpoint limits are frozen Skill treatment behavior inside the same 600-second external budget assigned to both arms.",
+      "no_skill": "agent may checkpoint candidates using shared generic exact checker",
+      "evaluation": "terminal final.v only, independently reverified without cache"
+    },
+    "skill_mount": "/opt/creas/skills/circuit-reverse-rtl",
+    "resource_parallelism_revision": {
+      "actual_generation_workers": 4,
+      "min_available_kib": 8388608,
+      "explicit_user_choice": true,
+      "independent_evaluation_workers": 2,
+      "generation_then_evaluation": true,
+      "reason": "Generation completes before independent evaluation; original budgets and terminal sources unchanged; timings descriptive."
+    },
+    "boolean_fallback_allowed": true
+  }
+}

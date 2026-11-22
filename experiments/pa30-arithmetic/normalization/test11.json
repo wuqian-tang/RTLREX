@@ -1,0 +1,16 @@
+{
+  "case": "test11",
+  "retained_recovery_sha256": "25e60403c01fff8797b3421072abdbc555146513abfeafb0ebe23d7883dd6a83",
+  "synthesis_source_sha256": "8950465ee36535674dc3895af6519d0958f0c2e266ec98938670a0ad469f3378",
+  "rewrite": "unsigned 8-bit x ** 3 -> unsigned 16-bit square = x * x; unsigned 24-bit cube = square * x",
+  "semantic_justification": "For all unsigned 8-bit x, x*x <= 65025 < 2^16 and x*x*x <= 16581375 < 2^24. Both products fit their explicit intermediate/output widths, so neither truncation nor signed extension changes the value. The second output and all ports are unchanged.",
+  "existing_recovery_proof_sha256": "c4fe7bb42bf03cfb55c327e0dcfb84cc8be6adc3b1d47b8786fd3d98b5c22d99",
+  "changes_frozen_recovery_rtl": false,
+  "changes_recovery_syntax_cost": false,
+  "cube_exhaustive_validation": {
+    "status": "pass",
+    "active_input_values": 256,
+    "scope": "Changed cube expression only. Both cube expressions depend solely on in1. No synthesis/mapping equivalence checking.",
+    "log_sha256": "5bd5b2daae4338f5ca9f8522e5283e5350c03435de5426f2679e856cc3cac33c"
+  }
+}

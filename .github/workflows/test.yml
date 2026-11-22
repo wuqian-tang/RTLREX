@@ -1,0 +1,35 @@
+name: Verification tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5, Node.js 24
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6, Node.js 24
+        with:
+          python-version: '3.10'
+      - uses: YosysHQ/setup-oss-cad-suite@853bb54f52246aa8fb4fab963f104cfb6676197a # v4
+        with:
+          version: '2026-09-12'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - run: python3 -m pip install -r requirements.txt
+      - run: python3 scripts/doctor.py --require-all
+      - run: python3 scripts/check_release.py
+      - run: python3 scripts/check_source_manifest.py
+      - run: python3 experiments/pa30-arithmetic/aggregate.py --verify-published
+      - run: python3 experiments/tt100-final/verify_results.py
+      - run: python3 experiments/tt100-final/check_artifacts.py --score
+      - run: python3 experiments/pa30-arithmetic/check_proof_records.py
+      - run: python3 benchmarks/verify_inputs.py --pa30-dir benchmarks/pa30/inputs
+      - run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - run: python3 -m unittest discover -s skills/circuit-reverse-rtl/scripts -p 'test_*.py' -v
+      - run: python3 scripts/demo.py --out outputs/parity-demo

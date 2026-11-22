@@ -1,0 +1,66 @@
+{
+  "reference": "timed_original",
+  "paired_cases": [
+    "test01",
+    "test02",
+    "test03",
+    "test04",
+    "test05",
+    "test06",
+    "test07",
+    "test08",
+    "test09",
+    "test10",
+    "test11",
+    "test12",
+    "test13",
+    "test14",
+    "test15",
+    "test16",
+    "test17",
+    "test18",
+    "test19",
+    "test20",
+    "test21",
+    "test23",
+    "test24",
+    "test25",
+    "test26",
+    "test27",
+    "test28",
+    "test29",
+    "test30"
+  ],
+  "n": 29,
+  "metrics": {
+    "cell_area_um2": {
+      "reference_mean": 2738.387448275862,
+      "optimized_mean": 2690.479931034483,
+      "change_percent": -1.749479142242727,
+      "lower": 14,
+      "equal": 0,
+      "higher": 15
+    },
+    "max_path_delay_ns": {
+      "reference_mean": 1.4980349310344827,
+      "optimized_mean": 1.45265,
+      "change_percent": -3.0296310249015135,
+      "lower": 14,
+      "equal": 0,
+      "higher": 15
+    }
+  },
+  "both_metrics_lower_or_equal": 6,
+  "optimized": "timed_booth",
+  "cases": 30,
+  "original_completed": 29,
+  "optimized_completed": 30,
+  "original_timeouts": [
+    "test22"
+  ],
+  "synthesis_timeout_seconds": 600,
+  "sta_timeout_seconds": 60,
+  "averaging": "Arithmetic means of raw area and delay over exactly the same cases. Relative change = 100*(optimized mean/reference mean - 1).",
+  "correctness_scope": "The retained recovery files have existing strict original-to-recovery proofs. Generic arithmetic lowering is supported by exact identities and 887 bounded SAT rule checks. No new source-hash-bound full-netlist certificate is claimed for the lowered JSON inputs. Native synthesis/mapping is trusted under the user instruction.",
+  "optimized_timeouts": []
+}

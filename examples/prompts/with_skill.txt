@@ -1,0 +1,10 @@
+Use $circuit-reverse-rtl and its tools for this task.
+
+Recover high-level combinational RTL from <INPUT>. Write artifacts under <OUTPUT_DIR>.
+Preserve all input/output names, packed ranges, orientation and signedness.
+Infer behavior only from the supplied input; do not inspect reference solutions.
+Prefer arithmetic and control structure over primitive-gate or lookup-table expansion.
+Use external exact equivalence checking before promoting final.v.
+If verification is inconclusive, report it explicitly and retain the evidence.
+Record the model/configuration, input hashes, tool versions, prompts, tool calls,
+candidate history, verification status, elapsed time and available token usage.

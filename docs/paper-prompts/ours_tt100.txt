@@ -1,0 +1,28 @@
+Use $circuit-reverse-rtl to reverse-engineer one combinational circuit.
+
+benchmark=IWLS26
+input=<INPUT>
+output_dir=<OUTPUT_DIR>
+
+Work only inside experimental_results, except for reading the installed skill and
+its tools. Do not inspect golden/reference solutions, other cases' outputs, or
+other paths outside this directory. Infer behavior only from the given input
+circuit/truth table; do not dispatch on benchmark or case names and do not emit
+any truth-derived LUT or case table.
+
+Save the best candidate as <OUTPUT_DIR>/final.v. Preserve the interface and prove
+exact equivalence against the input oracle. For ICCAD22, obey allowed_syntax,
+run the installed `check_allowed_syntax.py` before interpreting cost, reject
+absent keywords even after CEC passes, and minimize official cost only among
+legal candidates. For IWLS26,
+verify the complete truth table and prefer compact structural/formula RTL.
+
+Retain paper-ready evidence in <OUTPUT_DIR>: rendered_prompt.txt,
+experiment_log.md, tool_calls.csv, and final_metrics.json. Record UTC/epoch start
+and end times, total agent wall-clock time, each tool runtime and outcome,
+candidate history, final validation command/result, cost when applicable,
+inferred function/decomposition, and unresolved risks. Never claim success after
+a mismatch or non-strict final check. If no compliant exact candidate is found,
+do not fabricate final.v; save no_candidate.json with tested hypotheses,
+counterexamples or UNSAT evidence, remaining search space, and reproducible
+diagnostic commands.

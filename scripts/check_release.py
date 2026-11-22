@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""Check the export boundary; this is a pattern scan, not an ownership audit."""
+from __future__ import annotations
+
+import hashlib
+import csv
+import json
+import re
+import subprocess
+from pathlib import Path
+
+
+def main() -> int:
+    root = Path(__file__).resolve().parents[1]
+    if (root / '.git').exists():
+        names = subprocess.check_output(
+            ['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+            cwd=root).split(b'\0')
+        paths = [root / n.decode() for n in names if n]
+    else:
+        ignored = {'.git', '__pycache__', '.venv', 'outputs', '.codex_skill_cache'}
+        paths = [p for p in root.rglob('*') if p.is_file()
+                 and not ignored.intersection(p.relative_to(root).parts)]
+    source_path = root / 'benchmarks/tt100/source.json'
+    licensed_inputs = {}
+    if source_path.exists():
+        source = json.loads(source_path.read_text())
+        licensed_inputs = {root / 'benchmarks/tt100' / row['path']: row['sha256']
+                           for row in source['inputs']}
+    # Original PA-30 inputs are third-party data, not MIT-licensed project code.
+    # Permit large text netlists only with the frozen experiment identity.
+    pa_inputs = {}
+    pa_manifest = root / 'experiments/pa30-arithmetic/input_manifest.json'
+    if pa_manifest.exists():
+        for row in json.loads(pa_manifest.read_text())['cases']:
+            case = row['case']
+            if (re.fullmatch(r'test(?:0[1-9]|[12][0-9]|30)', case) and
+                    row['original_gate_input'] == f'{case}/top_primitive.v'):
+                pa_inputs[root / 'benchmarks/pa30/inputs' / row['original_gate_input']] = row['original_gate_sha256']
+    # Larger terminal RTL is allowed only when it matches the frozen result row.
+    # This exception never bypasses binary or credential checks.
+    published_rtl = {}
+    results = root / 'experiments/tt100-final/case_results.csv'
+    if results.exists():
+        with results.open(newline='') as handle:
+            for row in csv.DictReader(handle):
+                if (re.fullmatch(r'ex2[0-9]{2}', row['case']) and
+                        row['arm'] in {'with_skill', 'no_skill'} and row['candidate_sha256']):
+                    published_rtl[results.parent / 'rtl' / row['arm'] / (row['case'] + '.v')] = row['candidate_sha256']
+    issues = [] if paths else [['.', 'no export files found']]
+    blocked_dirs = {'experimental_results', 'paper_preparation', 'benchmarks_ICCAD22', 'external'}
+    patterns = {
+        'credential': re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|sk-[A-Za-z0-9_-]{32,})'),
+        'private key': re.compile(r'-----BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY-----'),
+        'personal home path': re.compile(r'/(?:home|Users)/[A-Za-z0-9_.-]+/'),
+    }
+    for path in paths:
+        rel = path.relative_to(root)
+        if path.is_symlink():
+            issues.append([str(rel), 'symlink'])
+            continue
+        if blocked_dirs.intersection(rel.parts) or path.name in {'overleaf.config', 'tool_paths.env', '.env'}:
+            issues.append([str(rel), 'private/generated path'])
+        data = path.read_bytes()
+        known_truth = (path in licensed_inputs and
+                       hashlib.sha256(data).hexdigest() == licensed_inputs[path])
+        known_rtl = (path in published_rtl and
+                     hashlib.sha256(data).hexdigest() == published_rtl[path])
+        known_pa_input = (path in pa_inputs and
+                          hashlib.sha256(data).hexdigest() == pa_inputs[path])
+        if data.startswith(b'\x7fELF') or b'\0' in data or (len(data) > 2_000_000 and not (known_truth or known_rtl or known_pa_input)):
+            issues.append([str(rel), 'binary or oversized export'])
+            continue
+        text = data.decode('utf-8')
+        for kind, pattern in patterns.items():
+            if pattern.search(text):
+                issues.append([str(rel), kind])
+    print(json.dumps({'status': 'fail' if issues else 'pass', 'files_checked': len(paths),
+                      'issues': issues, 'scope': 'Tracked and nonignored untracked files; never scans or exports Git credentials.'}, indent=2))
+    return int(bool(issues))
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

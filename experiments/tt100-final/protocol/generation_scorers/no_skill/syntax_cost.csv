@@ -1,0 +1,87 @@
+key,symbol,description,cost,unit
+concat,"{} {{}}","High-level concatenation and replication",1,per_symbol
+select,"[] [:]","Bit-select and part-select",1,per_operator
++,+,Arithmetic addition,1,per_operator
+-,-,Binary arithmetic subtraction; unary negative sign is free,1,per_operator
+unary_-,-,Unary negative sign,0,per_operator
+*,*,Arithmetic multiplication,1,per_operator
+/,"/","Arithmetic division",1,per_operator
+**,**,Arithmetic power,1,per_operator
+%,%,Modulus,1,per_operator
+>,>,Relational greater than,1,per_operator
+>=,>=,Relational greater than or equal,1,per_operator
+<,<,Relational less than,1,per_operator
+<=,<=,Relational less than or equal,1,per_operator
+!,!,Logical negation,1,per_operator
+&&,&&,Logical and,1,per_operator
+||,||,Logical or,1,per_operator
+==,==,Logical equality,1,per_operator
+!=,!=,Logical inequality,1,per_operator
+===,===,Case equality,1,per_operator
+!==,!==,Case inequality,1,per_operator
+~,~,Bit-wise negation,3,per_bit
+&,&,Bit-wise and,3,per_bit
+|,|,Bit-wise inclusive or,3,per_bit
+^,^,Bit-wise exclusive or,3,per_bit
+~^,~^,Bit-wise exclusive nor,3,per_bit
+^~,^~,Bit-wise exclusive nor,3,per_bit
+reduction_&,&,Reduction and,2,per_operator
+~&,"~&",Reduction nand,2,per_operator
+reduction_|,|,Reduction or,2,per_operator
+~|,~|,Reduction nor,2,per_operator
+reduction_^,^,Reduction xor,2,per_operator
+reduction_xnor,"~^ or ^~",Reduction xnor,2,per_operator
+<<,<<,Logical left shift,1,per_operator
+>>,>>,Logical right shift,1,per_operator
+<<<,<<<,Arithmetic left shift,1,per_operator
+>>>,>>>,Arithmetic right shift,1,per_operator
+?:,?:,Conditional expression,1,per_operator
+case_items,"case/casex/casez item",Case item or LUT row,4,per_item
+if,if,If keyword,1,per_keyword
+primitive_gate,"and/or/nand/nor/not/buf/xor/xnor",Primitive gate instantiation,20,per_instance
+always,always,Always keyword,0,per_keyword
+always_comb,always_comb,SystemVerilog combinational always keyword,0,per_keyword
+always_ff,always_ff,SystemVerilog sequential always keyword,0,per_keyword
+always_latch,always_latch,SystemVerilog latch always keyword,0,per_keyword
+automatic,automatic,Automatic lifetime keyword,0,per_keyword
+assign,assign,Continuous assignment keyword,0,per_keyword
+begin,begin,Begin keyword,0,per_keyword
+bit,bit,SystemVerilog bit type keyword,0,per_keyword
+byte,byte,SystemVerilog byte type keyword,0,per_keyword
+case,case,Case keyword,0,per_keyword
+casex,casex,Casex keyword,0,per_keyword
+casez,casez,Casez keyword,0,per_keyword
+default,default,Default keyword,0,per_keyword
+else,else,Else keyword,0,per_keyword
+end,end,End keyword,0,per_keyword
+endcase,endcase,Endcase keyword,0,per_keyword
+endfunction,endfunction,Endfunction keyword,0,per_keyword
+endgenerate,endgenerate,Endgenerate keyword,0,per_keyword
+endmodule,endmodule,Endmodule keyword,0,per_keyword
+endtask,endtask,Endtask keyword,0,per_keyword
+enum,enum,SystemVerilog enum keyword,0,per_keyword
+for,for,For keyword,0,per_keyword
+function,function,Function keyword,0,per_keyword
+generate,generate,Generate keyword,0,per_keyword
+genvar,genvar,Genvar keyword,0,per_keyword
+initial,initial,Initial keyword,0,per_keyword
+input,input,Input keyword,0,per_keyword
+int,int,SystemVerilog int type keyword,0,per_keyword
+integer,integer,Integer keyword,0,per_keyword
+localparam,localparam,Local parameter keyword,0,per_keyword
+logic,logic,SystemVerilog logic type keyword,0,per_keyword
+longint,longint,SystemVerilog longint type keyword,0,per_keyword
+macromodule,macromodule,Macromodule keyword,0,per_keyword
+module,module,Module keyword,0,per_keyword
+output,output,Output keyword,0,per_keyword
+parameter,parameter,Parameter keyword,0,per_keyword
+reg,reg,Reg keyword,0,per_keyword
+return,return,Return keyword,0,per_keyword
+shortint,shortint,SystemVerilog shortint type keyword,0,per_keyword
+signed,signed,Signed keyword,0,per_keyword
+struct,struct,SystemVerilog struct keyword,0,per_keyword
+task,task,Task keyword,0,per_keyword
+typedef,typedef,SystemVerilog typedef keyword,0,per_keyword
+union,union,SystemVerilog union keyword,0,per_keyword
+unsigned,unsigned,Unsigned keyword,0,per_keyword
+wire,wire,Wire keyword,0,per_keyword

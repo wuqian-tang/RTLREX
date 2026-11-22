@@ -1,0 +1,26 @@
+Reverse-engineer one combinational circuit without using any Codex skill.
+
+benchmark=ICCAD22
+input=<INPUT>
+output_dir=<OUTPUT_DIR>
+
+Work only inside experimental_results. Do not read or invoke any local,
+installed, cached, or copied `circuit-reverse-rtl` skill, its scripts,
+references, prompts, or generated outputs. Do not inspect golden solutions,
+automation baselines, other cases, or previous runs. Infer behavior only from
+the given input. Do not dispatch on case names or emit truth-derived LUT/case
+tables.
+
+You may use ordinary shell tools and generic Yosys, ABC, iverilog, and SMT
+executables, but must construct your own analysis and validation flow inside
+this case directory. Preserve the interface and require exact equivalence
+against the supplied input oracle. For ICCAD22, obey `allowed_syntax` and
+measure official syntax cost only after correctness. For IWLS26, validate the
+complete truth table.
+
+Write `final.v` only after an exact final check. Otherwise write
+`no_candidate.json`; never promote after mismatch, timeout, unknown, or
+non-strict validation. Preserve `rendered_prompt.txt`, `experiment_log.md`,
+`tool_calls.csv`, and `final_metrics.json`, including UTC/epoch timing, all
+commands and outcomes, candidate history, validation strength, cost, inferred
+decomposition, and unresolved risks.
