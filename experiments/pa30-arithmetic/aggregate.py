@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Recompute the published paired arithmetic means without EDA tools."""
+"""Recompute the paper's per-benchmark reductions and paired means without EDA tools."""
 import argparse
 import csv
 import hashlib
@@ -18,7 +18,7 @@ def aggregate(measurements):
     if len(index) != len(rows):
         raise ValueError('Duplicate case/profile measurements')
     cases = sorted({row['case'] for row in rows})
-    profiles = ['timed_original', 'timed_booth']
+    profiles = ['timed_original', 'timed_cmp_booth']
     if set(index) != {(case, profile) for case in cases for profile in profiles}:
         raise ValueError('Missing or unexpected case/profile measurement')
     good = lambda r: r['mapping_status'] == 'pass' and r['sta_status'] == 'pass'
@@ -28,9 +28,11 @@ def aggregate(measurements):
     result = {'cases': len(cases), 'paired_cases': paired, 'n': len(paired), 'metrics': {}}
     for field in ('cell_area_um2', 'max_path_delay_ns'):
         pairs = [(float(index[c, profiles[0]][field]), float(index[c, profiles[1]][field])) for c in paired]
+        if any(not math.isfinite(a) or not math.isfinite(b) or a <= 0 or b < 0 for a, b in pairs):
+            raise ValueError('Completed measurements must be finite, with positive reference values')
         ref, opt = mean(a for a, b in pairs), mean(b for a, b in pairs)
         result['metrics'][field] = {'reference_mean': ref, 'optimized_mean': opt,
-                                    'change_percent': 100 * (opt / ref - 1),
+                                    'mean_reduction_percent': mean(100 * (a - b) / a for a, b in pairs),
                                     'lower': sum(b < a for a, b in pairs),
                                     'equal': sum(b == a for a, b in pairs),
                                     'higher': sum(b > a for a, b in pairs)}

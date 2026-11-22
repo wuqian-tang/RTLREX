@@ -1,15 +1,15 @@
 # PA-30 arithmetic synthesis and standard-cell mapping
 
-This package contains the final, uniform synthesis comparison used in the RTLREX paper. Recovered high-level arithmetic exposes square symmetry and constant coefficients, enabling arithmetic lowering and Booth synthesis before standard-cell mapping. The original gate-level inputs are mapped directly. Both flows use the same Nangate45 typical library, a 2 ns ABC target, `BUF_X1` input driver, and 10 fF output load.
+This package contains the final, uniform synthesis comparison used in the RTLREX paper. Recovered high-level RTL exposes square symmetry, constant coefficients, and word-level comparisons, enabling arithmetic and comparator lowering before Booth synthesis and standard-cell mapping. The original gate-level inputs are mapped directly. Both flows use the same Nangate45 typical library, a 2 ns ABC target, `BUF_X1` input driver, and 10 fF output load.
 
 All 30 recovered designs complete synthesis, mapping, and timing analysis. The original `test22` reaches the 600 s synthesis/mapping limit. Arithmetic means use the same 29 completed pairs, without selecting a different profile for each case.
 
-| Metric | Original gate-level input | Recovered arithmetic RTL | Change |
+| Metric | Original mean | RTLREX mean | Mean per-benchmark reduction |
 | --- | ---: | ---: | ---: |
-| Mean standard-cell area (µm²) | 2738.387448275862 | 2690.479931034483 | −1.749479142243% |
-| Mean maximum path delay (ns) | 1.498034931034483 | 1.452650000000000 | −3.029631024902% |
+| Standard-cell area (µm²) | 2738.387448275862 | 2687.819931034483 | 1.226365495715% |
+| Maximum path delay (ns) | 1.498034931034483 | 1.443172413793104 | 1.219097164157% |
 
-These are reductions in the paired arithmetic means. Individual circuits can trade area against delay. The comparison uses a single `timed_booth` profile for every recovered circuit and a single `timed_original` profile for every reference circuit.
+The reduction is calculated as `100 × (original − RTLREX) / original` for each completed pair and then averaged arithmetically over the 29 pairs. Positive values indicate improvement. Individual circuits can trade area against delay. The comparison uses one `timed_cmp_booth` profile for every recovered circuit and one `timed_original` profile for every reference circuit. Area and delay come from the same mapped implementation.
 
 ## Check the results without EDA tools
 
@@ -17,7 +17,7 @@ These are reductions in the paired arithmetic means. Individual circuits can tra
 python3 experiments/pa30-arithmetic/aggregate.py --verify-published
 ```
 
-`data/measurements.csv` contains all 60 final measurements, including timeout statuses and unrounded values. `data/summary.json` records the shared case set, arithmetic means, changes, and win/equal/loss counts. The calculation is `100 × (recovered mean / original mean − 1)`, rather than an average of per-circuit percentage changes. `input_manifest.json` ties the results to input hashes and records the original recovery proof engines and proof-record hashes.
+`data/measurements.csv` contains all 60 final measurements, including timeout statuses and unrounded values. `data/summary.json` records the shared case set, arithmetic means, mean per-benchmark reductions, and win/equal/loss counts. `input_manifest.json` ties the results to input hashes and records the original recovery proof engines and proof-record hashes.
 
 `sha256_manifest.json` covers every published package file except the manifest itself. The verification command checks these hashes as well as all result calculations. Published rule-regression records are in `data/arithmetic_rule_regression.json` and `data/cube_rule_regression.json`. The cube regression was added when preparing the portable package and covers 46 SAT-proved positive-cube instances and 23 unchanged signed-negative-exponent instances.
 
@@ -32,7 +32,7 @@ python3 experiments/pa30-arithmetic/aggregate.py --verify-published
 - `run_experiment.py`: a portable runner for the two final profiles. Original benchmark inputs are included under `benchmarks/pa30/inputs/`; third-party tools/libraries are supplied separately.
 - `prepare_inputs.py`: regenerates lowered JSON from the retained recovered RTL. Its generic unsigned-cube rule replaces `x ** 3` by a full-width square followed by a product, resolving the unsupported native power cell in `test11` without a case-ID branch. It preserves the recovered RTL files.
 - `check_cube_normalization.py`: bounded SAT regression against explicitly sized cube products and a guard check that signed negative exponents remain unchanged.
-- `data/provenance.json`: tool versions, measured executable hashes, library provenance, and the frozen raw archive manifest hash. The raw archive contains additional logs and exploratory profiles and is not bundled here.
+- `data/provenance.json`: tool versions, measured executable hashes, library provenance, comparator-template hashes, and the final measurement-file hash.
 
 Verify receipt identities without running EDA tools:
 
@@ -89,6 +89,15 @@ python3 experiments/pa30-arithmetic/run_experiment.py \
 python3 experiments/pa30-arithmetic/aggregate.py \
   --measurements /tmp/rtlrex-pa30-measurement/measurements.csv
 ```
+
+The recovered flow applies these Yosys commands to the lowered JSON inputs:
+
+```text
+techmap -map +/cmp2lut.v -map +/cmp2lcu.v -D LUT_WIDTH=4
+synth -top top -noabc -booth
+```
+
+Yosys decomposes word-level comparisons into groups and lookahead logic before general synthesis. `LUT_WIDTH=4` sets the comparison group size. The final implementation uses standard cells from Nangate45. Original primitive-gate netlists use direct mapping without this word-level preparation.
 
 The executable options also honor `YOSYS`, `ABC`, and `OPENSTA` (or `STA`), then search `PATH`. The measured Yosys is `0.63+161` with Git revision prefix `5fd39ff3e`, which supports `synth -booth`. ABC reports version 1.01, compiled March 18, 2026. OpenSTA is 2.0.17. Use the executable hashes in the provenance file for exact binary matching. The runner records the actual hashes and versions of supplied tools, so runs with different tool builds remain distinguishable.
 

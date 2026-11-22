@@ -15,7 +15,7 @@ import subprocess
 import time
 
 HERE = Path(__file__).resolve().parent
-PROFILES = ('timed_original', 'timed_booth')
+PROFILES = ('timed_original', 'timed_cmp_booth')
 
 
 def sha(path):
@@ -70,7 +70,8 @@ def measure(args, case, profile):
     netlist = output / 'mapped.json'
     frontend = 'read_verilog' if original else 'read_json'
     preparation = ('hierarchy -check -top top\nproc\nflatten\nopt\ntechmap\nopt\ncheck -assert'
-                   if original else 'synth -top top -noabc -booth')
+                   if original else 'techmap -map +/cmp2lut.v -map +/cmp2lcu.v -D LUT_WIDTH=4\n'
+                   'synth -top top -noabc -booth')
     script.write_text(f'{frontend} {quote(source)}\n{preparation}\n'
                       f'abc -exe {quote(args.abc)} -liberty {quote(args.liberty)} -D 2000 -constr {quote(HERE / "abc_constraints.constr")}\n'
                       f'clean\nwrite_verilog -noattr -noexpr -simple-lhs {quote(mapped)}\n'

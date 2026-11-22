@@ -1,5 +1,5 @@
 {
-  "reference": "timed_original",
+  "cases": 30,
   "paired_cases": [
     "test01",
     "test02",
@@ -35,32 +35,26 @@
   "metrics": {
     "cell_area_um2": {
       "reference_mean": 2738.387448275862,
-      "optimized_mean": 2690.479931034483,
-      "change_percent": -1.749479142242727,
+      "optimized_mean": 2687.8199310344826,
+      "mean_reduction_percent": 1.2263654957148242,
       "lower": 14,
       "equal": 0,
       "higher": 15
     },
     "max_path_delay_ns": {
       "reference_mean": 1.4980349310344827,
-      "optimized_mean": 1.45265,
-      "change_percent": -3.0296310249015135,
-      "lower": 14,
+      "optimized_mean": 1.4431724137931035,
+      "mean_reduction_percent": 1.2190971641567632,
+      "lower": 16,
       "equal": 0,
-      "higher": 15
+      "higher": 13
     }
   },
-  "both_metrics_lower_or_equal": 6,
-  "optimized": "timed_booth",
-  "cases": 30,
+  "both_metrics_lower_or_equal": 7,
   "original_completed": 29,
-  "optimized_completed": 30,
   "original_timeouts": [
     "test22"
   ],
-  "synthesis_timeout_seconds": 600,
-  "sta_timeout_seconds": 60,
-  "averaging": "Arithmetic means of raw area and delay over exactly the same cases. Relative change = 100*(optimized mean/reference mean - 1).",
-  "correctness_scope": "The retained recovery files have existing strict original-to-recovery proofs. Generic arithmetic lowering is supported by exact identities and 887 bounded SAT rule checks. No new source-hash-bound full-netlist certificate is claimed for the lowered JSON inputs. Native synthesis/mapping is trusted under the user instruction.",
+  "optimized_completed": 30,
   "optimized_timeouts": []
 }

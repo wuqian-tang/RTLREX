@@ -46,3 +46,16 @@ python3 skills/circuit-reverse-rtl/scripts/check_allowed_syntax.py <candidate.v>
 PYTHONPATH=skills/circuit-reverse-rtl/scripts python3 -m verify.cec <reference.v> <candidate.v> --json
 PYTHONPATH=skills/circuit-reverse-rtl/scripts python3 -m rewriting.prune_dead_rtl <candidate.v> --in-place
 ```
+
+## Optional Standard-Cell Synthesis
+
+When the user requests area or delay optimization after recovery, measure a separate synthesis flow. Syntax cost does not predict mapped area or timing. Word-level operands allow synthesis preparation such as symmetric square expansion, signed-digit constant multiplication, and comparator lowering before Boolean mapping.
+
+For a Yosys build that supports Booth synthesis and the comparator templates, one uniform preparation is:
+
+```text
+techmap -map +/cmp2lut.v -map +/cmp2lcu.v -D LUT_WIDTH=4
+synth -top top -noabc -booth
+```
+
+Apply this to native word-level cells before general synthesis. The comparator templates form grouped lookahead logic, which is subsequently mapped to the target standard-cell library. Measure both area and delay from the same mapped implementation under matched library, driver, load, and timing constraints. Gains depend on the circuit and synthesis flow. Keep these synthesis artifacts separate from the verified recovery RTL and its syntax cost.

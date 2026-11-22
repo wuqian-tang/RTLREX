@@ -16,13 +16,14 @@ receipts with source/candidate identities are provided for all 30 cases.
 
 [The PA-30 package](../experiments/pa30-arithmetic/README.md) evaluates all 30
 retained recovered RTL implementations. A uniform arithmetic-aware flow uses
-square symmetry, signed-digit constant multiplication, and Booth encoding.
+square symmetry, signed-digit constant multiplication, grouped comparator
+lowering, and Booth encoding.
 Original gate-level netlists are mapped directly. Both sides use the same
 Nangate45 typical-corner library and driving-cell, load, and mapping-delay
 constraints. Area and delay always come from the same mapped implementation.
 
-The reported paired means use the 29 circuits with completed measurements on
-both sides. The original test22 mapping reaches the 600-second limit, while
+The reported paired means and mean per-benchmark percentage reductions use
+the 29 circuits with completed measurements on both sides. The original test22 mapping reaches the 600-second limit, while
 the recovered implementation completes. Missing measurements are not zeros.
 The chosen synthesis profile is shared across cases, rather than selected
 separately to obtain each case's best area or delay.
