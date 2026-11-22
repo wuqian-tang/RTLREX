@@ -30,7 +30,7 @@
     },
     {
       "path": "skills/circuit-reverse-rtl/references/rtl_rewriting.md",
-      "release_sha256": "bbe415b6c33d87e5ae587e97afd47eb9baa88ed13af5635d3c193c49e9fb0671"
+      "release_sha256": "2ea2a0f840166956bfa0e5c34f8361fcb2b77207be56a72945956d7f6e882187"
     },
     {
       "path": "skills/circuit-reverse-rtl/references/truth_table_workflow.md",
