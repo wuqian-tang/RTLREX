@@ -2,10 +2,14 @@
 
 [Paper](https://arxiv.org/abs/2611.10798) · [PDF](https://arxiv.org/pdf/2611.10798)
 
-RTLREX is an LLM-guided framework for exact high-level RTL recovery from
-combinational gate-level netlists or complete truth tables. An LLM coordinates
+RTLREX is an LLM-guided framework for circuit reverse engineering that recovers
+exact high-level RTL from combinational gate-level netlists or complete truth tables. An LLM coordinates
 function recovery, RTL generation, and cost-guided rewriting using domain-specific
 tools. Independent verification checks candidates against the original input.
+
+The repository includes experimental artifacts for the 2022 ICCAD CAD Contest,
+Problem A ([PA-30](experiments/pa30-arithmetic/README.md)), and the IWLS 2026
+Contest ([TT-100](experiments/tt100-final/README.md)).
 
 The tools and procedures are packaged as an Agent Skill named
 `circuit-reverse-rtl`. Recovery with an LLM requires a separately configured
